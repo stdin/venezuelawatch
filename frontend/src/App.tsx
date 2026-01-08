@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
+import { api } from './lib/api'
 import './App.css'
 
 function App() {
   const [apiStatus, setApiStatus] = useState<string>('checking...')
 
   useEffect(() => {
-    fetch('/api/health/health')
-      .then(res => res.json())
+    api.healthCheck()
       .then(data => setApiStatus(data.status))
       .catch(() => setApiStatus('error'))
   }, [])
