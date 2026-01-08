@@ -130,7 +130,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# For production with GCS (enable when USE_GCS=true in environment)
+USE_GCS = os.getenv('USE_GCS', 'false').lower() == 'true'
+
+if USE_GCS:
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_BUCKET_NAME = 'venezuelawatch-static'
+    GS_DEFAULT_ACL = 'publicRead'
+    STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

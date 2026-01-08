@@ -6,3 +6,5 @@ django-cors-headers
 gunicorn
 dj-database-url
 timescaledb
+django-storages[google]>=1.14
+google-cloud-storage>=2.10
