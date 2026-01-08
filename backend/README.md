@@ -24,12 +24,32 @@ Django 5.2 backend API for the VenezuelaWatch intelligence platform.
    - `DEBUG`: Set to `True` for development, `False` for production
    - `DATABASE_URL`: PostgreSQL connection string (optional, uses SQLite by default)
 
-3. **Run migrations**
+3. **Setup database** (optional for full features)
+
+   The application can run with SQLite for basic development, but PostgreSQL with TimescaleDB is required for production time-series features.
+
+   ### Option 1: Docker (Recommended)
+   ```bash
+   docker run -d --name timescaledb -p 5432:5432 \
+     -e POSTGRES_PASSWORD=password \
+     -e POSTGRES_DB=venezuelawatch \
+     timescale/timescaledb-ha:pg16
+   ```
+
+   ### Option 2: Local PostgreSQL + TimescaleDB
+   - Install PostgreSQL 16
+   - Install TimescaleDB extension: https://docs.timescale.com/install/
+   - Create database: `createdb venezuelawatch`
+   - Enable extension: `psql venezuelawatch -c "CREATE EXTENSION IF NOT EXISTS timescaledb"`
+
+   **Note**: Migration 0002 requires TimescaleDB extension. For testing without TimescaleDB, you can skip it temporarily and use regular PostgreSQL table (not recommended for production).
+
+4. **Run migrations**
    ```bash
    python manage.py migrate
    ```
 
-4. **Start development server**
+5. **Start development server**
    ```bash
    python manage.py runserver
    ```
