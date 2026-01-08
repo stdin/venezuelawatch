@@ -57,6 +57,34 @@ Django 5.2 backend API for the VenezuelaWatch intelligence platform.
 
    # Full database URL
    gcloud secrets versions access latest --secret="database-url"
+
+   # Django secret key
+   gcloud secrets versions access latest --secret="django-secret-key"
+   ```
+
+   **Enable TimescaleDB and run migrations**:
+   ```bash
+   # Install psql client (if not installed)
+   # macOS: brew install postgresql
+
+   # Connect to database as postgres user
+   gcloud sql connect venezuelawatch-db --user=postgres --database=venezuelawatch
+
+   # In psql, enable TimescaleDB extension
+   CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+   GRANT ALL PRIVILEGES ON DATABASE venezuelawatch TO venezuelawatch_app;
+   GRANT ALL ON SCHEMA public TO venezuelawatch_app;
+   \q
+
+   # Back in your shell, run Django migrations
+   cd backend
+   export DATABASE_URL="postgresql://venezuelawatch_app:$(gcloud secrets versions access latest --secret='db-password')@localhost:5432/venezuelawatch"
+   python manage.py migrate
+
+   # Verify TimescaleDB hypertable
+   gcloud sql connect venezuelawatch-db --user=venezuelawatch_app --database=venezuelawatch
+   SELECT * FROM timescaledb_information.hypertables;
+   \q
    ```
 
    ### Option 2: Docker (Local Development)
