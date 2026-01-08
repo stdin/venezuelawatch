@@ -1,0 +1,12 @@
+.git
+.gitignore
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+node_modules/
+.planning/
+frontend/node_modules/
+frontend/dist/
+backend/db.sqlite3

@@ -28,7 +28,38 @@ Django 5.2 backend API for the VenezuelaWatch intelligence platform.
 
    The application can run with SQLite for basic development, but PostgreSQL with TimescaleDB is required for production time-series features.
 
-   ### Option 1: Docker (Recommended)
+   ### Option 1: Cloud SQL (Production)
+
+   VenezuelaWatch uses Google Cloud SQL PostgreSQL 16 for production.
+
+   **Connection Name**: `venezuelawatch-staging:us-central1:venezuelawatch-db`
+
+   **Connect locally via Cloud SQL Proxy**:
+   ```bash
+   # Install Cloud SQL Proxy
+   # macOS: brew install cloud-sql-proxy
+   # Or download from: https://cloud.google.com/sql/docs/postgres/sql-proxy
+
+   # Start proxy (runs in foreground)
+   cloud-sql-proxy venezuelawatch-staging:us-central1:venezuelawatch-db
+
+   # Or start in background
+   cloud-sql-proxy venezuelawatch-staging:us-central1:venezuelawatch-db &
+
+   # Set DATABASE_URL in .env
+   DATABASE_URL=postgresql://venezuelawatch_app:PASSWORD@localhost:5432/venezuelawatch
+   ```
+
+   **Retrieve passwords from Secret Manager**:
+   ```bash
+   # Database password
+   gcloud secrets versions access latest --secret="db-password"
+
+   # Full database URL
+   gcloud secrets versions access latest --secret="database-url"
+   ```
+
+   ### Option 2: Docker (Local Development)
    ```bash
    docker run -d --name timescaledb -p 5432:5432 \
      -e POSTGRES_PASSWORD=password \
@@ -36,7 +67,7 @@ Django 5.2 backend API for the VenezuelaWatch intelligence platform.
      timescale/timescaledb-ha:pg16
    ```
 
-   ### Option 2: Local PostgreSQL + TimescaleDB
+   ### Option 3: Local PostgreSQL + TimescaleDB
    - Install PostgreSQL 16
    - Install TimescaleDB extension: https://docs.timescale.com/install/
    - Create database: `createdb venezuelawatch`
