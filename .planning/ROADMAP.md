@@ -100,6 +100,7 @@ Plans:
 
 Plans:
 - [x] 07-01: Backend Chat API with Claude Streaming (POST /api/chat, SSE streaming, 4 tools for data access)
+- [x] 07-02: assistant-ui React Integration (custom runtime, SSE streaming, ChatProvider component)
 
 ## Progress
 
@@ -111,4 +112,4 @@ Plans:
 | 4. Risk Intelligence Core | 4/4 | Complete | 2026-01-09 |
 | 5. Dashboard & Events Feed | 4/4 | Complete | 2026-01-09 |
 | 6. Entity Watch | 4/4 | Complete | 2026-01-09 |
-| 7. AI Chat Interface | 1/4 | In progress | - |
+| 7. AI Chat Interface | 2/4 | In progress | - |

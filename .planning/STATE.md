@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 7 of 7 (AI Chat Interface)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-08 — Completed 07-01-PLAN.md (Backend Chat API with Claude Streaming)
+Last activity: 2026-01-08 — Completed 07-02-PLAN.md (assistant-ui React integration)
 
-Progress: █████████░ 96%
+Progress: █████████░ 97%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
-- Average duration: 14 min
-- Total execution time: 5.17 hours
+- Total plans completed: 22
+- Average duration: 13 min
+- Total execution time: 5.2 hours
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Progress: █████████░ 96%
 | 3 | 4 | 195 min | 49 min |
 | 4 | 4 | 26 min | 7 min |
 | 6 | 4 | 23 min | 6 min |
-| 7 | 1 | 8 min | 8 min |
+| 7 | 2 | 10 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 5min, 6min, 8min, 8min
+- Last 5 plans: 6min, 8min, 8min, 2min
 - Trend: Very fast (mature infrastructure)
 
 ## Accumulated Context
@@ -121,6 +121,10 @@ Recent decisions affecting current work:
 - Phase 7: Fuzzy entity matching in get_entity_profile using RapidFuzz (threshold 0.75)
 - Phase 7: Tool results passed back to Claude as JSON in conversation context
 - Phase 7: SSE format: 'data: {json}\n\n' for each chunk with type field (content, tool_use, done, error)
+- Phase 7: useExternalStoreRuntime pattern for custom Django backend (not Vercel AI SDK)
+- Phase 7: fetch() with ReadableStream for SSE parsing (not EventSource API)
+- Phase 7: Accumulate text chunks in single assistant message (not separate messages)
+- Phase 7: ChatProvider wraps AssistantRuntimeProvider with custom runtime
 
 ### Deferred Issues
 
@@ -136,7 +140,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-08
-Stopped at: Completed 07-01-PLAN.md (Backend Chat API with Claude Streaming)
+Stopped at: Completed 07-02-PLAN.md (assistant-ui React integration)
 Resume file: None
 
-Note: Phase 7 AI Chat Interface started - Plan 1 of 4 complete (backend API with tool calling)
+Note: Phase 7 AI Chat Interface in progress - Plan 2 of 4 complete (frontend runtime with SSE streaming)
