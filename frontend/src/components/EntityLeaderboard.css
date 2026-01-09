@@ -1,0 +1,159 @@
+.entity-leaderboard-container {
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+.entity-leaderboard-inner {
+  width: 100%;
+  position: relative;
+}
+
+.entity-leaderboard-empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 14px;
+}
+
+.virtual-item {
+  padding: 0 0.5rem;
+}
+
+/* Entity row */
+.entity-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.entity-row:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--text-tertiary);
+  box-shadow: var(--shadow-md);
+}
+
+.entity-row-selected {
+  border-left: 4px solid var(--risk-high);
+  background: #fef3f2;
+  padding-left: 13px;
+}
+
+/* Rank badge */
+.entity-rank {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+}
+
+.rank-number {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Entity info */
+.entity-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.entity-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entity-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+
+/* Entity type badges */
+.entity-type-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  color: white;
+}
+
+.entity-type-badge.entity-type-person {
+  background: #3b82f6; /* Blue */
+}
+
+.entity-type-badge.entity-type-org {
+  background: #8b5cf6; /* Purple */
+}
+
+.entity-type-badge.entity-type-gov {
+  background: #ef4444; /* Red */
+}
+
+.entity-type-badge.entity-type-location {
+  background: #10b981; /* Green */
+}
+
+.entity-type-badge.entity-type-default {
+  background: var(--text-tertiary);
+}
+
+.entity-mentions {
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+/* Metric value */
+.entity-metric {
+  flex-shrink: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 80px;
+  text-align: right;
+}
+
+/* Scrollbar styling */
+.entity-leaderboard-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.entity-leaderboard-container::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.entity-leaderboard-container::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: 4px;
+}
+
+.entity-leaderboard-container::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
