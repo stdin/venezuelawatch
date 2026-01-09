@@ -15,6 +15,7 @@ import pandas as pd
 from data_pipeline.tasks.base import BaseIngestionTask
 from data_pipeline.services.fred_client import FREDClient
 from data_pipeline.services.event_mapper import map_fred_to_event
+from data_pipeline.services.economic_events import detect_threshold_events
 from data_pipeline.config.fred_series import (
     get_all_series_ids,
     get_series_config,
@@ -151,13 +152,29 @@ def ingest_single_series(
             try:
                 event = map_fred_to_event(observation, series_config)
 
-                # Save to database
+                # Detect threshold breaches
+                threshold_alerts = detect_threshold_events(
+                    series_id=series_id,
+                    current_value=float(value),
+                    previous_value=previous_value,
+                    config=series_config,
+                    observation_date=obs_date,
+                )
+
+                # Save to database (observation + any alerts)
                 with transaction.atomic():
                     event.save()
                     observations_created += 1
                     logger.debug(
                         f"Created FRED event: {series_id} = {value} on {obs_date}"
                     )
+
+                    # Save threshold alert events
+                    for alert in threshold_alerts:
+                        alert.save()
+                        logger.info(
+                            f"Created threshold alert: {alert.title}"
+                        )
 
             except Exception as e:
                 logger.error(
