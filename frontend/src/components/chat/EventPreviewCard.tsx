@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { makeAssistantToolUI } from '@assistant-ui/react'
-import './EventPreviewCard.css'
+import { Card, Badge, Text, Group, Stack, Button } from '@mantine/core'
+import { format } from 'date-fns'
 
 /**
  * Types matching backend search_events tool
@@ -31,34 +32,38 @@ interface SearchEventsResult {
 }
 
 /**
- * Get risk score color class based on value
+ * Get risk score Badge color based on value
  */
-function getRiskScoreClass(score: number): string {
-  if (score >= 70) return 'risk-critical'
-  if (score >= 40) return 'risk-high'
-  return 'risk-low'
+function getRiskScoreColor(score: number): string {
+  if (score >= 75) return 'red'
+  if (score >= 50) return 'orange'
+  return 'blue'
 }
 
 /**
- * Get severity display info
+ * Get severity Badge color
  */
-function getSeverityInfo(severity: string): { label: string; className: string } {
-  const severityMap: Record<string, { label: string; className: string }> = {
-    SEV1_CRITICAL: { label: 'SEV1', className: 'severity-critical' },
-    SEV2_HIGH: { label: 'SEV2', className: 'severity-high' },
-    SEV3_MEDIUM: { label: 'SEV3', className: 'severity-medium' },
-    SEV4_LOW: { label: 'SEV4', className: 'severity-low' },
-    SEV5_MINIMAL: { label: 'SEV5', className: 'severity-minimal' },
+function getSeverityColor(severity: string): string {
+  if (severity === 'SEV1_CRITICAL') return 'red'
+  if (severity === 'SEV2_HIGH') return 'orange'
+  if (severity === 'SEV3_MEDIUM') return 'yellow'
+  if (severity === 'SEV4_LOW') return 'blue'
+  if (severity === 'SEV5_MINIMAL') return 'gray'
+  return 'gray'
+}
+
+/**
+ * Get severity display label
+ */
+function getSeverityLabel(severity: string): string {
+  const severityMap: Record<string, string> = {
+    SEV1_CRITICAL: 'SEV1',
+    SEV2_HIGH: 'SEV2',
+    SEV3_MEDIUM: 'SEV3',
+    SEV4_LOW: 'SEV4',
+    SEV5_MINIMAL: 'SEV5',
   }
-  return severityMap[severity] || { label: severity, className: 'severity-medium' }
-}
-
-/**
- * Format date for display
- */
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  return severityMap[severity] || severity
 }
 
 /**
@@ -66,45 +71,50 @@ function formatDate(dateStr: string): string {
  */
 function EventItem({ event }: { event: SearchEventsResult['events'][0] }) {
   const [isExpanded, setIsExpanded] = useState(false)
-  const riskClass = getRiskScoreClass(event.risk_score)
-  const severityInfo = getSeverityInfo(event.severity)
 
   return (
-    <div className="event-preview-item">
-      {/* Compact view - always visible */}
-      <div className="event-preview-header">
-        <div className="event-preview-title-row">
-          <h4 className="event-preview-title">
+    <Card size="sm" padding="xs" withBorder>
+      <Stack gap="xs">
+        {/* Title and badges */}
+        <Group justify="space-between" wrap="nowrap">
+          <Text size="sm" fw={500} lineClamp={isExpanded ? undefined : 1}>
             {event.title}
-          </h4>
-        </div>
-        <div className="event-preview-meta">
-          <span className="event-preview-date">{formatDate(event.date)}</span>
-          <span className={`badge badge-source`}>{event.source}</span>
-          <span className={`badge badge-risk ${riskClass}`}>
+          </Text>
+        </Group>
+
+        {/* Metadata row */}
+        <Group gap="xs">
+          <Text size="xs" c="dimmed">
+            {format(new Date(event.date), 'MMM d, yyyy')}
+          </Text>
+          <Badge size="sm" variant="light">
+            {event.source}
+          </Badge>
+          <Badge size="sm" color={getRiskScoreColor(event.risk_score)}>
             {Math.round(event.risk_score)}
-          </span>
-          <span className={`badge badge-severity ${severityInfo.className}`}>
-            {severityInfo.label}
-          </span>
-        </div>
-      </div>
+          </Badge>
+          <Badge size="sm" color={getSeverityColor(event.severity)}>
+            {getSeverityLabel(event.severity)}
+          </Badge>
+        </Group>
 
-      {/* Expanded view - conditional */}
-      {isExpanded && (
-        <div className="event-preview-details">
-          <p className="event-preview-summary">{event.summary}</p>
-        </div>
-      )}
+        {/* Expanded summary */}
+        {isExpanded && (
+          <Text size="xs" c="dimmed">
+            {event.summary}
+          </Text>
+        )}
 
-      {/* Toggle button */}
-      <button
-        className="event-preview-toggle"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        {isExpanded ? 'Collapse' : 'Show details'}
-      </button>
-    </div>
+        {/* Toggle button */}
+        <Button
+          variant="subtle"
+          size="xs"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          {isExpanded ? 'Collapse' : 'Show details'}
+        </Button>
+      </Stack>
+    </Card>
   )
 }
 
@@ -115,28 +125,31 @@ function EventItem({ event }: { event: SearchEventsResult['events'][0] }) {
 const EventPreviewCardContent = ({ result }: { result: SearchEventsResult }) => {
   if (!result.events || result.events.length === 0) {
     return (
-      <div className="event-preview-empty">
+      <Text size="sm" c="dimmed">
         No events found for the specified criteria.
-      </div>
+      </Text>
     )
   }
 
   return (
-    <div className="event-preview-card">
-      <div className="event-preview-card-header">
-        <h3 className="event-preview-card-title">Found {result.count} Events</h3>
+    <Stack gap="xs">
+      {/* Header */}
+      <Group justify="space-between">
+        <Text size="sm" fw={600}>Found {result.count} Events</Text>
         {result.date_range && (
-          <span className="event-preview-date-range">
-            {formatDate(result.date_range.from)} - {formatDate(result.date_range.to)}
-          </span>
+          <Text size="xs" c="dimmed">
+            {format(new Date(result.date_range.from), 'MMM d, yyyy')} - {format(new Date(result.date_range.to), 'MMM d, yyyy')}
+          </Text>
         )}
-      </div>
-      <div className="event-preview-list">
+      </Group>
+
+      {/* Event list */}
+      <Stack gap="xs">
         {result.events.map((event) => (
           <EventItem key={event.id} event={event} />
         ))}
-      </div>
-    </div>
+      </Stack>
+    </Stack>
   )
 }
 
