@@ -1,8 +1,10 @@
 import type { Preview } from '@storybook/react-vite'
 import { useEffect } from 'react'
+import { MantineProvider } from '@mantine/core'
+import '@mantine/core/styles.css'
 import '../src/styles/global.css'
 
-// Decorator to enable theme switching in stories
+// Decorator to enable theme switching in stories and Mantine provider
 const withTheme = (Story, context) => {
   const theme = context.globals.theme || 'light';
 
@@ -10,7 +12,11 @@ const withTheme = (Story, context) => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
-  return <Story />;
+  return (
+    <MantineProvider>
+      <Story />
+    </MantineProvider>
+  );
 };
 
 const preview: Preview = {

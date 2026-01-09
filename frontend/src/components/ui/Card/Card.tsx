@@ -1,132 +1,94 @@
 import * as React from 'react';
-import { clsx } from 'clsx';
+import { Card as MantineCard, Title, Text } from '@mantine/core';
 
 // Card Root - Main container
-export interface CardRootProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface CardRootProps {
+  children?: React.ReactNode;
+  className?: string;
+}
 
 const CardRoot = React.forwardRef<HTMLDivElement, CardRootProps>(
-  ({ className, ...props }, ref) => {
+  ({ children, ...props }, ref) => {
     return (
-      <div
-        ref={ref}
-        className={clsx(
-          'bg-[var(--color-bg-surface)]',
-          'border',
-          'border-[var(--color-border-default)]',
-          'rounded-[var(--radius-md)]',
-          'shadow-[var(--shadow-sm)]',
-          className
-        )}
-        {...props}
-      />
+      <MantineCard shadow="sm" padding="lg" radius="md" withBorder ref={ref} {...props}>
+        {children}
+      </MantineCard>
     );
   }
 );
 CardRoot.displayName = 'Card.Root';
 
 // Card Header - Optional header section
-export interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface CardHeaderProps {
+  children?: React.ReactNode;
+}
 
 const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
-  ({ className, ...props }, ref) => {
+  ({ children }, ref) => {
     return (
-      <div
-        ref={ref}
-        className={clsx(
-          'flex',
-          'flex-col',
-          'gap-[var(--spacing-xs)]',
-          'p-[var(--spacing-lg)]',
-          'pb-[var(--spacing-md)]',
-          className
-        )}
-        {...props}
-      />
+      <div ref={ref} style={{ marginBottom: '16px' }}>
+        {children}
+      </div>
     );
   }
 );
 CardHeader.displayName = 'Card.Header';
 
 // Card Title - Title with heading semantics
-export interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {}
+export interface CardTitleProps {
+  children?: React.ReactNode;
+}
 
 const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
-  ({ className, ...props }, ref) => {
+  ({ children }, ref) => {
     return (
-      <h3
-        ref={ref}
-        className={clsx(
-          'text-[length:var(--font-size-lg)]',
-          'font-semibold',
-          'leading-none',
-          'tracking-tight',
-          'text-[var(--color-text-primary)]',
-          className
-        )}
-        {...props}
-      />
+      <Title order={3} ref={ref as any}>
+        {children}
+      </Title>
     );
   }
 );
 CardTitle.displayName = 'Card.Title';
 
 // Card Description - Subtitle/description text
-export interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {}
+export interface CardDescriptionProps {
+  children?: React.ReactNode;
+}
 
 const CardDescription = React.forwardRef<HTMLParagraphElement, CardDescriptionProps>(
-  ({ className, ...props }, ref) => {
+  ({ children }, ref) => {
     return (
-      <p
-        ref={ref}
-        className={clsx(
-          'text-[length:var(--font-size-sm)]',
-          'text-[var(--color-text-secondary)]',
-          className
-        )}
-        {...props}
-      />
+      <Text size="sm" c="dimmed" ref={ref as any}>
+        {children}
+      </Text>
     );
   }
 );
 CardDescription.displayName = 'Card.Description';
 
 // Card Content - Main content area
-export interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface CardContentProps {
+  children?: React.ReactNode;
+}
 
 const CardContent = React.forwardRef<HTMLDivElement, CardContentProps>(
-  ({ className, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={clsx(
-          'p-[var(--spacing-lg)]',
-          'pt-0',
-          className
-        )}
-        {...props}
-      />
-    );
+  ({ children }, ref) => {
+    return <div ref={ref}>{children}</div>;
   }
 );
 CardContent.displayName = 'Card.Content';
 
 // Card Footer - Optional footer section
-export interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface CardFooterProps {
+  children?: React.ReactNode;
+}
 
 const CardFooter = React.forwardRef<HTMLDivElement, CardFooterProps>(
-  ({ className, ...props }, ref) => {
+  ({ children }, ref) => {
     return (
-      <div
-        ref={ref}
-        className={clsx(
-          'flex',
-          'items-center',
-          'p-[var(--spacing-lg)]',
-          'pt-0',
-          className
-        )}
-        {...props}
-      />
+      <div ref={ref} style={{ marginTop: '16px', display: 'flex', alignItems: 'center' }}>
+        {children}
+      </div>
     );
   }
 );
