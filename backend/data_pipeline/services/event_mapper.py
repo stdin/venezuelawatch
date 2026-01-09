@@ -23,7 +23,7 @@ def map_gdelt_to_event(gdelt_record: Dict[str, Any]) -> Event:
     - url: Article URL
     - url_mobile: Mobile URL
     - title: Article title
-    - seendate: When GDELT first saw this article (YYYYMMDDHHmmss format)
+    - seendate: When GDELT first saw this article (ISO 8601: YYYYMMDDTHHmmssZ)
     - socialimage: Social media preview image
     - domain: Domain name
     - language: Language code
@@ -35,11 +35,12 @@ def map_gdelt_to_event(gdelt_record: Dict[str, Any]) -> Event:
     Returns:
         Event instance (not saved to database)
     """
-    # Parse GDELT seendate format: YYYYMMDDHHmmss
+    # Parse GDELT seendate format: 20251106T070000Z (ISO 8601)
     seendate_str = gdelt_record.get('seendate', '')
     try:
         if seendate_str:
-            timestamp = datetime.strptime(seendate_str, '%Y%m%d%H%M%S')
+            # GDELT uses ISO 8601 basic format: YYYYMMDDTHHmmssZ
+            timestamp = datetime.strptime(seendate_str, '%Y%m%dT%H%M%SZ')
             timestamp = timezone.make_aware(timestamp, timezone.utc)
         else:
             timestamp = timezone.now()
