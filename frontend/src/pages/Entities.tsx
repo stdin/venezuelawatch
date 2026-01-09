@@ -72,11 +72,6 @@ export function Entities() {
               />
             </Stack>
 
-            {/* Loading state */}
-            {loading && !entities.length && (
-              <div className="loading-state">Loading entities...</div>
-            )}
-
             {/* Error state */}
             {error && (
               <div className="error-state">
@@ -85,23 +80,14 @@ export function Entities() {
               </div>
             )}
 
-            {/* Empty state */}
-            {!loading && !error && entities.length === 0 && (
-              <div className="empty-state">No entities found for this metric</div>
-            )}
-
-            {/* Entity list */}
-            {entities.length > 0 && (
+            {/* Entity list with loading state */}
+            {!error && (
               <EntityLeaderboard
                 entities={entities}
                 selectedId={selectedEntityId}
                 onSelect={setSelectedEntityId}
+                loading={loading && entities.length === 0}
               />
-            )}
-
-            {/* Loading overlay for updates */}
-            {loading && entities.length > 0 && (
-              <div className="loading-overlay">Updating...</div>
             )}
           </Stack>
         </Grid.Col>
