@@ -77,25 +77,54 @@ class ComtradeClient:
             - flowCode, primaryValue, netWeight, quantityUnit
         """
         try:
-            # Comtradeapicall library uses different method based on parameters
-            # Note: Library API may vary by version, using basic approach
+            # Build request parameters for comtradeapicall.previewFinalData
+            # Function signature: (typeCode, freqCode, clCode, period, reporterCode,
+            #                      cmdCode, flowCode, partnerCode, partner2Code,
+            #                      customsCode, motCode, maxRecords, ...)
 
-            # Build request parameters
-            params = {
-                'r': reporter,  # Reporter country
-                'p': partner,   # Partner country
-                'ps': period if period else 'recent',  # Period
-                'px': commodity,  # Commodity code (px = HS classification)
-                'rg': flow_code,  # Flow code (M=import, X=export)
-            }
+            # Convert ISO3 country codes to numeric codes
+            # Comtrade API requires numeric country codes
+            if reporter and reporter != 'all':
+                try:
+                    reporter_numeric = comtradeapicall.convertCountryIso3ToCode(reporter)
+                except:
+                    # Fallback: Venezuela = 862
+                    reporter_numeric = '862' if reporter.upper() == 'VEN' else reporter
+            else:
+                reporter_numeric = reporter
 
-            # Add API key if available
-            if self.api_key:
-                params['token'] = self.api_key
+            if partner and partner != 'all':
+                try:
+                    partner_numeric = comtradeapicall.convertCountryIso3ToCode(partner)
+                except:
+                    partner_numeric = partner
+            else:
+                # Use '0' for 'World' (all partners)
+                partner_numeric = '0'
 
-            # Fetch data using comtradeapicall
-            # The library's previewFinalData function returns a DataFrame
-            df = comtradeapicall.previewFinalData(**params)
+            # Determine period format
+            if period:
+                # Use provided period
+                period_str = str(period)
+            else:
+                # Use 'now' for most recent
+                period_str = 'now'
+
+            # Call previewFinalData with positional arguments
+            df = comtradeapicall.previewFinalData(
+                typeCode='C',                # C = Commodities
+                freqCode='M',                # M = Monthly
+                clCode='HS',                 # HS = Harmonized System classification
+                period=period_str,           # Period in YYYYMM format or 'now'
+                reporterCode=reporter_numeric,  # Numeric reporter country code
+                cmdCode=commodity,           # Commodity HS code (e.g., '2709' for crude oil)
+                flowCode=flow_code,          # M = imports, X = exports
+                partnerCode=partner_numeric, # Numeric partner code or '0' for World
+                partner2Code=None,           # Second partner (not used)
+                customsCode=None,            # Customs procedure (not used)
+                motCode=None,                # Mode of transport (not used)
+                maxRecords=None,             # No limit on records
+            )
 
             if df is None or len(df) == 0:
                 logger.warning(f"No trade data found for {reporter}, period={period}, commodity={commodity}")
