@@ -82,12 +82,9 @@ class BaseIngestionTask(Task):
 
         Raises:
             ValueError: If credential not found
-
-        Note:
-            Implementation will be completed in Task 3 when Secret Manager
-            integration is added. For now, raises NotImplementedError.
         """
-        # Placeholder - will be implemented in Task 3
-        raise NotImplementedError(
-            "get_api_credential will be implemented when Secret Manager integration is added"
-        )
+        from data_pipeline.services.secrets import SecretManagerClient
+
+        client = SecretManagerClient()
+        secret_id = f'api-{key_name}'
+        return client.get_secret(secret_id)

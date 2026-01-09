@@ -200,3 +200,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'default'
+
+# GCP Secret Manager Configuration
+GCP_PROJECT_ID = os.environ.get('GCP_PROJECT_ID', 'venezuelawatch-staging')
+SECRET_MANAGER_ENABLED = os.environ.get('SECRET_MANAGER_ENABLED', 'False').lower() == 'true'
