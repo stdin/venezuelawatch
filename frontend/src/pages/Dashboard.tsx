@@ -34,10 +34,6 @@ export function Dashboard() {
         <Grid.Col span={{ base: 12, md: 6 }}>
           <FilterBar filters={filters} onFiltersChange={handleFiltersChange} />
 
-          {loading && !events && (
-            <div className="loading-state">Loading events...</div>
-          )}
-
           {error && (
             <div className="error-state">
               <h2>Error Loading Events</h2>
@@ -49,16 +45,13 @@ export function Dashboard() {
             <div className="empty-state">No events found with current filters</div>
           )}
 
-          {events && events.length > 0 && (
+          {!error && (
             <EventList
-              events={events}
+              events={events || []}
               selectedEventId={selectedEventId}
               onSelectEvent={setSelectedEventId}
+              loading={loading && !events}
             />
-          )}
-
-          {loading && events && (
-            <div className="loading-overlay">Updating...</div>
           )}
         </Grid.Col>
 
