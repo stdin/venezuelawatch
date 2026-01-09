@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { MantineProvider } from '@mantine/core'
 import '@mantine/core/styles.css'
 import '../src/styles/global.css'
+import { theme as mantineTheme } from '../src/theme'
 
 // Decorator to enable theme switching in stories and Mantine provider
 const withTheme = (Story, context) => {
@@ -13,7 +14,7 @@ const withTheme = (Story, context) => {
   }, [theme]);
 
   return (
-    <MantineProvider>
+    <MantineProvider theme={mantineTheme}>
       <Story />
     </MantineProvider>
   );
@@ -45,7 +46,7 @@ const preview: Preview = {
       // 'todo' - show a11y violations in the test UI only
       // 'error' - fail CI on a11y violations
       // 'off' - skip a11y checks entirely
-      test: 'todo'
+      test: 'error'
     }
   },
   globalTypes: {

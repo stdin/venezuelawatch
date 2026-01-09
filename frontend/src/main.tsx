@@ -6,10 +6,11 @@ import App from './App.tsx'
 import { AuthProvider } from './contexts/AuthContext.tsx'
 import { MantineProvider } from '@mantine/core'
 import '@mantine/core/styles.css'
+import { theme } from './theme'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <MantineProvider>
+    <MantineProvider theme={theme}>
       <AuthProvider>
         <App />
       </AuthProvider>
