@@ -15,7 +15,7 @@ None
 - [x] **Phase 3: Data Pipeline Architecture** - Ingestion framework for 5 data sources with mixed latency
 - [x] **Phase 4: Risk Intelligence Core** - Risk scoring engine for sanctions, political, supply chain disruptions
 - [x] **Phase 5: Dashboard & Events Feed** - Real-time event aggregation, filtering, search, sentiment
-- [ ] **Phase 6: Entity Watch** - Track people/companies/governments with mentions, relationships, sanctions
+- [x] **Phase 6: Entity Watch** - Track people/companies/governments with mentions, relationships, sanctions
 - [ ] **Phase 7: AI Chat Interface** - assistant-ui integration for natural language queries and reports
 
 ## Phase Details
@@ -89,7 +89,7 @@ Plans:
 - [x] 06-01: Entity Models & Fuzzy Matching Service (Entity/EntityMention models, RapidFuzz JaroWinkler, EntityService)
 - [x] 06-02: Entity Extraction Celery Task (LLM entity extraction, linking to events, backfill, TrendingService)
 - [x] 06-03: Entity API & Trending Endpoints (REST API with trending, profiles, timelines, OpenAPI docs)
-- [ ] 06-04: Entity Detail View & Dashboard Integration (Entity profiles, mention timeline, relationship graph)
+- [x] 06-04: Frontend Entity Leaderboard & Profiles (React dashboard with metric toggles, virtualized lists, navigation)
 
 ### Phase 7: AI Chat Interface
 **Goal**: Integrate assistant-ui for natural language queries across data sources, event explanation, and report generation
@@ -110,5 +110,5 @@ Plans:
 | 3. Data Pipeline Architecture | 4/4 | Complete | 2026-01-08 |
 | 4. Risk Intelligence Core | 4/4 | Complete | 2026-01-09 |
 | 5. Dashboard & Events Feed | 4/4 | Complete | 2026-01-09 |
-| 6. Entity Watch | 3/4 | In progress | - |
+| 6. Entity Watch | 4/4 | Complete | 2026-01-09 |
 | 7. AI Chat Interface | 0/TBD | Not started | - |

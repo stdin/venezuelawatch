@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 6 of 7 (Entity Watch)
-Plan: 3 of 4 in current phase
-Status: In progress
-Last activity: 2026-01-09 — Completed 06-03-PLAN.md (Entity API & Trending Endpoints)
+Plan: 4 of 4 in current phase
+Status: Phase complete
+Last activity: 2026-01-09 — Completed 06-04-PLAN.md (Frontend Entity Leaderboard & Profiles)
 
-Progress: █████████░ 90%
+Progress: █████████░ 95%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 20
 - Average duration: 15 min
-- Total execution time: 4.91 hours
+- Total execution time: 5.04 hours
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: █████████░ 90%
 | 2 | 4 | 24 min | 6 min |
 | 3 | 4 | 195 min | 49 min |
 | 4 | 4 | 26 min | 7 min |
-| 6 | 3 | 15 min | 5 min |
+| 6 | 4 | 23 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 7min, 4min, 5min, 6min
+- Last 5 plans: 4min, 5min, 6min, 8min
 - Trend: Very fast (mature infrastructure)
 
 ## Accumulated Context
@@ -108,6 +108,11 @@ Recent decisions affecting current work:
 - Phase 6: Metric toggle pattern for trending (mentions/risk/sanctions in single endpoint)
 - Phase 6: Profile aggregation on-the-fly (no denormalization for sanctions/risk)
 - Phase 6: OpenAPI automatic documentation for entity endpoints
+- Phase 6: Split-view layout (40% leaderboard, 60% profile) for entity dashboard
+- Phase 6: Metric toggle pattern with radio-style buttons for UI controls
+- Phase 6: Entity type badge colors (Person=blue, Organization=purple, Government=red, Location=green)
+- Phase 6: React Router for SPA navigation with tab-style UI
+- Phase 6: Virtualized leaderboard using @tanstack/react-virtual for performance
 
 ### Deferred Issues
 
@@ -123,7 +128,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-09
-Stopped at: Completed 06-03-PLAN.md (Entity API & Trending Endpoints)
+Stopped at: Completed 06-04-PLAN.md (Frontend Entity Leaderboard & Profiles)
 Resume file: None
 
-Note: Phase 6 Entity Watch in progress - 3 of 4 plans complete (entity models, extraction pipeline, API endpoints)
+Note: Phase 6 Entity Watch complete - all 4 plans delivered (entity models, extraction pipeline, API endpoints, dashboard UI)
