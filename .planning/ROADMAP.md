@@ -8,110 +8,183 @@ VenezuelaWatch begins with infrastructure and authentication, then builds a mult
 
 None
 
+## Milestones
+
+- ✅ **v1.0 MVP** - Phases 1-7 (shipped 2026-01-09)
+- 🚧 **v1.1 UI/UX Overhaul** - Phases 8-13 (in progress)
+
 ## Phases
 
-- [x] **Phase 1: Foundation & Infrastructure** - Django + React project setup, GCP infrastructure, database schema
-- [x] **Phase 2: Authentication & User Management** - django-allauth integration, user accounts, frontend shell
-- [x] **Phase 3: Data Pipeline Architecture** - Ingestion framework for 5 data sources with mixed latency
-- [x] **Phase 4: Risk Intelligence Core** - Risk scoring engine for sanctions, political, supply chain disruptions
-- [x] **Phase 5: Dashboard & Events Feed** - Real-time event aggregation, filtering, search, sentiment
-- [x] **Phase 6: Entity Watch** - Track people/companies/governments with mentions, relationships, sanctions
-- [x] **Phase 7: AI Chat Interface** - assistant-ui integration for natural language queries and reports
-
-## Phase Details
+<details>
+<summary>✅ v1.0 MVP (Phases 1-7) - SHIPPED 2026-01-09</summary>
 
 ### Phase 1: Foundation & Infrastructure
 **Goal**: Establish Django 5.2 + React 18 project structure on GCP with database and basic API framework
 **Depends on**: Nothing (first phase)
 **Research**: Likely (GCP setup, Django 5.2 + React 18 integration patterns)
 **Research topics**: Django 5.2 best practices, django-ninja API patterns, GCP Cloud Run/Functions for Django, React 18 + Django integration, database choice for time-series event data
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] TBD during phase planning
+- [x] 01-01: Django + React Project Setup
+- [x] 01-02: GCP Infrastructure & Database
+- [x] 01-03: Basic API Framework with django-ninja
+- [x] 01-04: Event Model & TimescaleDB Integration
 
 ### Phase 2: Authentication & User Management
 **Goal**: Implement user authentication with django-allauth, user model supporting future teams
 **Depends on**: Phase 1
 **Research**: Likely (django-allauth configuration, team architecture planning)
 **Research topics**: django-allauth with django-ninja, JWT vs session auth for React SPA, user model design supporting future teams
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] TBD during phase planning
+- [x] 02-01: Custom User Model & django-allauth Setup
+- [x] 02-02: Session Authentication Integration
+- [x] 02-03: Frontend Auth Shell & API Client
+- [x] 02-04: User Registration & Login UI
 
 ### Phase 3: Data Pipeline Architecture
 **Goal**: Build ingestion framework for 7 external APIs (GDELT, FRED, UN Comtrade, World Bank, ReliefWeb, USITC, Port Authorities) with mixed latency requirements
 **Depends on**: Phase 1
 **Research**: Completed (DISCOVERY.md)
 **Research topics**: GDELT API, FRED API, UN Comtrade API, World Bank API, ReliefWeb API, USITC API, Port Authority APIs, GCP Pub/Sub vs Cloud Tasks for ingestion scheduling, rate limiting strategies
-**Plans**: 4 plans (infrastructure, real-time, daily batch, monthly/quarterly)
+**Plans**: 4 plans
 
 Plans:
-- [x] 03-01: Celery + Redis Infrastructure Setup (Celery, Redis, django-celery-results, GCP Memorystore, Secret Manager)
-- [x] 03-02: Real-Time Ingestion - GDELT + ReliefWeb (15-min polling, daily updates, Celery Beat, Cloud Scheduler)
-- [x] 03-03: Daily Batch Ingestion - FRED Economic Data (fredapi, economic indicators, threshold events)
-- [x] 03-04: Monthly/Quarterly Ingestion - UN Comtrade + World Bank (trade flows, development indicators)
+- [x] 03-01: Celery + Redis Infrastructure Setup
+- [x] 03-02: Real-Time Ingestion - GDELT + ReliefWeb
+- [x] 03-03: Daily Batch Ingestion - FRED Economic Data
+- [x] 03-04: Monthly/Quarterly Ingestion - UN Comtrade + World Bank
 
 ### Phase 4: Risk Intelligence Core
 **Goal**: Implement risk scoring system for sanctions changes, political disruptions, supply chain events
 **Depends on**: Phase 3
 **Research**: Completed (04-RESEARCH.md)
 **Research topics**: Risk scoring methodologies, OFAC sanctions list APIs, event impact classification, risk aggregation patterns
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [x] 04-01: Sanctions Screening Integration (OpenSanctions/OFAC API, SanctionsMatch model, daily refresh task)
-- [x] 04-02: Multi-Dimensional Risk Aggregation (RiskAggregator service, event-type-specific weights, comprehensive scoring)
-- [x] 04-03: Event Severity Classification (ImpactClassifier, NCISS-style weighted criteria, SEV1-5 levels)
-- [x] 04-04: Risk Intelligence API & Dashboard Integration (REST API endpoints, bulk operations, documentation)
+- [x] 04-01: Sanctions Screening Integration
+- [x] 04-02: Multi-Dimensional Risk Aggregation
+- [x] 04-03: Event Severity Classification
+- [x] 04-04: Risk Intelligence API & Dashboard Integration
 
 ### Phase 5: Dashboard & Events Feed
 **Goal**: Build React dashboard with real-time event aggregation, filtering, search, and sentiment analysis
 **Depends on**: Phase 4
 **Research**: Unlikely (standard React patterns once data pipeline exists)
-**Plans**: 4 plans (event list, detail view, dashboard layout, trends)
+**Plans**: 4 plans
 
 Plans:
-- [x] 05-01: Event List Component with Real-Time Filtering (EventList, EventCard, FilterBar with URL sync)
-- [x] 05-02: Event Detail View with Risk Visualization (EventDetail component, risk score visualization, data extraction)
-- [x] 05-03: Dashboard Layout Integration (App.tsx integration, routing, shared state)
-- [x] 05-04: Trends Panel with Time-Series Risk Analysis (TrendsPanel, risk trends over time, Chart.js integration)
+- [x] 05-01: Event List Component with Real-Time Filtering
+- [x] 05-02: Event Detail View with Risk Visualization
+- [x] 05-03: Dashboard Layout Integration
+- [x] 05-04: Trends Panel with Time-Series Risk Analysis
 
 ### Phase 6: Entity Watch
 **Goal**: Implement entity tracking for people, companies, governments with news mentions, relationships, sanctions status, and activities
 **Depends on**: Phase 5
 **Research**: Likely (entity extraction, relationship mapping)
 **Research topics**: Named entity recognition for news, relationship graph modeling, sanctions list integration
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [x] 06-01: Entity Models & Fuzzy Matching Service (Entity/EntityMention models, RapidFuzz JaroWinkler, EntityService)
-- [x] 06-02: Entity Extraction Celery Task (LLM entity extraction, linking to events, backfill, TrendingService)
-- [x] 06-03: Entity API & Trending Endpoints (REST API with trending, profiles, timelines, OpenAPI docs)
-- [x] 06-04: Frontend Entity Leaderboard & Profiles (React dashboard with metric toggles, virtualized lists, navigation)
+- [x] 06-01: Entity Models & Fuzzy Matching Service
+- [x] 06-02: Entity Extraction Celery Task
+- [x] 06-03: Entity API & Trending Endpoints
+- [x] 06-04: Frontend Entity Leaderboard & Profiles
 
 ### Phase 7: AI Chat Interface
 **Goal**: Integrate assistant-ui for natural language queries across data sources, event explanation, and report generation
 **Depends on**: Phase 6
 **Research**: Likely (assistant-ui integration, LLM provider choice)
 **Research topics**: assistant-ui with React 18, Claude/OpenAI API integration, RAG patterns for querying aggregated data
-**Plans**: 4 plans (backend API, frontend UI, report generation, polish)
+**Plans**: 4 plans
 
 Plans:
-- [x] 07-01: Backend Chat API with Claude Streaming (POST /api/chat, SSE streaming, 4 tools for data access)
-- [x] 07-02: assistant-ui React Integration (custom runtime, SSE streaming, ChatProvider component)
-- [x] 07-03: Tool UI Components (EventPreviewCard, EntityPreviewCard, TrendingEntitiesCard, RiskTrendsChart with expand-in-place)
-- [x] 07-04: Chat Page UI & Navigation (Perplexity-style layout, suggestion chips, /chat route, ThreadPrimitive integration)
+- [x] 07-01: Backend Chat API with Claude Streaming
+- [x] 07-02: assistant-ui React Integration
+- [x] 07-03: Tool UI Components
+- [x] 07-04: Chat Page UI & Navigation
+
+</details>
+
+### 🚧 v1.1 UI/UX Overhaul (In Progress)
+
+**Milestone Goal:** Comprehensive UI/UX redesign with professional design system, improved component library, and enhanced user experience across all pages
+
+#### Phase 8: Design System Foundation
+**Goal**: Establish comprehensive design system with color palette, typography, spacing, and component tokens
+**Depends on**: Phase 7 (v1.0 complete)
+**Research**: Likely (modern design system patterns, CSS-in-JS vs Tailwind)
+**Research topics**: Design token systems, color theory for data visualization, typography scales, spacing/sizing systems, CSS architecture patterns
+**Plans**: TBD
+
+Plans:
+- [ ] 08-01: TBD (run /gsd:plan-phase 8 to break down)
+
+#### Phase 9: Component Library Rebuild
+**Goal**: Rebuild core UI components (buttons, inputs, cards, modals, tables) with consistent design and accessibility
+**Depends on**: Phase 8
+**Research**: Likely (component library patterns, accessibility standards)
+**Research topics**: Headless UI libraries, Radix UI primitives, ARIA patterns, component composition patterns
+**Plans**: TBD
+
+Plans:
+- [ ] 09-01: TBD
+
+#### Phase 10: Dashboard Redesign
+**Goal**: Redesign Dashboard and Events Feed with improved layout, data visualization, and filtering UX
+**Depends on**: Phase 9
+**Research**: Unlikely (using established components and patterns from Phase 9)
+**Plans**: TBD
+
+Plans:
+- [ ] 10-01: TBD
+
+#### Phase 11: Entity Pages Redesign
+**Goal**: Redesign entity leaderboard and profile pages with better information architecture and visualization
+**Depends on**: Phase 9
+**Research**: Unlikely (using established components and patterns from Phase 9)
+**Plans**: TBD
+
+Plans:
+- [ ] 11-01: TBD
+
+#### Phase 12: Chat Interface Polish
+**Goal**: Polish chat interface with better message rendering, tool card design, and conversation UX
+**Depends on**: Phase 9
+**Research**: Unlikely (using established components and patterns from Phase 9)
+**Plans**: TBD
+
+Plans:
+- [ ] 12-01: TBD
+
+#### Phase 13: Responsive & Accessibility
+**Goal**: Ensure mobile responsive design, keyboard navigation, ARIA labels, loading states, and error handling across all pages
+**Depends on**: Phases 10, 11, 12
+**Research**: Likely (responsive patterns, accessibility testing)
+**Research topics**: Mobile-first responsive design, WCAG 2.1 AA compliance, screen reader testing, keyboard navigation patterns, loading state patterns
+**Plans**: TBD
+
+Plans:
+- [ ] 13-01: TBD
 
 ## Progress
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Foundation & Infrastructure | 4/4 | Complete | 2026-01-08 |
-| 2. Authentication & User Management | 4/4 | Complete | 2026-01-09 |
-| 3. Data Pipeline Architecture | 4/4 | Complete | 2026-01-08 |
-| 4. Risk Intelligence Core | 4/4 | Complete | 2026-01-09 |
-| 5. Dashboard & Events Feed | 4/4 | Complete | 2026-01-09 |
-| 6. Entity Watch | 4/4 | Complete | 2026-01-09 |
-| 7. AI Chat Interface | 4/4 | Complete | 2026-01-09 |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Foundation & Infrastructure | v1.0 | 4/4 | Complete | 2026-01-08 |
+| 2. Authentication & User Management | v1.0 | 4/4 | Complete | 2026-01-09 |
+| 3. Data Pipeline Architecture | v1.0 | 4/4 | Complete | 2026-01-08 |
+| 4. Risk Intelligence Core | v1.0 | 4/4 | Complete | 2026-01-09 |
+| 5. Dashboard & Events Feed | v1.0 | 4/4 | Complete | 2026-01-09 |
+| 6. Entity Watch | v1.0 | 4/4 | Complete | 2026-01-09 |
+| 7. AI Chat Interface | v1.0 | 4/4 | Complete | 2026-01-09 |
+| 8. Design System Foundation | v1.1 | 0/? | Not started | - |
+| 9. Component Library Rebuild | v1.1 | 0/? | Not started | - |
+| 10. Dashboard Redesign | v1.1 | 0/? | Not started | - |
+| 11. Entity Pages Redesign | v1.1 | 0/? | Not started | - |
+| 12. Chat Interface Polish | v1.1 | 0/? | Not started | - |
+| 13. Responsive & Accessibility | v1.1 | 0/? | Not started | - |
