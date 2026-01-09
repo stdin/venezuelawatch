@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 7 of 7 (AI Chat Interface)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-08 — Completed 07-02-PLAN.md (assistant-ui React integration)
+Last activity: 2026-01-09 — Completed 07-03-PLAN.md (tool UI components)
 
-Progress: █████████░ 97%
+Progress: █████████░ 98%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22
+- Total plans completed: 23
 - Average duration: 13 min
-- Total execution time: 5.2 hours
+- Total execution time: 5.4 hours
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Progress: █████████░ 97%
 | 3 | 4 | 195 min | 49 min |
 | 4 | 4 | 26 min | 7 min |
 | 6 | 4 | 23 min | 6 min |
-| 7 | 2 | 10 min | 5 min |
+| 7 | 3 | 25 min | 8 min |
 
 **Recent Trend:**
-- Last 5 plans: 6min, 8min, 8min, 2min
+- Last 5 plans: 8min, 8min, 2min, 15min
 - Trend: Very fast (mature infrastructure)
 
 ## Accumulated Context
@@ -125,6 +125,11 @@ Recent decisions affecting current work:
 - Phase 7: fetch() with ReadableStream for SSE parsing (not EventSource API)
 - Phase 7: Accumulate text chunks in single assistant message (not separate messages)
 - Phase 7: ChatProvider wraps AssistantRuntimeProvider with custom runtime
+- Phase 7: makeAssistantToolUI pattern for custom tool rendering tied to backend tool names
+- Phase 7: Expand-in-place pattern (not navigation) for preview card interactions
+- Phase 7: Compact inline display optimized for chat context (smaller than dashboard components)
+- Phase 7: Visual indicators: risk score colors, severity badges, entity type badges, trend arrows
+- Phase 7: Sanctions alert badge with pulse animation for high visibility
 
 ### Deferred Issues
 
@@ -139,8 +144,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-08
-Stopped at: Completed 07-02-PLAN.md (assistant-ui React integration)
+Last session: 2026-01-09
+Stopped at: Completed 07-03-PLAN.md (tool UI components)
 Resume file: None
 
-Note: Phase 7 AI Chat Interface in progress - Plan 2 of 4 complete (frontend runtime with SSE streaming)
+Note: Phase 7 AI Chat Interface in progress - Plan 3 of 4 complete (custom tool UI components with Perplexity-style previews)
