@@ -1,4 +1,4 @@
-import type { RiskEvent, EventFilterParams, SanctionsSummary } from './types'
+import type { RiskEvent, EventFilterParams, SanctionsSummary, Entity, EntityProfile, EntityTimeline, EntityMetric } from './types'
 
 const API_BASE = '/api'
 
@@ -175,6 +175,49 @@ export const api = {
     })
     if (!response.ok) {
       throw new Error(`Failed to fetch sanctions summary: ${response.status}`)
+    }
+    return response.json()
+  },
+
+  // Entity Watch methods
+  async getTrendingEntities(
+    metric: EntityMetric = 'mentions',
+    limit: number = 50,
+    entityType?: string
+  ): Promise<Entity[]> {
+    const params = new URLSearchParams({
+      metric,
+      limit: limit.toString(),
+      ...(entityType && { entity_type: entityType })
+    })
+    const response = await fetch(`${API_BASE}/entities/trending?${params}`, {
+      credentials: 'include',
+    })
+    if (!response.ok) {
+      throw new Error(`Failed to fetch trending entities: ${response.status}`)
+    }
+    return response.json()
+  },
+
+  async getEntityProfile(entityId: string): Promise<EntityProfile> {
+    const response = await fetch(`${API_BASE}/entities/${entityId}`, {
+      credentials: 'include',
+    })
+    if (!response.ok) {
+      throw new Error(`Failed to fetch entity profile: ${response.status}`)
+    }
+    return response.json()
+  },
+
+  async getEntityTimeline(
+    entityId: string,
+    days: number = 30
+  ): Promise<EntityTimeline> {
+    const response = await fetch(`${API_BASE}/entities/${entityId}/timeline?days=${days}`, {
+      credentials: 'include',
+    })
+    if (!response.ok) {
+      throw new Error(`Failed to fetch entity timeline: ${response.status}`)
     }
     return response.json()
   },
