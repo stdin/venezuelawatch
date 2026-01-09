@@ -54,3 +54,72 @@ class EventFilterParams(Schema):
     days_back: int = 30
     limit: int = 100
     offset: int = 0
+
+
+# ========================================================================
+# Entity API Schemas
+# ========================================================================
+
+class EntitySchema(Schema):
+    """
+    Basic entity info for leaderboard.
+
+    Used in trending entity lists with minimal data for performance.
+    """
+    id: str
+    canonical_name: str
+    entity_type: str  # PERSON, ORGANIZATION, GOVERNMENT, LOCATION
+    mention_count: int
+    first_seen: datetime
+    last_seen: datetime
+    trending_score: Optional[float] = None  # From Redis, may be null
+    trending_rank: Optional[int] = None  # 1-indexed rank
+
+
+class EntityProfileSchema(Schema):
+    """
+    Detailed entity profile.
+
+    Extends EntitySchema with additional metadata for profile view.
+    """
+    id: str
+    canonical_name: str
+    entity_type: str
+    mention_count: int
+    first_seen: datetime
+    last_seen: datetime
+    trending_score: Optional[float] = None
+    trending_rank: Optional[int] = None
+    # Additional profile fields
+    aliases: List[str]
+    metadata: Optional[dict] = None
+    sanctions_status: bool  # True if any sanctions matches
+    risk_score: Optional[float] = None  # Avg risk from events
+    recent_events: List[dict]  # Last 5 events mentioning entity
+
+
+class EntityMentionSchema(Schema):
+    """
+    Entity mention details for timeline.
+
+    Links entity to specific event with mention metadata.
+    """
+    id: str
+    raw_name: str
+    match_score: float
+    relevance: Optional[float] = None
+    mentioned_at: datetime
+    event_summary: dict  # {id, title, source, event_type, risk_score, severity, timestamp}
+
+
+class EntityTimelineResponse(Schema):
+    """
+    Timeline aggregation response.
+
+    Shows entity's mention history over time.
+    """
+    entity_id: str
+    canonical_name: str
+    total_mentions: int
+    mentions: List[EntityMentionSchema]
+    time_range: dict  # {start: datetime, end: datetime}
