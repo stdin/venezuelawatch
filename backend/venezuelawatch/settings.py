@@ -43,14 +43,31 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "allauth",
+    "allauth.account",
+    "allauth.headless",
     "corsheaders",
     "core",
 ]
+
+# Custom User Model
+AUTH_USER_MODEL = 'core.User'
+
+# django-allauth configuration
+SITE_ID = 1
+
+# Allauth settings
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+HEADLESS_FRONTEND_URLS = {
+    "ACCOUNT_ACTIVATION_URL": "http://localhost:5173/auth/verify/",
+    "PASSWORD_RESET_URL": "http://localhost:5173/auth/reset/",
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -94,6 +111,7 @@ DATABASES = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite dev server
 ]
+CORS_ALLOW_CREDENTIALS = True
 
 
 # Password validation
