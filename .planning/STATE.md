@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 
 ## Current Position
 
-Phase: 10 of 13 (Dashboard Redesign)
-Plan: 4 of 4 in current phase
-Status: Phase complete
-Last activity: 2026-01-09 — Completed 10-04-PLAN.md (Filter UX Enhancement)
+Phase: 11 of 13 (Entity Pages Redesign)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-01-09 — Completed 11-01-PLAN.md (Layout & Metric Toggles)
 
-Progress: ██████░░░░ 57%
+Progress: ███████░░░ 59%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 32
+- Total plans completed: 33
 - Average duration: 13 min
 - Total execution time: 7.1 hours
 
@@ -36,9 +36,10 @@ Progress: ██████░░░░ 57%
 | 8 | 2 | 29 min | 15 min |
 | 9 | 2 | 53 min | 27 min |
 | 10 | 4 | 8 min | 2 min |
+| 11 | 1 | 1 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: 35min, 1min, 2min, 2min, 3min
+- Last 5 plans: 1min, 2min, 2min, 3min, 35min
 - Trend: Very fast (Mantine UI migrations)
 
 ## Accumulated Context
@@ -169,6 +170,8 @@ Recent decisions affecting current work:
 - Phase 10: NumberInput for numeric ranges (risk score min/max with validation)
 - Phase 10: Select with clearable for single-choice filters (event type, time range)
 - Phase 10: Mantine form component pattern across all filter controls
+- Phase 11: Grid.Col span={{ base: 12, md: 5 }} for 40% width on desktop split-view
+- Phase 11: SegmentedControl fullWidth for professional metric toggle UI
 
 ### Deferred Issues
 
@@ -189,7 +192,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-09
-Stopped at: Completed Phase 10 (Dashboard Redesign)
+Stopped at: Completed 11-01-PLAN.md (Layout & Metric Toggles)
 Resume file: None
 
-Note: Phase 10 complete! Dashboard fully redesigned with Mantine Grid layout, EventCard/EventList with skeleton loading, Recharts visualizations (RiskTrendChart, TrendsPanel), and FilterBar with Mantine form components. All custom CSS removed from Dashboard components. Human verification passed. Ready for Phase 11 (Entity Pages Redesign).
+Note: Phase 11 plan 1 complete! Entities page layout migrated to Mantine Grid (2-column responsive) with SegmentedControl for metric switching. Entities.css deleted (181 lines removed). Ready for 11-02-PLAN.md (EntityLeaderboard Redesign).
