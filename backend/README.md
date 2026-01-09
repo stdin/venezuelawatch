@@ -115,6 +115,53 @@ Django 5.2 backend API for the VenezuelaWatch intelligence platform.
 
    The API will be available at http://localhost:8000
 
+## Authentication
+
+VenezuelaWatch uses django-allauth with headless mode for JWT authentication.
+
+### Endpoints
+
+Available at `/_allauth/browser/v1/auth/`:
+- `POST /signup` - Create new user account
+- `POST /login` - Authenticate and receive JWT tokens
+- `DELETE /session` - Invalidate tokens (logout)
+- `GET /session` - Get current user details
+- `POST /password/request` - Request password reset
+
+### JWT Tokens
+
+- **Access Token**: 15-minute expiry, sent in httpOnly cookie
+- **Refresh Token**: 7-day expiry, sent in httpOnly cookie
+- **CSRF Protection**: Enabled for state-changing operations
+
+### Testing Authentication
+
+Register a user:
+```bash
+curl -X POST http://localhost:8000/_allauth/browser/v1/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"securepass123"}' \
+  -c cookies.txt
+```
+
+Login:
+```bash
+curl -X POST http://localhost:8000/_allauth/browser/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"securepass123"}' \
+  -c cookies.txt
+```
+
+Access protected endpoints (will be configured in next plan):
+```bash
+curl http://localhost:8000/api/protected/ -b cookies.txt
+```
+
+### Email Configuration
+
+Development: Emails print to console (EMAIL_BACKEND=console)
+Production: Configure SMTP settings in .env (see .env.example)
+
 ## API Documentation
 
 Interactive API documentation is automatically generated and available at:
