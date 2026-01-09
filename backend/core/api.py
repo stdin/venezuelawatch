@@ -1,10 +1,10 @@
 from ninja import Router
-from allauth.headless.contrib.ninja.security import x_session_token_auth
+from ninja.security import django_auth
 
 router = Router()
 
 
-@router.get("/health", auth=x_session_token_auth)
+@router.get("/health", auth=django_auth)
 def health_check(request):
     """Health check endpoint (requires authentication)."""
     return {
@@ -18,10 +18,10 @@ def health_check(request):
 user_router = Router()
 
 
-@user_router.get("/me", auth=x_session_token_auth)
+@user_router.get("/me", auth=django_auth)
 def get_current_user(request):
     """Get current authenticated user profile."""
-    user = request.auth  # x_session_token_auth sets request.auth to User instance
+    user = request.auth  # django_auth sets request.auth to User instance
     return {
         "id": user.id,
         "email": user.email,
