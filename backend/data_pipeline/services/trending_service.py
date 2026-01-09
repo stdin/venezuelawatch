@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 from django.conf import settings
 from django.db.models import Avg, Count, Q
+from django.utils import timezone
 
 from core.models import Entity, EntityMention
 
@@ -47,7 +48,7 @@ class TrendingService:
             where 168 = 7-day half-life
         """
         # Calculate age in hours
-        now = datetime.utcnow()
+        now = timezone.now()
         age_hours = (now - timestamp).total_seconds() / 3600
 
         # Apply exponential time-decay
