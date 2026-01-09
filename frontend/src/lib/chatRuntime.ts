@@ -11,9 +11,11 @@ import type { ChatMessage } from './types'
 const API_BASE = '/api'
 
 interface SSEChunk {
-  type: 'content' | 'tool_use' | 'done' | 'error'
+  type: 'content' | 'tool_result' | 'done' | 'error'
   text?: string
   tool?: string
+  tool_call_id?: string
+  result?: any
   error?: string
 }
 
@@ -38,12 +40,9 @@ export function useChatRuntime() {
     setMessages(updatedMessages)
     setIsLoading(true)
 
-    // Initialize assistant message
-    let assistantContent = ''
-    const assistantMessage: ChatMessage = {
-      role: 'assistant',
-      content: ''
-    }
+    // Initialize assistant message with content parts
+    let textContent = ''
+    const toolCalls: Array<{ toolName: string; toolCallId: string; result: any }> = []
 
     try {
       // Fetch from Django API with SSE streaming
@@ -97,14 +96,18 @@ export function useChatRuntime() {
 
             if (chunk.type === 'content' && chunk.text) {
               // Accumulate text content
-              assistantContent += chunk.text
-              assistantMessage.content = assistantContent
+              textContent += chunk.text
 
-              // Update messages with streaming content
-              setMessages([...updatedMessages, { ...assistantMessage }])
-            } else if (chunk.type === 'tool_use' && chunk.tool) {
-              // Tool execution notification (optional: show in UI)
-              console.log(`Executing tool: ${chunk.tool}`)
+              // Update messages with streaming content (text only for now)
+              setMessages([...updatedMessages, { role: 'assistant', content: textContent }])
+            } else if (chunk.type === 'tool_result' && chunk.tool && chunk.result) {
+              // Tool execution result - collect for final message
+              toolCalls.push({
+                toolName: chunk.tool,
+                toolCallId: chunk.tool_call_id || `tool-${Date.now()}`,
+                result: chunk.result
+              })
+              console.log(`Tool executed: ${chunk.tool}`)
             } else if (chunk.type === 'done') {
               // Stream complete
               break
@@ -119,8 +122,13 @@ export function useChatRuntime() {
         }
       }
 
-      // Finalize assistant message
-      setMessages([...updatedMessages, assistantMessage])
+      // Finalize assistant message (combine text and tool results)
+      const finalMessage: ChatMessage = {
+        role: 'assistant',
+        content: textContent,
+        toolResults: toolCalls.length > 0 ? toolCalls : undefined
+      }
+      setMessages([...updatedMessages, finalMessage])
     } catch (error) {
       console.error('Chat error:', error)
 
@@ -137,14 +145,37 @@ export function useChatRuntime() {
 
   // Create assistant-ui compatible runtime using useExternalStoreRuntime
   const runtime = useExternalStoreRuntime({
-    messages: messages.map((msg, idx) => ({
-      id: `msg-${idx}`,
-      role: msg.role,
-      content: [{ type: 'text' as const, text: msg.content }],
-      createdAt: new Date() // Could enhance with actual timestamps
-    })),
+    messages: messages.map((msg, idx) => {
+      // Build content parts: text + tool-call results
+      const contentParts: Array<{ type: 'text'; text: string } | { type: 'tool-call'; toolCallId: string; toolName: string; args: any; result?: any }> = []
+
+      // Add text content if present
+      if (msg.content) {
+        contentParts.push({ type: 'text' as const, text: msg.content })
+      }
+
+      // Add tool results if present (for assistant messages)
+      if (msg.toolResults) {
+        for (const toolResult of msg.toolResults) {
+          contentParts.push({
+            type: 'tool-call' as const,
+            toolCallId: toolResult.toolCallId,
+            toolName: toolResult.toolName,
+            args: {}, // Args not available from backend, empty object
+            result: toolResult.result
+          })
+        }
+      }
+
+      return {
+        id: `msg-${idx}`,
+        role: msg.role,
+        content: contentParts,
+        createdAt: new Date()
+      }
+    }),
     isRunning: isLoading,
-    convertMessage: (message) => message, // Pass through - messages already in correct format
+    convertMessage: (message) => message,
     onNew: async (message) => {
       // Extract text content from assistant-ui message format
       const textContent = message.content

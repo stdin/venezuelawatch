@@ -176,13 +176,19 @@ export interface EntityTimeline {
 export type EntityMetric = 'mentions' | 'risk' | 'sanctions'
 
 /**
- * Chat message matching Django backend format
+ * Chat message with support for tool results
  */
 export interface ChatMessage {
   /** Message role - user or assistant */
   role: 'user' | 'assistant'
   /** Message text content */
   content: string
+  /** Tool results for assistant messages (optional) */
+  toolResults?: Array<{
+    toolName: string
+    toolCallId: string
+    result: any
+  }>
 }
 
 /**

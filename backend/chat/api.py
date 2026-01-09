@@ -122,8 +122,8 @@ def chat(request: HttpRequest, payload: ChatRequest):
                                 "content": json.dumps(result),
                             })
 
-                            # Stream tool execution notification
-                            yield f"data: {json.dumps({'type': 'tool_use', 'tool': tool_block.name})}\n\n"
+                            # Stream tool result to frontend for tool UI rendering
+                            yield f"data: {json.dumps({'type': 'tool_result', 'tool': tool_block.name, 'tool_call_id': tool_block.id, 'result': result})}\n\n"
 
                         # Add tool results to conversation
                         conversation_messages.append({
