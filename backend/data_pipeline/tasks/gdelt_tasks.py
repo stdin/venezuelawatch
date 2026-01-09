@@ -17,6 +17,13 @@ from core.models import Event
 logger = logging.getLogger(__name__)
 
 
+# Import intelligence task for LLM analysis
+def get_intelligence_task():
+    """Lazy import to avoid circular dependency."""
+    from data_pipeline.tasks.intelligence_tasks import analyze_event_intelligence
+    return analyze_event_intelligence
+
+
 @shared_task(base=BaseIngestionTask, bind=True)
 def ingest_gdelt_events(self, lookback_minutes: int = 15) -> Dict[str, Any]:
     """
@@ -112,6 +119,11 @@ def ingest_gdelt_events(self, lookback_minutes: int = 15) -> Dict[str, Any]:
                     event.save()
                     events_created += 1
                     logger.debug(f"Created GDELT event: {event.title[:50]}")
+
+                # Dispatch LLM intelligence analysis (async background task)
+                analyze_task = get_intelligence_task()
+                analyze_task.delay(event.id, model='fast')
+                logger.debug(f"Dispatched LLM analysis for GDELT event {event.id}")
 
             except Exception as e:
                 logger.error(f"Failed to create event from GDELT article: {e}", exc_info=True)

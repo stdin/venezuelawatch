@@ -7,6 +7,13 @@ from data_pipeline.tasks.reliefweb_tasks import ingest_reliefweb_updates
 from data_pipeline.tasks.fred_tasks import ingest_fred_series, ingest_single_series
 from data_pipeline.tasks.comtrade_tasks import ingest_comtrade_trade_data
 from data_pipeline.tasks.worldbank_tasks import ingest_worldbank_indicators
+from data_pipeline.tasks.intelligence_tasks import (
+    analyze_event_intelligence,
+    batch_analyze_events,
+    update_sentiment_scores,
+    update_risk_scores,
+    update_entities,
+)
 
 __all__ = [
     'hello_world',
@@ -17,4 +24,9 @@ __all__ = [
     'ingest_single_series',
     'ingest_comtrade_trade_data',
     'ingest_worldbank_indicators',
+    'analyze_event_intelligence',
+    'batch_analyze_events',
+    'update_sentiment_scores',
+    'update_risk_scores',
+    'update_entities',
 ]

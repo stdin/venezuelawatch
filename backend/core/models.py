@@ -103,6 +103,42 @@ class Event(models.Model):
         help_text="Computed risk level (0-100)"
     )
 
+    # LLM Intelligence fields (comprehensive analysis from Claude)
+    summary = models.TextField(
+        blank=True,
+        null=True,
+        help_text="LLM-generated concise summary (1-2 sentences)"
+    )
+    relationships = models.JSONField(
+        blank=True,
+        null=True,
+        help_text="Entity relationships extracted by LLM (subject-predicate-object triples)"
+    )
+    themes = ArrayField(
+        models.CharField(max_length=100),
+        blank=True,
+        default=list,
+        help_text="Thematic topics identified by LLM"
+    )
+    urgency = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        db_index=True,
+        help_text="Urgency level: low, medium, high, immediate"
+    )
+    language = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True,
+        help_text="Detected language code (ISO 639-1: en, es, ar, pt, etc.)"
+    )
+    llm_analysis = models.JSONField(
+        blank=True,
+        null=True,
+        help_text="Complete LLM analysis results (for debugging and reference)"
+    )
+
     # Record metadata
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

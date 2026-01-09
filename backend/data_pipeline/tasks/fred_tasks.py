@@ -26,6 +26,13 @@ from core.models import Event
 logger = logging.getLogger(__name__)
 
 
+# Import intelligence task for LLM analysis
+def get_intelligence_task():
+    """Lazy import to avoid circular dependency."""
+    from data_pipeline.tasks.intelligence_tasks import analyze_event_intelligence
+    return analyze_event_intelligence
+
+
 @shared_task(base=BaseIngestionTask, bind=True)
 def ingest_single_series(
     self,
@@ -177,6 +184,16 @@ def ingest_single_series(
                         logger.info(
                             f"Created threshold alert: {alert.title}"
                         )
+
+                # Dispatch LLM intelligence analysis (async background task)
+                analyze_task = get_intelligence_task()
+                analyze_task.delay(event.id, model='fast')
+                logger.debug(f"Dispatched LLM analysis for FRED event {event.id}")
+
+                # Also analyze threshold alerts (they contain important narrative context)
+                for alert in threshold_alerts:
+                    analyze_task.delay(alert.id, model='standard')  # Use standard model for alerts
+                    logger.debug(f"Dispatched LLM analysis for FRED alert {alert.id}")
 
             except Exception as e:
                 logger.error(

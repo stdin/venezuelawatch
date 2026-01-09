@@ -403,3 +403,57 @@ def map_worldbank_to_event(indicator_data: Dict[str, Any], indicator_info: Dict[
     )
 
     return event
+
+
+def apply_intelligence_analysis(event: Event, save: bool = False) -> Event:
+    """
+    Apply intelligence analysis to an Event instance.
+
+    Performs real-time sentiment analysis, risk scoring, and entity extraction
+    to populate the event's intelligence fields.
+
+    Args:
+        event: Event instance to analyze (can be saved or unsaved)
+        save: Whether to save the event after analysis (default: False)
+
+    Returns:
+        Event instance with updated intelligence fields
+    """
+    from data_pipeline.services.sentiment_analyzer import SentimentAnalyzer
+    from data_pipeline.services.risk_scorer import RiskScorer
+    from data_pipeline.services.entity_extractor import EntityExtractor
+
+    try:
+        # 1. Sentiment analysis
+        if event.sentiment is None:
+            event.sentiment = SentimentAnalyzer.analyze_event(event)
+
+        # 2. Risk scoring
+        if event.risk_score is None:
+            event.risk_score = RiskScorer.calculate_risk_score(event)
+
+        # 3. Entity extraction
+        if not event.entities:
+            entities = EntityExtractor.extract_event_entities(event)
+            event.entities = EntityExtractor.filter_relevant_entities(entities)
+
+        # Save if requested
+        if save and event.id:
+            event.save(update_fields=['sentiment', 'risk_score', 'entities'])
+            logger.info(
+                f"Event {event.id} intelligence updated: "
+                f"sentiment={event.sentiment:.3f}, risk={event.risk_score:.3f}, "
+                f"entities={len(event.entities)}"
+            )
+
+    except Exception as e:
+        logger.error(f"Failed to apply intelligence analysis to event: {e}", exc_info=True)
+        # Set defaults on error
+        if event.sentiment is None:
+            event.sentiment = 0.0
+        if event.risk_score is None:
+            event.risk_score = 0.5
+        if not event.entities:
+            event.entities = []
+
+    return event
