@@ -4,7 +4,6 @@ import { api } from '../lib/api'
 import { EntityLeaderboard } from '../components/EntityLeaderboard'
 import { EntityProfile } from '../components/EntityProfile'
 import type { Entity, EntityMetric } from '../lib/types'
-import './Entities.css'
 
 /**
  * Entities page with split-view layout
