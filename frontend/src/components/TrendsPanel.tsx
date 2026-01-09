@@ -1,6 +1,5 @@
+import { Card, Text, Stack, Title } from '@mantine/core'
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   XAxis,
@@ -10,7 +9,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import type { RiskEvent } from '../lib/types'
-import './TrendsPanel.css'
+import RiskTrendChart from './charts/RiskTrendChart'
 
 interface TrendsPanelProps {
   events: RiskEvent[]
@@ -19,7 +18,7 @@ interface TrendsPanelProps {
 /**
  * Group events by day and calculate average risk score
  */
-function groupEventsByDay(events: RiskEvent[]): Array<{ date: string; avgRisk: number }> {
+function groupEventsByDay(events: RiskEvent[]): Array<{ date: string; riskScore: number }> {
   // Filter to last 30 days
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
@@ -46,7 +45,7 @@ function groupEventsByDay(events: RiskEvent[]): Array<{ date: string; avgRisk: n
   const results = Array.from(groupedByDay.entries())
     .map(([date, scores]) => ({
       date,
-      avgRisk: scores.reduce((sum, score) => sum + score, 0) / scores.length,
+      riskScore: scores.reduce((sum, score) => sum + score, 0) / scores.length,
     }))
     .sort((a, b) => a.date.localeCompare(b.date))
 
@@ -71,13 +70,14 @@ function countEventsByType(events: RiskEvent[]): Array<{ type: string; count: nu
 
 /**
  * Trends panel with risk over time and event distribution charts
+ * Uses Mantine Cards and Recharts for data visualization
  */
 export function TrendsPanel({ events }: TrendsPanelProps) {
   if (!events || events.length === 0) {
     return (
-      <div className="trends-panel">
-        <div className="trends-empty">No data available</div>
-      </div>
+      <Card padding="md" withBorder>
+        <Text c="dimmed" ta="center">No data available</Text>
+      </Card>
     )
   }
 
@@ -85,87 +85,37 @@ export function TrendsPanel({ events }: TrendsPanelProps) {
   const eventTypeData = countEventsByType(events)
 
   return (
-    <div className="trends-panel">
-      {/* Risk Over Time */}
-      <div className="trend-section">
-        <h3 className="trend-title">Risk Trend (Last 30 Days)</h3>
-        <div className="chart-container">
-          {riskTrendData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={riskTrendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 12, fill: '#6b7280' }}
-                  tickFormatter={(value) => {
-                    const date = new Date(value)
-                    return `${date.getMonth() + 1}/${date.getDate()}`
-                  }}
-                />
-                <YAxis
-                  domain={[0, 100]}
-                  tick={{ fontSize: 12, fill: '#6b7280' }}
-                  label={{ value: 'Risk Score', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#6b7280' } }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: '#fff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                  }}
-                  labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                  formatter={(value) => [`${(value as number).toFixed(1)}`, 'Avg Risk']}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="avgRisk"
-                  stroke="#ea580c"
-                  strokeWidth={2}
-                  dot={{ fill: '#ea580c', r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="chart-empty">No risk data for last 30 days</div>
-          )}
-        </div>
-      </div>
+    <Stack gap="md">
+      {/* Risk Trend Chart */}
+      <Card padding="md" withBorder>
+        <Title order={4} mb="md">Risk Trend (Last 30 Days)</Title>
+        {riskTrendData.length > 0 ? (
+          <RiskTrendChart data={riskTrendData} />
+        ) : (
+          <Text c="dimmed" ta="center">No risk data for last 30 days</Text>
+        )}
+      </Card>
 
-      {/* Events by Category */}
-      <div className="trend-section">
-        <h3 className="trend-title">Events by Category</h3>
-        <div className="chart-container">
-          {eventTypeData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={eventTypeData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis
-                  dataKey="type"
-                  tick={{ fontSize: 12, fill: '#6b7280' }}
-                />
-                <YAxis
-                  tick={{ fontSize: 12, fill: '#6b7280' }}
-                  label={{ value: 'Count', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#6b7280' } }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: '#fff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                  }}
-                  formatter={(value) => [`${value}`, 'Events']}
-                />
-                <Bar dataKey="count" fill="#2563eb" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="chart-empty">No event data available</div>
-          )}
-        </div>
-      </div>
-    </div>
+      {/* Events by Category Chart */}
+      <Card padding="md" withBorder>
+        <Title order={4} mb="md">Events by Category</Title>
+        {eventTypeData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={eventTypeData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="type" tick={{ fontSize: 12 }} />
+              <YAxis
+                tick={{ fontSize: 12 }}
+                label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+              />
+              <Tooltip />
+              <Bar dataKey="count" fill="var(--mantine-color-blue-filled)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <Text c="dimmed" ta="center">No event data available</Text>
+        )}
+      </Card>
+    </Stack>
   )
 }
