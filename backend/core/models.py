@@ -154,3 +154,62 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.source} - {self.title[:50]}"
+
+
+class SanctionsMatch(models.Model):
+    """
+    Records sanctions list matches for entities mentioned in events.
+    Tracks sanctioned individuals and organizations with fuzzy match scores.
+    """
+    # Primary key
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Relationship to event
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        related_name='sanctions_matches',
+        help_text="Event containing the sanctioned entity"
+    )
+
+    # Matched entity details
+    entity_name = models.CharField(
+        max_length=200,
+        help_text="Name matched from event's extracted entities"
+    )
+    entity_type = models.CharField(
+        max_length=50,
+        help_text="Type of entity: person, organization"
+    )
+
+    # Sanctions list information
+    sanctions_list = models.CharField(
+        max_length=100,
+        help_text="Source sanctions list: OFAC-SDN, UN-1267, EU-SANCTIONS, etc."
+    )
+    match_score = models.FloatField(
+        help_text="Fuzzy match confidence score (0.0-1.0)"
+    )
+
+    # Full sanctions data from API
+    sanctions_data = models.JSONField(
+        help_text="Complete API response with aliases, dates, programs, etc."
+    )
+
+    # Timestamps for data freshness tracking
+    sanctions_checked_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="When this sanctions check was performed"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'sanctions_matches'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['event', '-match_score']),
+            models.Index(fields=['-sanctions_checked_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.entity_name} ({self.sanctions_list}) - {self.match_score:.2f}"

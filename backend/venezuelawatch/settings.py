@@ -233,3 +233,11 @@ CELERY_BEAT_SCHEDULE = {
 # GCP Secret Manager Configuration
 GCP_PROJECT_ID = os.environ.get('GCP_PROJECT_ID', 'venezuelawatch-staging')
 SECRET_MANAGER_ENABLED = os.environ.get('SECRET_MANAGER_ENABLED', 'False').lower() == 'true'
+
+# OpenSanctions API Configuration
+# Using free OFAC API as default (no key required)
+# For OpenSanctions premium: set OPENSANCTIONS_API_KEY
+OPENSANCTIONS_API_KEY = os.environ.get('OPENSANCTIONS_API_KEY', '')
+OPENSANCTIONS_BASE_URL = os.environ.get('OPENSANCTIONS_BASE_URL', 'https://api.opensanctions.org')
+# Free OFAC API alternative: https://www.treasury.gov/ofac/downloads/
+OFAC_API_URL = 'https://sanctionssearch.ofac.treas.gov/api/PublicationPreview/exports/'
