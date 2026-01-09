@@ -58,7 +58,7 @@ AUTH_USER_MODEL = 'core.User'
 SITE_ID = 1
 
 # Allauth settings
-ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # Disabled for development; use 'optional' or 'mandatory' in production
 HEADLESS_FRONTEND_URLS = {
     "ACCOUNT_ACTIVATION_URL": "http://localhost:5173/auth/verify/",
     "PASSWORD_RESET_URL": "http://localhost:5173/auth/reset/",
@@ -166,3 +166,30 @@ if USE_GCS:
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# JWT Configuration for django-allauth headless
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': False,  # Can enable with django-rest-framework-simplejwt[blacklist]
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# Allauth headless configuration
+HEADLESS_ONLY = False  # Keep Django admin accessible
+ACCOUNT_AUTHENTICATION_METHOD = 'email'  # Use email for login (not username)
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False  # Email is primary identifier
+# Note: username field still exists in DB but will be auto-generated from email
+
+# New allauth configuration format (0.63+)
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+
+# Email backend for development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
