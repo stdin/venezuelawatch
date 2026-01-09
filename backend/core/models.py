@@ -1,7 +1,54 @@
 import uuid
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.utils import timezone
+
+
+class User(AbstractUser):
+    """
+    Custom user model with team-ready fields.
+
+    Phase 2: Individual users (role='individual')
+    Future: Add Team model with ForeignKey when team features needed
+    """
+    # Team-ready fields (nullable for backward compat when teams added)
+    organization_name = models.CharField(max_length=200, blank=True, default='')
+    role = models.CharField(
+        max_length=50,
+        default='individual',
+        choices=[
+            ('individual', 'Individual User'),
+            ('team_member', 'Team Member'),
+            ('team_admin', 'Team Admin'),
+            ('org_admin', 'Organization Admin'),
+        ]
+    )
+
+    # SaaS fields
+    subscription_tier = models.CharField(
+        max_length=50,
+        default='free',
+        choices=[
+            ('free', 'Free'),
+            ('pro', 'Professional'),
+            ('enterprise', 'Enterprise'),
+        ]
+    )
+
+    # User preferences
+    timezone = models.CharField(max_length=50, default='UTC')
+
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'users'
+        ordering = ['-date_joined']
+
+    def __str__(self):
+        return self.email or self.username
 
 
 class Event(models.Model):
