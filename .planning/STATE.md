@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 2 of 7 (Authentication & User Management)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-09 — Completed 02-01-PLAN.md (django-allauth setup & User model)
+Last activity: 2026-01-09 — Completed 02-02-PLAN.md (authentication endpoints)
 
-Progress: █████░░░░░ 45%
+Progress: █████░░░░░ 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 13 min
-- Total execution time: 1.07 hours
+- Total plans completed: 6
+- Average duration: 11 min
+- Total execution time: 1.17 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 | 4 | 56 min | 14 min |
-| 2 | 1 | 8 min | 8 min |
+| 2 | 2 | 14 min | 7 min |
 
 **Recent Trend:**
-- Last 5 plans: 11min, 10min, 20min, 8min
+- Last 5 plans: 10min, 20min, 8min, 6min
 - Trend: Improving
 
 ## Accumulated Context
@@ -57,6 +57,10 @@ Recent decisions affecting current work:
 - Phase 2: CORS_ALLOW_CREDENTIALS=True for cross-origin cookie authentication
 - Phase 2: Email verification set to optional for Phase 2 (can be enabled later)
 - Phase 2: PostgreSQL with TimescaleDB required for ArrayField in Event model
+- Phase 2: Email as primary authentication method (username auto-generated)
+- Phase 2: 15-minute access token, 7-day refresh token for security/UX balance
+- Phase 2: Console email backend for development
+- Phase 2: Email verification disabled for development (ACCOUNT_EMAIL_VERIFICATION='none')
 
 ### Deferred Issues
 
@@ -71,6 +75,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-09 00:02
-Stopped at: Completed 02-01-PLAN.md (django-allauth setup & User model)
+Last session: 2026-01-09 00:12
+Stopped at: Completed 02-02-PLAN.md (authentication endpoints)
 Resume file: None
