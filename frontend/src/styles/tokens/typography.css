@@ -1,0 +1,45 @@
+/**
+ * Typography Tokens
+ *
+ * Modular scale ratio: 1.25 (Major Third)
+ * Base size: 16px (1rem)
+ * Optimized for data scanning and risk intelligence clarity
+ */
+
+:root {
+  /* --- Base Configuration --- */
+  --font-base-size: 16px;
+  --font-scale-ratio: 1.25;
+
+  /* --- Font Size Scale --- */
+  /* Ratio: 1.25^n where n is steps from base */
+  --font-size-2xs: 0.64rem;   /* 10.24px - Fine print, metadata timestamps */
+  --font-size-xs: 0.8rem;     /* 12.8px  - Labels, captions, table headers */
+  --font-size-sm: 1rem;       /* 16px    - Body text (BASE), event descriptions */
+  --font-size-md: 1.25rem;    /* 20px    - Small headings, card titles */
+  --font-size-lg: 1.563rem;   /* 25px    - Section headings, page subtitles */
+  --font-size-xl: 1.953rem;   /* 31.25px - Page headings, main titles */
+  --font-size-2xl: 2.441rem;  /* 39.06px - Display text, dashboard hero */
+
+  /* --- Font Families --- */
+  /* System font stack for performance and consistency */
+  --font-family-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: ui-monospace, 'SF Mono', 'Fira Code', 'Cascadia Code', 'Roboto Mono', monospace;
+
+  /* --- Font Weights --- */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* --- Line Heights --- */
+  /* Purpose-based for different content types */
+  --line-height-tight: 1.2;     /* Headings, titles, condensed data */
+  --line-height-normal: 1.5;    /* Body text, readable paragraphs */
+  --line-height-relaxed: 1.75;  /* Long-form content, expanded readability */
+
+  /* --- Letter Spacing --- */
+  --letter-spacing-tight: -0.02em;  /* Large headings */
+  --letter-spacing-normal: 0;       /* Body text */
+  --letter-spacing-wide: 0.05em;    /* Uppercase labels, small text */
+}
