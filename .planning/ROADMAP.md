@@ -14,7 +14,7 @@ None
 - [x] **Phase 2: Authentication & User Management** - django-allauth integration, user accounts, frontend shell
 - [x] **Phase 3: Data Pipeline Architecture** - Ingestion framework for 5 data sources with mixed latency
 - [x] **Phase 4: Risk Intelligence Core** - Risk scoring engine for sanctions, political, supply chain disruptions
-- [ ] **Phase 5: Dashboard & Events Feed** - Real-time event aggregation, filtering, search, sentiment
+- [x] **Phase 5: Dashboard & Events Feed** - Real-time event aggregation, filtering, search, sentiment
 - [ ] **Phase 6: Entity Watch** - Track people/companies/governments with mentions, relationships, sanctions
 - [ ] **Phase 7: AI Chat Interface** - assistant-ui integration for natural language queries and reports
 
@@ -70,10 +70,13 @@ Plans:
 **Goal**: Build React dashboard with real-time event aggregation, filtering, search, and sentiment analysis
 **Depends on**: Phase 4
 **Research**: Unlikely (standard React patterns once data pipeline exists)
-**Plans**: TBD
+**Plans**: 4 plans (event list, detail view, dashboard layout, trends)
 
 Plans:
-- [ ] TBD during phase planning
+- [x] 05-01: Event List Component with Real-Time Filtering (EventList, EventCard, FilterBar with URL sync)
+- [x] 05-02: Event Detail View with Risk Visualization (EventDetail component, risk score visualization, data extraction)
+- [x] 05-03: Dashboard Layout Integration (App.tsx integration, routing, shared state)
+- [x] 05-04: Trends Panel with Time-Series Risk Analysis (TrendsPanel, risk trends over time, Chart.js integration)
 
 ### Phase 6: Entity Watch
 **Goal**: Implement entity tracking for people, companies, governments with news mentions, relationships, sanctions status, and activities
@@ -83,7 +86,10 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] TBD during phase planning
+- [x] 06-01: Entity Models & Fuzzy Matching Service (Entity/EntityMention models, RapidFuzz JaroWinkler, EntityService)
+- [ ] 06-02: Entity Extraction Celery Task (LLM entity extraction, linking to events, backfill)
+- [ ] 06-03: Entity Trending & Redis Leaderboard (Time-decay trending, Redis Sorted Sets, API endpoints)
+- [ ] 06-04: Entity Detail View & Dashboard Integration (Entity profiles, mention timeline, relationship graph)
 
 ### Phase 7: AI Chat Interface
 **Goal**: Integrate assistant-ui for natural language queries across data sources, event explanation, and report generation
@@ -103,6 +109,6 @@ Plans:
 | 2. Authentication & User Management | 4/4 | Complete | 2026-01-09 |
 | 3. Data Pipeline Architecture | 4/4 | Complete | 2026-01-08 |
 | 4. Risk Intelligence Core | 4/4 | Complete | 2026-01-09 |
-| 5. Dashboard & Events Feed | 0/TBD | Not started | - |
-| 6. Entity Watch | 0/TBD | Not started | - |
+| 5. Dashboard & Events Feed | 4/4 | Complete | 2026-01-09 |
+| 6. Entity Watch | 1/4 | In progress | - |
 | 7. AI Chat Interface | 0/TBD | Not started | - |

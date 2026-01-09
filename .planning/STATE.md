@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 
 ## Current Position
 
-Phase: 4 of 7 (Risk Intelligence Core)
-Plan: 4 of 4 in current phase
-Status: Phase complete
-Last activity: 2026-01-09 — Completed 04-04-PLAN.md (Risk Intelligence API & Dashboard Integration)
+Phase: 6 of 7 (Entity Watch)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-01-09 — Completed 06-01-PLAN.md (Entity Models & Fuzzy Matching Service)
 
-Progress: ████████░░ 76%
+Progress: █████████░ 81%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
-- Average duration: 17 min
-- Total execution time: 4.66 hours
+- Total plans completed: 17
+- Average duration: 16 min
+- Total execution time: 4.73 hours
 
 **By Phase:**
 
@@ -31,10 +31,11 @@ Progress: ████████░░ 76%
 | 2 | 4 | 24 min | 6 min |
 | 3 | 4 | 195 min | 49 min |
 | 4 | 4 | 26 min | 7 min |
+| 6 | 1 | 4 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 9min, 5min, 5min, 7min
-- Trend: Very fast (leveraging Phase 3/4 infrastructure)
+- Last 5 plans: 5min, 5min, 7min, 4min
+- Trend: Very fast (mature infrastructure)
 
 ## Accumulated Context
 
@@ -95,6 +96,10 @@ Recent decisions affecting current work:
 - Phase 4: LLM for context-aware severity criteria extraction (not keyword matching)
 - Phase 4: SEV1-5 string choices for self-documenting severity levels
 - Phase 4: Fallback to medium severity (0.5) on LLM errors for resilience
+- Phase 6: RapidFuzz JaroWinkler for fuzzy name matching (10x faster than FuzzyWuzzy)
+- Phase 6: Jaro-Winkler threshold 0.85 for real-time entity deduplication (0.90 for batch)
+- Phase 6: Unicode NFC normalization to handle accent variations in entity names
+- Phase 6: Denormalized mentioned_at in EntityMention for efficient trending queries
 
 ### Deferred Issues
 
@@ -110,7 +115,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-09
-Stopped at: Completed 04-04-PLAN.md (Risk Intelligence API & Dashboard Integration)
+Stopped at: Completed 06-01-PLAN.md (Entity Models & Fuzzy Matching Service)
 Resume file: None
 
-Note: Phase 4 Risk Intelligence Core complete - all 4 plans delivered (sanctions, risk scoring, severity, API)
+Note: Phase 6 Entity Watch started - 1 of 4 plans complete (entity models, fuzzy matching)
