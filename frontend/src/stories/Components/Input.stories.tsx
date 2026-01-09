@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from 'storybook/internal/types';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Input } from '../../components/ui/Input';
 
 const meta: Meta<typeof Input> = {
