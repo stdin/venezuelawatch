@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 12 of 13 (Chat Interface Polish)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-01-09 — Completed 12-01-PLAN.md (Event & Entity Tool Cards)
+Plan: 2 of 2 in current phase
+Status: Complete ✓
+Last activity: 2026-01-09 — Completed Phase 12 (Chat Interface Polish)
 
-Progress: █████████░ 71%
+Progress: ██████████ 100% (Phase 12 Complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 36
-- Average duration: 13 min
-- Total execution time: 7.2 hours
+- Total plans completed: 37
+- Average duration: 14 min
+- Total execution time: 8.0 hours
 
 **By Phase:**
 
@@ -37,11 +37,11 @@ Progress: █████████░ 71%
 | 9 | 2 | 53 min | 27 min |
 | 10 | 4 | 8 min | 2 min |
 | 11 | 3 | 5 min | 2 min |
-| 12 | 1 | 1 min | 1 min |
+| 12 | 2 | 47 min | 24 min |
 
 **Recent Trend:**
-- Last 5 plans: 1min, 1min, 2min, 2min, 1min
-- Trend: Very fast (Mantine UI migrations)
+- Last 5 plans: 46min, 1min, 1min, 2min, 2min
+- Trend: Mixed (12-02 required architectural fixes for tool UI rendering)
 
 ## Accumulated Context
 
@@ -184,6 +184,9 @@ Recent decisions affecting current work:
 - Phase 12: Chat tool cards use compact Mantine sizing (size='sm' padding='xs') vs full Dashboard components
 - Phase 12: Adaptive density pattern for chat: single items compact, lists use Stack gap='xs' spacing
 - Phase 12: Badge colors consistent across chat/dashboard/entities for visual cohesion
+- Phase 12: makeAssistantToolUI components must be rendered in JSX tree (not just imported) to register with AssistantRuntimeProvider
+- Phase 12: Backend sends tool_result SSE chunks with structured data for tool UI rendering (hybrid: Claude commentary + visual cards)
+- Phase 12: Real-time tool result updates during streaming (not after completion) for responsive UI
 
 ### Deferred Issues
 
@@ -204,7 +207,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-09
-Stopped at: Completed 12-01-PLAN.md (Event & Entity Tool Cards)
+Stopped at: Completed Phase 12 (Chat Interface Polish)
 Resume file: None
 
-Note: Plan 12-01 complete! Chat tool cards (EventPreviewCard, EntityPreviewCard, TrendingEntitiesCard) rebuilt with Mantine components. Badge colors now consistent across chat/dashboard/entity pages (risk: red/orange/blue, severity: SEV colors, entity type: blue/grape/red/green). Sanctions Alert matches Entity page style (red filled). Compact chat-optimized sizing with size='sm' padding='xs'. Adaptive density with Stack gap='xs' for lists. Custom CSS deleted (EventPreviewCard.css 2.9KB, EntityPreviewCard.css 4.8KB = 7.7KB removed). Phase 12: 1 of 2 plans complete. Ready for 12-02-PLAN.md (RiskTrendsChart upgrade).
+Note: **Phase 12 Complete!** All 4 chat tool cards upgraded with Mantine components. Plan 12-02 completed RiskTrendsChart upgrade (chart height 200px for compactness) and fixed critical tool UI rendering bug (makeAssistantToolUI components must be rendered in tree, not just imported). Backend now sends structured tool_result chunks enabling rich UI cards. Total custom CSS deleted: 3 files (10.4KB removed). Visual consistency achieved across chat/dashboard/entity pages. Ready for Phase 13 (Responsive & Accessibility).
