@@ -19,9 +19,13 @@ from data_pipeline.tasks.worldbank_tasks import ingest_worldbank_indicators
 from data_pipeline.schemas import (
     RiskIntelligenceEventSchema,
     EventFilterParams,
-    SanctionsMatchSchema
+    SanctionsMatchSchema,
+    EntitySchema,
+    EntityProfileSchema,
+    EntityTimelineResponse,
+    EntityMentionSchema
 )
-from core.models import Event, SanctionsMatch
+from core.models import Event, SanctionsMatch, Entity, EntityMention
 
 logger = logging.getLogger(__name__)
 
@@ -359,3 +363,176 @@ def get_sanctions_summary(request: HttpRequest, days_back: int = 30):
         "by_entity_type": by_entity_type,
         "by_sanctions_list": by_sanctions_list
     }
+
+
+# ========================================================================
+# Entity Watch API Endpoints
+# ========================================================================
+
+entity_router = Router(tags=["Entity Watch"])
+
+
+@entity_router.get("/trending", response=List[EntitySchema])
+def get_trending_entities(
+    request: HttpRequest,
+    metric: str = "mentions",  # mentions, risk, sanctions
+    limit: int = 50,
+    entity_type: Optional[str] = None  # Filter by PERSON, ORGANIZATION, etc.
+):
+    """
+    Get trending entities leaderboard with metric toggle.
+
+    Metrics:
+    - mentions: Most mentioned entities (time-decayed score from Redis)
+    - risk: Highest risk entities (avg risk_score from events)
+    - sanctions: Recently sanctioned entities
+
+    Returns:
+        List of entities ordered by selected metric
+    """
+    from data_pipeline.services.trending_service import TrendingService
+
+    # Get trending entities from TrendingService
+    trending = TrendingService.get_trending_entities(metric=metric, limit=limit)
+
+    # Filter by entity_type if provided
+    if entity_type:
+        trending = [e for e in trending if e['entity_type'] == entity_type]
+
+    # Convert to EntitySchema format (add trending_score and rank)
+    results = []
+    for idx, entity_data in enumerate(trending, start=1):
+        # Get Entity object to fetch all fields
+        try:
+            entity = Entity.objects.get(id=entity_data['entity_id'])
+            results.append(EntitySchema(
+                id=str(entity.id),
+                canonical_name=entity.canonical_name,
+                entity_type=entity.entity_type,
+                mention_count=entity.mention_count,
+                first_seen=entity.first_seen,
+                last_seen=entity.last_seen,
+                trending_score=entity_data['score'],
+                trending_rank=idx
+            ))
+        except Entity.DoesNotExist:
+            logger.warning(f"Entity {entity_data['entity_id']} not found in database")
+            continue
+
+    return results
+
+
+@entity_router.get("/{entity_id}", response=EntityProfileSchema)
+def get_entity_profile(request: HttpRequest, entity_id: str):
+    """
+    Get detailed entity profile with sanctions status and recent events.
+
+    Args:
+        entity_id: UUID of the entity
+
+    Returns:
+        EntityProfileSchema with full profile details
+    """
+    from django.shortcuts import get_object_or_404
+    from django.db.models import Avg
+
+    entity = get_object_or_404(Entity, id=entity_id)
+
+    # Check sanctions status
+    sanctions_status = SanctionsMatch.objects.filter(
+        event__entity_mentions__entity=entity
+    ).exists()
+
+    # Calculate avg risk score from events
+    mentions = EntityMention.objects.filter(entity=entity).select_related('event')
+    risk_scores = [m.event.risk_score for m in mentions if m.event.risk_score]
+    avg_risk = sum(risk_scores) / len(risk_scores) if risk_scores else None
+
+    # Get recent events (last 5)
+    recent_mentions = mentions.order_by('-mentioned_at')[:5]
+    recent_events = [
+        {
+            'id': str(m.event.id),
+            'title': m.event.title,
+            'source': m.event.source,
+            'event_type': m.event.event_type,
+            'risk_score': m.event.risk_score,
+            'severity': m.event.severity,
+            'timestamp': m.event.timestamp.isoformat()
+        }
+        for m in recent_mentions
+    ]
+
+    # Get trending rank from TrendingService
+    from data_pipeline.services.trending_service import TrendingService
+    trending_rank = TrendingService.get_entity_rank(str(entity.id))
+
+    return EntityProfileSchema(
+        id=str(entity.id),
+        canonical_name=entity.canonical_name,
+        entity_type=entity.entity_type,
+        mention_count=entity.mention_count,
+        first_seen=entity.first_seen,
+        last_seen=entity.last_seen,
+        trending_score=None,  # Could fetch from Redis if needed
+        trending_rank=trending_rank,
+        aliases=entity.aliases,
+        metadata=entity.metadata,
+        sanctions_status=sanctions_status,
+        risk_score=avg_risk,
+        recent_events=recent_events
+    )
+
+
+@entity_router.get("/{entity_id}/timeline", response=EntityTimelineResponse)
+def get_entity_timeline(request: HttpRequest, entity_id: str, days: int = 30):
+    """
+    Get entity mention timeline for specified time range.
+
+    Args:
+        entity_id: UUID of the entity
+        days: Lookback period in days (default 30)
+
+    Returns:
+        EntityTimelineResponse with mention history
+    """
+    from django.shortcuts import get_object_or_404
+
+    entity = get_object_or_404(Entity, id=entity_id)
+    cutoff = timezone.now() - timedelta(days=days)
+
+    mentions = EntityMention.objects.filter(
+        entity=entity,
+        mentioned_at__gte=cutoff
+    ).select_related('event').order_by('-mentioned_at')
+
+    mention_schemas = [
+        EntityMentionSchema(
+            id=str(m.id),
+            raw_name=m.raw_name,
+            match_score=m.match_score,
+            relevance=m.relevance,
+            mentioned_at=m.mentioned_at,
+            event_summary={
+                'id': str(m.event.id),
+                'title': m.event.title,
+                'source': m.event.source,
+                'event_type': m.event.event_type,
+                'risk_score': m.event.risk_score,
+                'severity': m.event.severity,
+                'timestamp': m.event.timestamp.isoformat()
+            }
+        )
+        for m in mentions
+    ]
+
+    return EntityTimelineResponse(
+        entity_id=str(entity.id),
+        canonical_name=entity.canonical_name,
+        total_mentions=mentions.count(),
+        mentions=mention_schemas,
+        time_range={
+            'start': cutoff.isoformat(),
+            'end': timezone.now().isoformat()
+        }
+    )
