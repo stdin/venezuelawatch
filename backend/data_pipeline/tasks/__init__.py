@@ -14,6 +14,10 @@ from data_pipeline.tasks.intelligence_tasks import (
     update_risk_scores,
     update_entities,
 )
+from data_pipeline.tasks.sanctions_tasks import (
+    refresh_sanctions_screening,
+    screen_event_sanctions,
+)
 
 __all__ = [
     'hello_world',
@@ -29,4 +33,6 @@ __all__ = [
     'update_sentiment_scores',
     'update_risk_scores',
     'update_entities',
+    'refresh_sanctions_screening',
+    'screen_event_sanctions',
 ]

@@ -202,6 +202,8 @@ CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'default'
 
 # Celery Beat Schedule for periodic tasks
+from celery.schedules import crontab
+
 CELERY_BEAT_SCHEDULE = {
     'ingest-gdelt-events': {
         'task': 'data_pipeline.tasks.gdelt_tasks.ingest_gdelt_events',
@@ -227,6 +229,11 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'data_pipeline.tasks.worldbank_tasks.ingest_worldbank_indicators',
         'schedule': 7776000.0,  # 90 days in seconds (quarterly)
         'args': (2,),  # lookback_years (World Bank data is annual)
+    },
+    'refresh-sanctions-screening': {
+        'task': 'refresh_sanctions_screening',
+        'schedule': crontab(hour=4, minute=0),  # Daily at 4 AM UTC
+        'args': (7,),  # lookback_days (7-day rolling window)
     },
 }
 
