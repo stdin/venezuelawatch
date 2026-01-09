@@ -70,7 +70,7 @@ export function Chat() {
             </ThreadPrimitive.Empty>
 
             {/* Scrollable message area */}
-            <ThreadPrimitive.Viewport className="chat-viewport">
+            <ThreadPrimitive.Viewport className="chat-viewport" aria-label="Conversation thread">
               <ThreadPrimitive.Messages
                 components={{
                   UserMessage: () => (
@@ -93,8 +93,9 @@ export function Chat() {
                 <ComposerPrimitive.Input
                   className="chat-composer-input"
                   placeholder="Ask about Venezuela intelligence..."
+                  aria-label="Chat message input"
                 />
-                <ComposerPrimitive.Send className="chat-composer-send">
+                <ComposerPrimitive.Send className="chat-composer-send" aria-label="Send message">
                   Send
                 </ComposerPrimitive.Send>
               </ComposerPrimitive.Root>

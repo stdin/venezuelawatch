@@ -53,6 +53,7 @@
   flex-direction: column;
   gap: 0.75rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .chat-suggestion-chip {
@@ -81,7 +82,7 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1.5rem 2rem;
+  padding: clamp(0.75rem, 2vw, 2rem);
 }
 
 /* Message styling */
@@ -139,7 +140,7 @@
 /* Composer container at bottom */
 .chat-composer-container {
   border-top: 1px solid var(--border-color);
-  padding: 1.5rem 2rem;
+  padding: clamp(0.75rem, 2vw, 2rem);
   background: var(--bg-primary);
 }
 
@@ -154,7 +155,8 @@
   padding: 0.75rem 1rem;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  font-size: 0.9375rem;
+  font-size: 16px; /* Prevent iOS zoom-in */
+  min-height: 44px; /* WCAG touch target minimum */
   color: var(--text-primary);
   background: var(--bg-primary);
   outline: none;
