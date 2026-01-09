@@ -19,6 +19,21 @@ interface EventListProps {
 export function EventList({ events, selectedEventId, onSelectEvent, loading = false }: EventListProps) {
   const parentRef = useRef<HTMLDivElement>(null)
 
+  // Sort events by risk_score descending (highest risk at top)
+  const sortedEvents = useMemo(() => {
+    return [...events].sort((a, b) => b.risk_score - a.risk_score)
+  }, [events])
+
+  // Set up virtualizer
+  const virtualizer = useVirtualizer({
+    count: sortedEvents.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 120, // Estimated card height in pixels
+    overscan: 5, // Render 5 extra items above/below viewport for smooth scrolling
+  })
+
+  const virtualItems = virtualizer.getVirtualItems()
+
   // Show skeleton loading placeholders
   if (loading) {
     return (
@@ -35,21 +50,6 @@ export function EventList({ events, selectedEventId, onSelectEvent, loading = fa
       </Stack>
     )
   }
-
-  // Sort events by risk_score descending (highest risk at top)
-  const sortedEvents = useMemo(() => {
-    return [...events].sort((a, b) => b.risk_score - a.risk_score)
-  }, [events])
-
-  // Set up virtualizer
-  const virtualizer = useVirtualizer({
-    count: sortedEvents.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 120, // Estimated card height in pixels
-    overscan: 5, // Render 5 extra items above/below viewport for smooth scrolling
-  })
-
-  const virtualItems = virtualizer.getVirtualItems()
 
   return (
     <div
