@@ -8,7 +8,7 @@ import logging
 import os
 from typing import Optional
 import pandas as pd
-from comtradeapicall import comtradeapicall
+import comtradeapicall
 
 from data_pipeline.services.secrets import SecretManagerClient
 
@@ -25,8 +25,8 @@ class ComtradeClient:
     Note: API key is optional but recommended (500 req/day with key vs 100/day without)
     """
 
-    _instance: Optional[object] = None
     _api_key: Optional[str] = None
+    _initialized: bool = False
 
     def __init__(self):
         """
@@ -35,7 +35,7 @@ class ComtradeClient:
         API key is cached to avoid repeated Secret Manager calls.
         Falls back to no auth if key not available (100 req/day limit).
         """
-        if ComtradeClient._instance is None:
+        if not ComtradeClient._initialized:
             # Try to get API key from Secret Manager or environment
             try:
                 secret_client = SecretManagerClient()
@@ -47,11 +47,9 @@ class ComtradeClient:
                 logger.info("Register at https://comtradeplus.un.org/ to get an API key (500 req/day)")
                 ComtradeClient._api_key = None
 
-            # Initialize comtradeapicall instance
-            ComtradeClient._instance = comtradeapicall
+            ComtradeClient._initialized = True
             logger.info("Comtrade client initialized successfully")
 
-        self.client = ComtradeClient._instance
         self.api_key = ComtradeClient._api_key
 
     def get_trade_data(
@@ -96,8 +94,8 @@ class ComtradeClient:
                 params['token'] = self.api_key
 
             # Fetch data using comtradeapicall
-            # The library's previewFinalData method returns a DataFrame
-            df = self.client.previewFinalData(**params)
+            # The library's previewFinalData function returns a DataFrame
+            df = comtradeapicall.previewFinalData(**params)
 
             if df is None or len(df) == 0:
                 logger.warning(f"No trade data found for {reporter}, period={period}, commodity={commodity}")
