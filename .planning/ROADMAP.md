@@ -16,7 +16,7 @@ None
 - [x] **Phase 4: Risk Intelligence Core** - Risk scoring engine for sanctions, political, supply chain disruptions
 - [x] **Phase 5: Dashboard & Events Feed** - Real-time event aggregation, filtering, search, sentiment
 - [x] **Phase 6: Entity Watch** - Track people/companies/governments with mentions, relationships, sanctions
-- [ ] **Phase 7: AI Chat Interface** - assistant-ui integration for natural language queries and reports
+- [x] **Phase 7: AI Chat Interface** - assistant-ui integration for natural language queries and reports
 
 ## Phase Details
 
@@ -102,6 +102,7 @@ Plans:
 - [x] 07-01: Backend Chat API with Claude Streaming (POST /api/chat, SSE streaming, 4 tools for data access)
 - [x] 07-02: assistant-ui React Integration (custom runtime, SSE streaming, ChatProvider component)
 - [x] 07-03: Tool UI Components (EventPreviewCard, EntityPreviewCard, TrendingEntitiesCard, RiskTrendsChart with expand-in-place)
+- [x] 07-04: Chat Page UI & Navigation (Perplexity-style layout, suggestion chips, /chat route, ThreadPrimitive integration)
 
 ## Progress
 
@@ -113,4 +114,4 @@ Plans:
 | 4. Risk Intelligence Core | 4/4 | Complete | 2026-01-09 |
 | 5. Dashboard & Events Feed | 4/4 | Complete | 2026-01-09 |
 | 6. Entity Watch | 4/4 | Complete | 2026-01-09 |
-| 7. AI Chat Interface | 3/4 | In progress | - |
+| 7. AI Chat Interface | 4/4 | Complete | 2026-01-09 |
