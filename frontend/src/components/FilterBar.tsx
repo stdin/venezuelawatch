@@ -1,6 +1,6 @@
 import { useState } from 'react'
+import { Stack, Group, MultiSelect, NumberInput, Select, Checkbox, Button, Collapse, Text, Title } from '@mantine/core'
 import type { EventFilterParams } from '../lib/types'
-import './FilterBar.css'
 
 interface FilterBarProps {
   filters: EventFilterParams
@@ -8,15 +8,14 @@ interface FilterBarProps {
 }
 
 const SEVERITY_LEVELS = [
-  { value: 'SEV1_CRITICAL', label: 'SEV1', description: 'Critical' },
-  { value: 'SEV2_HIGH', label: 'SEV2', description: 'High' },
-  { value: 'SEV3_MEDIUM', label: 'SEV3', description: 'Medium' },
-  { value: 'SEV4_LOW', label: 'SEV4', description: 'Low' },
-  { value: 'SEV5_MINIMAL', label: 'SEV5', description: 'Minimal' },
+  { value: 'SEV1_CRITICAL', label: 'SEV1 - Critical' },
+  { value: 'SEV2_HIGH', label: 'SEV2 - High' },
+  { value: 'SEV3_MEDIUM', label: 'SEV3 - Medium' },
+  { value: 'SEV4_LOW', label: 'SEV4 - Low' },
+  { value: 'SEV5_MINIMAL', label: 'SEV5 - Minimal' },
 ]
 
 const EVENT_TYPES = [
-  { value: '', label: 'All Types' },
   { value: 'POLITICAL', label: 'Political' },
   { value: 'ECONOMIC', label: 'Economic' },
   { value: 'HUMANITARIAN', label: 'Humanitarian' },
@@ -24,47 +23,41 @@ const EVENT_TYPES = [
 ]
 
 const TIME_RANGES = [
-  { value: 1, label: 'Last 24h' },
-  { value: 7, label: 'Last week' },
-  { value: 30, label: 'Last month' },
-  { value: 90, label: 'Last 3 months' },
+  { value: '1', label: 'Last 24h' },
+  { value: '7', label: 'Last week' },
+  { value: '30', label: 'Last month' },
+  { value: '90', label: 'Last 3 months' },
 ]
 
 /**
  * Filter bar component for dashboard event filtering
+ * Uses Mantine form components for professional UI
  */
 export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
   const [isExpanded, setIsExpanded] = useState(true)
 
-  // Parse severity string to array
-  const selectedSeverities = filters.severity ? filters.severity.split(',') : SEVERITY_LEVELS.map(s => s.value)
+  // Parse severity string to array for MultiSelect
+  const selectedSeverities = filters.severity ? filters.severity.split(',') : []
 
-  // Handle severity checkbox change
-  const handleSeverityChange = (severityValue: string, checked: boolean) => {
-    let newSeverities = [...selectedSeverities]
-    if (checked) {
-      newSeverities.push(severityValue)
-    } else {
-      newSeverities = newSeverities.filter(s => s !== severityValue)
-    }
-
+  // Handle severity change from MultiSelect
+  const handleSeverityChange = (values: string[]) => {
     onFiltersChange({
       ...filters,
-      severity: newSeverities.length > 0 ? newSeverities.join(',') : undefined,
+      severity: values.length > 0 ? values.join(',') : undefined,
     })
   }
 
   // Handle risk score changes
-  const handleMinRiskChange = (value: string) => {
-    const numValue = value === '' ? undefined : parseInt(value, 10)
+  const handleMinRiskChange = (value: number | string) => {
+    const numValue = typeof value === 'number' ? value : undefined
     onFiltersChange({
       ...filters,
       min_risk_score: numValue,
     })
   }
 
-  const handleMaxRiskChange = (value: string) => {
-    const numValue = value === '' ? undefined : parseInt(value, 10)
+  const handleMaxRiskChange = (value: number | string) => {
+    const numValue = typeof value === 'number' ? value : undefined
     onFiltersChange({
       ...filters,
       max_risk_score: numValue,
@@ -80,7 +73,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
   }
 
   // Handle event type change
-  const handleEventTypeChange = (value: string) => {
+  const handleEventTypeChange = (value: string | null) => {
     onFiltersChange({
       ...filters,
       event_type: value || undefined,
@@ -88,8 +81,8 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
   }
 
   // Handle time range change
-  const handleTimeRangeChange = (value: string) => {
-    const numValue = parseInt(value, 10)
+  const handleTimeRangeChange = (value: string | null) => {
+    const numValue = value ? parseInt(value, 10) : 30
     onFiltersChange({
       ...filters,
       days_back: numValue,
@@ -106,115 +99,85 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
   }
 
   return (
-    <div className="filter-bar">
-      <div className="filter-bar-header">
-        <h3>Filters</h3>
-        <div className="filter-bar-actions">
-          <button onClick={handleClearFilters} className="btn-clear">
-            Clear Filters
-          </button>
-          <button
+    <Stack gap="md">
+      <Group justify="space-between">
+        <Title order={4}>Filters</Title>
+        <Group gap="xs">
+          <Button variant="subtle" size="compact-sm" onClick={handleClearFilters}>
+            Clear
+          </Button>
+          <Button
+            variant="subtle"
+            size="compact-sm"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="btn-toggle"
             aria-label={isExpanded ? 'Collapse filters' : 'Expand filters'}
           >
             {isExpanded ? '▲' : '▼'}
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Group>
+      </Group>
 
-      {isExpanded && (
-        <div className="filter-bar-content">
-          {/* Severity filters */}
-          <div className="filter-group">
-            <label className="filter-label">Severity</label>
-            <div className="filter-checkboxes">
-              {SEVERITY_LEVELS.map(sev => (
-                <label key={sev.value} className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={selectedSeverities.includes(sev.value)}
-                    onChange={(e) => handleSeverityChange(sev.value, e.target.checked)}
-                  />
-                  <span className="checkbox-text" title={sev.description}>
-                    {sev.label}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
+      <Collapse in={isExpanded}>
+        <Stack gap="md">
+          {/* Severity MultiSelect */}
+          <MultiSelect
+            label="Severity"
+            placeholder="Select severity levels"
+            data={SEVERITY_LEVELS}
+            value={selectedSeverities}
+            onChange={handleSeverityChange}
+            clearable
+            searchable
+          />
 
-          {/* Risk score range */}
-          <div className="filter-group">
-            <label className="filter-label">Risk Score</label>
-            <div className="filter-range">
-              <input
-                type="number"
-                min="0"
-                max="100"
-                value={filters.min_risk_score ?? 0}
-                onChange={(e) => handleMinRiskChange(e.target.value)}
+          {/* Risk Score Range */}
+          <div>
+            <Text size="sm" fw={500} mb="xs">Risk Score</Text>
+            <Group gap="xs" grow>
+              <NumberInput
                 placeholder="Min"
-                className="input-number"
+                min={0}
+                max={100}
+                value={filters.min_risk_score ?? 0}
+                onChange={handleMinRiskChange}
               />
-              <span className="range-separator">to</span>
-              <input
-                type="number"
-                min="0"
-                max="100"
-                value={filters.max_risk_score ?? 100}
-                onChange={(e) => handleMaxRiskChange(e.target.value)}
+              <Text ta="center" pt="xs">to</Text>
+              <NumberInput
                 placeholder="Max"
-                className="input-number"
+                min={0}
+                max={100}
+                value={filters.max_risk_score ?? 100}
+                onChange={handleMaxRiskChange}
               />
-            </div>
+            </Group>
           </div>
 
-          {/* Event type */}
-          <div className="filter-group">
-            <label className="filter-label">Event Type</label>
-            <select
-              value={filters.event_type ?? ''}
-              onChange={(e) => handleEventTypeChange(e.target.value)}
-              className="filter-select"
-            >
-              {EVENT_TYPES.map(type => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Event Type Select */}
+          <Select
+            label="Event Type"
+            placeholder="All types"
+            data={EVENT_TYPES}
+            value={filters.event_type ?? null}
+            onChange={handleEventTypeChange}
+            clearable
+          />
 
-          {/* Sanctions toggle */}
-          <div className="filter-group">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={filters.has_sanctions ?? false}
-                onChange={(e) => handleSanctionsChange(e.target.checked)}
-              />
-              <span className="checkbox-text">Show only sanctioned events</span>
-            </label>
-          </div>
+          {/* Sanctions Checkbox */}
+          <Checkbox
+            label="Show only sanctioned events"
+            checked={filters.has_sanctions ?? false}
+            onChange={(e) => handleSanctionsChange(e.currentTarget.checked)}
+          />
 
-          {/* Time range */}
-          <div className="filter-group">
-            <label className="filter-label">Time Range</label>
-            <select
-              value={filters.days_back ?? 30}
-              onChange={(e) => handleTimeRangeChange(e.target.value)}
-              className="filter-select"
-            >
-              {TIME_RANGES.map(range => (
-                <option key={range.value} value={range.value}>
-                  {range.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      )}
-    </div>
+          {/* Time Range Select */}
+          <Select
+            label="Time Range"
+            data={TIME_RANGES}
+            value={filters.days_back?.toString() ?? '30'}
+            onChange={handleTimeRangeChange}
+          />
+        </Stack>
+      </Collapse>
+    </Stack>
   )
 }
