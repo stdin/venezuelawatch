@@ -103,6 +103,22 @@ class Event(models.Model):
         help_text="Computed risk level (0-100)"
     )
 
+    # Severity classification (SEV 1-5)
+    severity = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        db_index=True,
+        choices=[
+            ('SEV1_CRITICAL', 'SEV1 - Critical'),
+            ('SEV2_HIGH', 'SEV2 - High'),
+            ('SEV3_MEDIUM', 'SEV3 - Medium'),
+            ('SEV4_LOW', 'SEV4 - Low'),
+            ('SEV5_MINIMAL', 'SEV5 - Minimal'),
+        ],
+        help_text="Event severity classification (SEV1=Critical to SEV5=Minimal)"
+    )
+
     # LLM Intelligence fields (comprehensive analysis from Claude)
     summary = models.TextField(
         blank=True,
@@ -153,7 +169,8 @@ class Event(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.source} - {self.title[:50]}"
+        severity_str = f" [{self.severity}]" if self.severity else ""
+        return f"{self.source} - {self.title[:50]}{severity_str}"
 
 
 class SanctionsMatch(models.Model):
