@@ -56,7 +56,25 @@ def ingest_gdelt_events(self, lookback_minutes: int = 15) -> Dict[str, Any]:
         # Fetch from GDELT
         response = requests.get(api_url, params=params, timeout=30)
         response.raise_for_status()
-        data = response.json()
+
+        # Log response for debugging
+        logger.debug(f"GDELT API response status: {response.status_code}")
+        logger.debug(f"GDELT API response text (first 500 chars): {response.text[:500]}")
+
+        # Handle empty response
+        if not response.text or response.text.strip() == '':
+            logger.warning("GDELT API returned empty response - no articles found")
+            return {
+                'events_created': 0,
+                'events_skipped': 0,
+                'articles_fetched': 0,
+            }
+
+        try:
+            data = response.json()
+        except ValueError as e:
+            logger.error(f"Failed to parse GDELT JSON response. Response text: {response.text[:1000]}")
+            raise
 
         # GDELT response structure: {'articles': [...]}
         articles = data.get('articles', [])
