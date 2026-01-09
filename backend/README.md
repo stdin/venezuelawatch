@@ -168,6 +168,10 @@ Interactive API documentation is automatically generated and available at:
 - **Swagger UI**: http://localhost:8000/api/docs
 - **OpenAPI JSON**: http://localhost:8000/api/openapi.json
 
+### Additional Documentation
+
+- **Risk Intelligence API**: [docs/risk-intelligence-api.md](docs/risk-intelligence-api.md) - Multi-dimensional risk scoring, severity classification, sanctions screening for Phase 5 dashboard integration
+
 ## Endpoints
 
 ### Health Check
