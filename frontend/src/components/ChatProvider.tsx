@@ -13,12 +13,6 @@ import { EventPreviewCard } from './chat/EventPreviewCard'
 import { EntityPreviewCard, TrendingEntitiesCard } from './chat/EntityPreviewCard'
 import { RiskTrendsChart } from './chat/RiskTrendsChart'
 
-// Prevent unused variable warnings
-void EventPreviewCard
-void EntityPreviewCard
-void TrendingEntitiesCard
-void RiskTrendsChart
-
 interface ChatProviderProps {
   children: React.ReactNode
 }
@@ -27,6 +21,7 @@ interface ChatProviderProps {
  * Provider component for AI chat functionality.
  *
  * Wraps children in AssistantRuntimeProvider with custom Django runtime.
+ * Renders tool UI components to register them with assistant-ui.
  * Use this at the Chat page level to enable assistant-ui hooks.
  */
 export function ChatProvider({ children }: ChatProviderProps) {
@@ -34,6 +29,12 @@ export function ChatProvider({ children }: ChatProviderProps) {
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
+      {/* Render tool UI components to register them (they don't display anything) */}
+      <EventPreviewCard />
+      <EntityPreviewCard />
+      <TrendingEntitiesCard />
+      <RiskTrendsChart />
+
       {children}
     </AssistantRuntimeProvider>
   )

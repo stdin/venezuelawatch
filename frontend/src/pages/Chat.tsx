@@ -2,17 +2,6 @@ import { ThreadPrimitive, ComposerPrimitive, MessagePrimitive } from '@assistant
 import { ChatProvider } from '../components/ChatProvider'
 import './Chat.css'
 
-// Import tool UI components to ensure they're registered
-import { EventPreviewCard } from '../components/chat/EventPreviewCard'
-import { EntityPreviewCard, TrendingEntitiesCard } from '../components/chat/EntityPreviewCard'
-import { RiskTrendsChart } from '../components/chat/RiskTrendsChart'
-
-// Ensure imports are not tree-shaken
-void EventPreviewCard
-void EntityPreviewCard
-void TrendingEntitiesCard
-void RiskTrendsChart
-
 /**
  * Chat page with Perplexity-style AI conversation interface.
  *
