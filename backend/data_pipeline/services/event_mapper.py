@@ -165,21 +165,80 @@ def map_reliefweb_to_event(report: Dict[str, Any]) -> Event:
     return event
 
 
-def map_fred_to_event(observation: Dict[str, Any], series_info: Dict[str, Any]) -> Event:
+def map_fred_to_event(observation: Dict[str, Any], series_config: Dict[str, Any]) -> Event:
     """
     Map FRED (Federal Reserve Economic Data) observation to Event model.
 
-    Placeholder for Plan 03-03 (Daily Batch Ingestion).
-
     Args:
-        observation: FRED observation dict
-        series_info: FRED series metadata
+        observation: FRED observation dict with {
+            'series_id': str,
+            'date': datetime,
+            'value': float,
+            'previous_value': float (optional),
+        }
+        series_config: Series configuration from fred_series.py with {
+            'name': str,
+            'units': str,
+            'frequency': str,
+            'category': str,
+            etc.
+        }
 
     Returns:
         Event instance (not saved to database)
     """
-    # TODO: Implement in Plan 03-03
-    raise NotImplementedError("FRED mapping will be implemented in Plan 03-03")
+    # Parse observation date
+    obs_date = observation.get('date')
+    if isinstance(obs_date, str):
+        obs_date = date_parser.parse(obs_date)
+    if timezone.is_naive(obs_date):
+        obs_date = timezone.make_aware(obs_date, timezone.utc)
+
+    # Build title with series name and current value
+    series_name = series_config.get('name', observation['series_id'])
+    value = observation['value']
+    units = series_config.get('units', '')
+
+    # Format value based on units
+    if units == 'percent':
+        title = f"{series_name}: {value:.2f}%"
+    elif units in ['USD/barrel', 'USD', 'USD millions']:
+        title = f"{series_name}: ${value:,.2f}"
+    else:
+        title = f"{series_name}: {value:,.2f} {units}"
+
+    # Calculate change if previous value available
+    previous_value = observation.get('previous_value')
+    change_pct = None
+    if previous_value is not None and previous_value != 0:
+        change_pct = ((value - previous_value) / previous_value) * 100
+
+    # Build content JSON
+    content = {
+        'series_id': observation['series_id'],
+        'value': value,
+        'units': units,
+        'frequency': series_config.get('frequency'),
+        'category': series_config.get('category'),
+        'description': series_config.get('description'),
+        'previous_value': previous_value,
+        'change_pct': change_pct,
+        'raw_observation': observation,
+    }
+
+    # Create Event instance
+    event = Event(
+        source='FRED',
+        event_type='ECONOMIC',
+        timestamp=obs_date,
+        title=title[:500],  # Limit to model max length
+        content=content,
+        sentiment=None,  # Economic indicators don't have sentiment
+        risk_score=None,  # Computed in Phase 4
+        entities=[],  # No entities for economic data
+    )
+
+    return event
 
 
 def map_comtrade_to_event(trade_record: Dict[str, Any]) -> Event:
