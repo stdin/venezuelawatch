@@ -20,8 +20,15 @@ class RiskScorer:
     """
     Risk assessment engine for Venezuela intelligence events.
 
-    Generates risk scores from 0.0 (low risk) to 1.0 (high risk) based on
-    multiple factors including event type, sentiment, keywords, and metrics.
+    UPDATED: Now uses multi-dimensional risk aggregation via RiskAggregator
+    for composite scores combining LLM risk, sanctions, sentiment, urgency,
+    and supply chain dimensions.
+
+    Legacy methods (calculate_risk_score with keyword/sentiment heuristics)
+    maintained for backward compatibility.
+
+    Generates risk scores from 0-100 based on weighted multi-dimensional
+    aggregation of risk factors.
     """
 
     # Event type risk weights (base risk multipliers)
@@ -74,64 +81,120 @@ class RiskScorer:
     }
 
     @classmethod
+    def calculate_comprehensive_risk(cls, event: 'Event') -> float:
+        """
+        Calculate multi-dimensional risk score using RiskAggregator.
+
+        This is the NEW risk scoring method that combines:
+        - LLM base risk assessment
+        - Sanctions screening results
+        - Sentiment analysis
+        - Urgency level
+        - Supply chain impact
+
+        Uses weighted aggregation with event-type-specific weights.
+
+        Args:
+            event: Event model instance with llm_analysis populated
+
+        Returns:
+            Composite risk score from 0-100
+
+        Example:
+            >>> from core.models import Event
+            >>> event = Event.objects.filter(llm_analysis__isnull=False).first()
+            >>> score = RiskScorer.calculate_comprehensive_risk(event)
+            >>> assert 0 <= score <= 100
+        """
+        from data_pipeline.services.risk_aggregator import RiskAggregator
+        from data_pipeline.services.sanctions_screener import SanctionsScreener
+
+        try:
+            # Extract LLM base risk (0.0-1.0)
+            llm_risk = 0.5  # Default if no LLM analysis
+            if event.llm_analysis:
+                llm_risk = event.llm_analysis.get('risk', {}).get('score', 0.5)
+
+            # Get sanctions screening score (0.0 or 1.0)
+            # Check if event already has sanctions screening results
+            if event.llm_analysis and 'sanctions_score' in event.llm_analysis:
+                sanctions_score = event.llm_analysis['sanctions_score']
+            else:
+                # Screen entities if LLM analysis exists
+                if event.llm_analysis and 'entities' in event.llm_analysis:
+                    sanctions_score = SanctionsScreener.screen_event_entities(event)
+                else:
+                    sanctions_score = 0.0
+
+            # Extract sentiment (-1.0 to 1.0)
+            sentiment = event.sentiment if event.sentiment is not None else 0.0
+
+            # Extract urgency (from LLM analysis or event field)
+            urgency = event.urgency or 'medium'
+
+            # Extract event type
+            event_type = event.event_type or 'OTHER'
+
+            # Extract themes (from LLM analysis or event field)
+            themes = []
+            if event.llm_analysis:
+                themes = event.llm_analysis.get('themes', [])
+            elif event.themes:
+                themes = event.themes
+
+            # Calculate composite risk using RiskAggregator
+            composite_risk = RiskAggregator.calculate_composite_risk(
+                llm_risk=llm_risk,
+                sanctions_score=sanctions_score,
+                sentiment=sentiment,
+                urgency=urgency,
+                event_type=event_type,
+                themes=themes
+            )
+
+            logger.info(
+                f"Event {event.id} comprehensive risk: {composite_risk:.2f} "
+                f"(llm={llm_risk:.2f}, sanctions={sanctions_score:.2f}, "
+                f"sentiment={sentiment:.2f}, urgency={urgency}, type={event_type})"
+            )
+
+            return composite_risk
+
+        except Exception as e:
+            logger.error(
+                f"Failed to calculate comprehensive risk for Event {event.id}: {e}",
+                exc_info=True
+            )
+            return 50.0  # Default to medium risk (50/100) on error
+
+    @classmethod
     def calculate_risk_score(cls, event: 'Event') -> float:
         """
-        Calculate comprehensive risk score for an event.
+        Calculate risk score for an event.
+
+        UPDATED: Now delegates to calculate_comprehensive_risk() which uses
+        multi-dimensional RiskAggregator.
+
+        Returns score scaled to 0-100 (not 0-1 like legacy version).
 
         Args:
             event: Event model instance
 
         Returns:
-            Risk score from 0.0 (low risk) to 1.0 (high risk)
+            Risk score from 0-100 (CHANGED from 0.0-1.0 in legacy version)
         """
-        try:
-            risk_components = []
+        # Delegate to new comprehensive risk calculation
+        return cls.calculate_comprehensive_risk(event)
 
-            # 1. Base risk from event type (20% weight)
-            event_type_risk = cls._calculate_event_type_risk(event)
-            risk_components.append((event_type_risk, 0.20))
-
-            # 2. Source reliability adjustment (10% weight)
-            source_risk = cls._calculate_source_risk(event)
-            risk_components.append((source_risk, 0.10))
-
-            # 3. Sentiment-based risk (30% weight)
-            sentiment_risk = cls._calculate_sentiment_risk(event)
-            risk_components.append((sentiment_risk, 0.30))
-
-            # 4. Keyword presence risk (25% weight)
-            keyword_risk = cls._calculate_keyword_risk(event)
-            risk_components.append((keyword_risk, 0.25))
-
-            # 5. Metric-based risk for economic events (15% weight)
-            metric_risk = cls._calculate_metric_risk(event)
-            risk_components.append((metric_risk, 0.15))
-
-            # Calculate weighted risk score
-            total_risk = sum(
-                risk * weight
-                for risk, weight in risk_components
-            )
-
-            # Clamp to [0.0, 1.0]
-            total_risk = max(0.0, min(1.0, total_risk))
-
-            logger.info(
-                f"Event {event.id} risk score: {total_risk:.3f} "
-                f"(type={event_type_risk:.2f}, source={source_risk:.2f}, "
-                f"sentiment={sentiment_risk:.2f}, keywords={keyword_risk:.2f}, "
-                f"metrics={metric_risk:.2f})"
-            )
-
-            return round(total_risk, 4)
-
-        except Exception as e:
-            logger.error(f"Failed to calculate risk score for Event {event.id}: {e}", exc_info=True)
-            return 0.5  # Default to medium risk on error
+    # ========================================================================
+    # LEGACY METHODS - Kept for backward compatibility
+    # These methods are no longer used by calculate_risk_score() but may be
+    # referenced elsewhere. New code should use calculate_comprehensive_risk().
+    # ========================================================================
 
     @classmethod
     def _calculate_event_type_risk(cls, event: 'Event') -> float:
-        """Calculate base risk from event type."""
+        """Calculate base risk from event type. (LEGACY)"""
         event_type = event.event_type or 'OTHER'
         return cls.EVENT_TYPE_WEIGHTS.get(event_type, 0.2)
 
