@@ -56,11 +56,12 @@ Plans:
 ### Phase 4: Risk Intelligence Core
 **Goal**: Implement risk scoring system for sanctions changes, political disruptions, supply chain events
 **Depends on**: Phase 3
-**Research**: Likely (risk scoring algorithms, sanctions data sources)
+**Research**: Completed (04-RESEARCH.md)
 **Research topics**: Risk scoring methodologies, OFAC sanctions list APIs, event impact classification, risk aggregation patterns
 **Plans**: TBD
 
 Plans:
+- [x] 04-01: Sanctions Screening Integration (OpenSanctions/OFAC API, SanctionsMatch model, daily refresh task)
 - [ ] TBD during phase planning
 
 ### Phase 5: Dashboard & Events Feed
@@ -99,7 +100,7 @@ Plans:
 | 1. Foundation & Infrastructure | 4/4 | Complete | 2026-01-08 |
 | 2. Authentication & User Management | 4/4 | Complete | 2026-01-09 |
 | 3. Data Pipeline Architecture | 4/4 | Complete | 2026-01-08 |
-| 4. Risk Intelligence Core | 0/TBD | Not started | - |
+| 4. Risk Intelligence Core | 1/TBD | In progress | - |
 | 5. Dashboard & Events Feed | 0/TBD | Not started | - |
 | 6. Entity Watch | 0/TBD | Not started | - |
 | 7. AI Chat Interface | 0/TBD | Not started | - |
