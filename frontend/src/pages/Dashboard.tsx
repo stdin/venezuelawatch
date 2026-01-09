@@ -37,17 +37,21 @@ export function Dashboard() {
       <Grid>
         {/* Events feed: 6 cols desktop, full width mobile */}
         <Grid.Col span={{ base: 12, md: 6 }}>
-          <FilterBar filters={filters} onFiltersChange={handleFiltersChange} />
+          <div role="search" aria-label="Event filters">
+            <FilterBar filters={filters} onFiltersChange={handleFiltersChange} />
+          </div>
 
           {error && (
-            <div className="error-state">
+            <div className="error-state" role="alert" aria-live="assertive">
               <h2>Error Loading Events</h2>
               <p>{error.message}</p>
             </div>
           )}
 
           {!loading && !error && (!events || events.length === 0) && (
-            <div className="empty-state">No events found with current filters</div>
+            <div className="empty-state" role="status" aria-live="polite">
+              No events found with current filters
+            </div>
           )}
 
           {!error && (

@@ -37,23 +37,27 @@ export function EventList({ events, selectedEventId, onSelectEvent, loading = fa
   // Show skeleton loading placeholders
   if (loading) {
     return (
-      <Stack gap="sm" p="md">
-        {[...Array(5)].map((_, i) => (
-          <Card key={i} padding="md" withBorder>
-            <Stack gap="xs">
-              <Skeleton height={20} width="80%" />
-              <Skeleton height={14} width="60%" />
-              <Skeleton height={14} width="40%" />
-            </Stack>
-          </Card>
-        ))}
-      </Stack>
+      <div role="status" aria-live="polite" aria-label="Loading events">
+        <Stack gap="sm" p="md">
+          {[...Array(5)].map((_, i) => (
+            <Card key={i} padding="md" withBorder>
+              <Stack gap="xs">
+                <Skeleton height={20} width="80%" />
+                <Skeleton height={14} width="60%" />
+                <Skeleton height={14} width="40%" />
+              </Stack>
+            </Card>
+          ))}
+        </Stack>
+      </div>
     )
   }
 
   return (
     <div
       ref={parentRef}
+      role="feed"
+      aria-label="Event feed"
       style={{
         height: '100%',
         overflow: 'auto',
