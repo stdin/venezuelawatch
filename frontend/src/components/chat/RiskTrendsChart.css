@@ -1,0 +1,86 @@
+/* Risk Trends Chart - Compact inline chat display */
+
+.risk-trends-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+  max-width: 600px;
+}
+
+.risk-trends-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.risk-trends-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.risk-trends-period {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Chart container */
+.risk-trends-chart-container {
+  margin: 12px 0;
+}
+
+/* Summary stats */
+.risk-trends-summary {
+  display: flex;
+  justify-content: space-around;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.risk-trends-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.risk-trends-stat-label {
+  font-size: 10px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  font-weight: 500;
+}
+
+.risk-trends-stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Empty state */
+.risk-trends-empty {
+  padding: 16px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* Recharts overrides for compact display */
+.risk-trends-card .recharts-wrapper {
+  font-size: 10px;
+}
+
+.risk-trends-card .recharts-cartesian-axis-tick-value {
+  font-size: 10px;
+}
