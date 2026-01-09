@@ -1,0 +1,166 @@
+.event-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.event-card:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--text-tertiary);
+  box-shadow: var(--shadow-md);
+}
+
+.event-card-selected {
+  border-left: 4px solid var(--risk-high);
+  background: #fef3f2;
+  padding-left: 13px; /* Adjust for thicker left border */
+}
+
+/* Header section */
+.event-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.event-card-title {
+  flex: 1;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.event-card-badges {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Timestamp */
+.event-card-timestamp {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+/* Summary */
+.event-card-summary {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* Footer */
+.event-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Risk score badges */
+.badge-risk {
+  color: white;
+}
+
+.badge-risk.risk-critical {
+  background: var(--risk-critical);
+}
+
+.badge-risk.risk-high {
+  background: var(--risk-high);
+}
+
+.badge-risk.risk-medium {
+  background: var(--risk-medium);
+}
+
+.badge-risk.risk-low {
+  background: var(--risk-low);
+}
+
+/* Severity badges */
+.badge-severity {
+  color: white;
+  font-size: 11px;
+}
+
+.badge-severity.severity-critical {
+  background: var(--severity-critical);
+}
+
+.badge-severity.severity-high {
+  background: var(--severity-high);
+}
+
+.badge-severity.severity-medium {
+  background: var(--severity-medium);
+}
+
+.badge-severity.severity-low {
+  background: var(--severity-low);
+}
+
+.badge-severity.severity-minimal {
+  background: var(--severity-minimal);
+}
+
+/* Source badge */
+.badge-source {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+}
+
+/* Sentiment indicator */
+.sentiment-indicator {
+  font-size: 16px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.sentiment-indicator.sentiment-positive {
+  color: var(--risk-minimal);
+  background: #f0fdf4;
+}
+
+.sentiment-indicator.sentiment-negative {
+  color: var(--risk-critical);
+  background: #fef2f2;
+}
+
+.sentiment-indicator.sentiment-neutral {
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary);
+}

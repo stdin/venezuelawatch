@@ -1,0 +1,35 @@
+.event-list-container {
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem;
+  scroll-behavior: smooth;
+}
+
+.event-list-inner {
+  width: 100%;
+  position: relative;
+}
+
+.virtual-item {
+  padding: 0 0.5rem;
+}
+
+/* Scrollbar styling for modern look */
+.event-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.event-list-container::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.event-list-container::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: 4px;
+}
+
+.event-list-container::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
