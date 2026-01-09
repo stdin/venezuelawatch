@@ -13,7 +13,7 @@ None
 - [x] **Phase 1: Foundation & Infrastructure** - Django + React project setup, GCP infrastructure, database schema
 - [x] **Phase 2: Authentication & User Management** - django-allauth integration, user accounts, frontend shell
 - [x] **Phase 3: Data Pipeline Architecture** - Ingestion framework for 5 data sources with mixed latency
-- [ ] **Phase 4: Risk Intelligence Core** - Risk scoring engine for sanctions, political, supply chain disruptions
+- [x] **Phase 4: Risk Intelligence Core** - Risk scoring engine for sanctions, political, supply chain disruptions
 - [ ] **Phase 5: Dashboard & Events Feed** - Real-time event aggregation, filtering, search, sentiment
 - [ ] **Phase 6: Entity Watch** - Track people/companies/governments with mentions, relationships, sanctions
 - [ ] **Phase 7: AI Chat Interface** - assistant-ui integration for natural language queries and reports
@@ -64,7 +64,7 @@ Plans:
 - [x] 04-01: Sanctions Screening Integration (OpenSanctions/OFAC API, SanctionsMatch model, daily refresh task)
 - [x] 04-02: Multi-Dimensional Risk Aggregation (RiskAggregator service, event-type-specific weights, comprehensive scoring)
 - [x] 04-03: Event Severity Classification (ImpactClassifier, NCISS-style weighted criteria, SEV1-5 levels)
-- [ ] TBD during phase planning
+- [x] 04-04: Risk Intelligence API & Dashboard Integration (REST API endpoints, bulk operations, documentation)
 
 ### Phase 5: Dashboard & Events Feed
 **Goal**: Build React dashboard with real-time event aggregation, filtering, search, and sentiment analysis
@@ -102,7 +102,7 @@ Plans:
 | 1. Foundation & Infrastructure | 4/4 | Complete | 2026-01-08 |
 | 2. Authentication & User Management | 4/4 | Complete | 2026-01-09 |
 | 3. Data Pipeline Architecture | 4/4 | Complete | 2026-01-08 |
-| 4. Risk Intelligence Core | 3/TBD | In progress | - |
+| 4. Risk Intelligence Core | 4/4 | Complete | 2026-01-09 |
 | 5. Dashboard & Events Feed | 0/TBD | Not started | - |
 | 6. Entity Watch | 0/TBD | Not started | - |
 | 7. AI Chat Interface | 0/TBD | Not started | - |
