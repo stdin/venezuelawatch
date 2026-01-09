@@ -4,19 +4,29 @@ Data pipeline API endpoints for task triggering and monitoring.
 Provides HTTP endpoints for Cloud Scheduler to trigger Celery tasks.
 """
 import logging
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
+from datetime import timedelta
 from ninja import Router, Schema
 from django.http import HttpRequest, JsonResponse
+from django.utils import timezone
+from django.db.models import Count
 
 from data_pipeline.tasks.gdelt_tasks import ingest_gdelt_events
 from data_pipeline.tasks.reliefweb_tasks import ingest_reliefweb_updates
 from data_pipeline.tasks.fred_tasks import ingest_fred_series
 from data_pipeline.tasks.comtrade_tasks import ingest_comtrade_trade_data
 from data_pipeline.tasks.worldbank_tasks import ingest_worldbank_indicators
+from data_pipeline.schemas import (
+    RiskIntelligenceEventSchema,
+    EventFilterParams,
+    SanctionsMatchSchema
+)
+from core.models import Event, SanctionsMatch
 
 logger = logging.getLogger(__name__)
 
 router = Router()
+risk_router = Router(tags=["Risk Intelligence"])
 
 
 # Request/Response schemas
@@ -226,3 +236,128 @@ def health_check(request: HttpRequest):
         Simple health status
     """
     return {"status": "healthy", "service": "data_pipeline"}
+
+
+# ========================================================================
+# Risk Intelligence API Endpoints
+# ========================================================================
+
+@risk_router.get("/events", response=List[RiskIntelligenceEventSchema])
+def get_risk_intelligence_events(request: HttpRequest, filters: EventFilterParams = None):
+    """
+    Get events with risk intelligence filtering and sorting.
+
+    Filters:
+    - severity: Comma-separated SEV levels (e.g., "SEV1_CRITICAL,SEV2_HIGH")
+    - min_risk_score, max_risk_score: Risk score range (0-100)
+    - has_sanctions: Boolean - only events with sanctions matches
+    - event_type, source: Filter by type/source
+    - days_back: Lookback period (default 30 days)
+
+    Sorting: By risk_score DESC, timestamp DESC
+    """
+    if filters is None:
+        filters = EventFilterParams()
+
+    cutoff_date = timezone.now() - timedelta(days=filters.days_back)
+    queryset = Event.objects.filter(timestamp__gte=cutoff_date)
+
+    # Apply filters
+    if filters.severity:
+        severity_levels = filters.severity.split(',')
+        queryset = queryset.filter(severity__in=severity_levels)
+
+    if filters.min_risk_score is not None:
+        queryset = queryset.filter(risk_score__gte=filters.min_risk_score)
+
+    if filters.max_risk_score is not None:
+        queryset = queryset.filter(risk_score__lte=filters.max_risk_score)
+
+    if filters.has_sanctions:
+        queryset = queryset.filter(sanctions_matches__isnull=False).distinct()
+
+    if filters.event_type:
+        queryset = queryset.filter(event_type=filters.event_type)
+
+    if filters.source:
+        queryset = queryset.filter(source=filters.source)
+
+    # Sort by risk_score DESC, timestamp DESC
+    queryset = queryset.order_by('-risk_score', '-timestamp')
+
+    # Pagination
+    queryset = queryset[filters.offset:filters.offset + filters.limit]
+
+    # Prefetch sanctions matches
+    queryset = queryset.prefetch_related('sanctions_matches')
+
+    # Convert to response schema
+    results = []
+    for event in queryset:
+        # Extract entities from llm_analysis
+        entities = {"people": [], "organizations": [], "locations": []}
+        if event.llm_analysis and 'entities' in event.llm_analysis:
+            entities = event.llm_analysis['entities']
+
+        # Convert sanctions matches
+        sanctions = [
+            SanctionsMatchSchema(
+                entity_name=match.entity_name,
+                entity_type=match.entity_type,
+                sanctions_list=match.sanctions_list,
+                match_score=match.match_score
+            )
+            for match in event.sanctions_matches.all()
+        ]
+
+        results.append(RiskIntelligenceEventSchema(
+            id=str(event.id),
+            source=event.source,
+            event_type=event.event_type,
+            timestamp=event.timestamp,
+            title=event.title,
+            summary=event.summary,
+            risk_score=event.risk_score,
+            severity=event.severity,
+            urgency=event.urgency,
+            sentiment=event.sentiment,
+            themes=event.themes or [],
+            sanctions_matches=sanctions,
+            entities=entities
+        ))
+
+    return results
+
+
+@risk_router.get("/sanctions-summary", response=dict)
+def get_sanctions_summary(request: HttpRequest, days_back: int = 30):
+    """
+    Get summary of sanctions matches in recent events.
+
+    Returns:
+    {
+        "total_events_with_sanctions": int,
+        "unique_sanctioned_entities": int,
+        "by_entity_type": {"person": X, "organization": Y},
+        "by_sanctions_list": {"OFAC-SDN": X, "UN-1267": Y}
+    }
+    """
+    cutoff_date = timezone.now() - timedelta(days=days_back)
+    matches = SanctionsMatch.objects.filter(event__timestamp__gte=cutoff_date)
+
+    # Aggregate by entity type
+    by_entity_type = {}
+    for item in matches.values('entity_type').annotate(count=Count('id')):
+        by_entity_type[item['entity_type']] = item['count']
+
+    # Aggregate by sanctions list
+    by_sanctions_list = {}
+    for item in matches.values('sanctions_list').annotate(count=Count('id')):
+        by_sanctions_list[item['sanctions_list']] = item['count']
+
+    return {
+        "total_events_with_sanctions": matches.values('event').distinct().count(),
+        "unique_sanctioned_entities": matches.values('entity_name').distinct().count(),
+        "by_entity_type": by_entity_type,
+        "by_sanctions_list": by_sanctions_list
+    }
