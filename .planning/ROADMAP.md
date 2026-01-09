@@ -152,12 +152,12 @@ Plans:
 **Goal**: Redesign entity leaderboard and profile pages with better information architecture and visualization
 **Depends on**: Phase 9
 **Research**: Unlikely (using established components and patterns from Phase 9)
-**Plans**: 2/3 complete
+**Plans**: 3/3 complete
 
 Plans:
 - [x] 11-01: Layout & Metric Toggles (Mantine Grid, SegmentedControl)
 - [x] 11-02: EntityLeaderboard Redesign (Mantine Card, Badge, Skeleton loading)
-- [ ] 11-03: EntityProfile Redesign
+- [x] 11-03: EntityProfile Redesign (Mantine Card sections, Alert for sanctions)
 
 #### Phase 12: Chat Interface Polish
 **Goal**: Polish chat interface with better message rendering, tool card design, and conversation UX
@@ -192,6 +192,6 @@ Plans:
 | 8. Design System Foundation | v1.1 | 2/2 | Complete | 2026-01-09 |
 | 9. Component Library Rebuild | v1.1 | 2/2 | Complete | 2026-01-09 |
 | 10. Dashboard Redesign | v1.1 | 4/4 | Complete | 2026-01-09 |
-| 11. Entity Pages Redesign | v1.1 | 0/? | Not started | - |
+| 11. Entity Pages Redesign | v1.1 | 3/3 | Complete | 2026-01-09 |
 | 12. Chat Interface Polish | v1.1 | 0/? | Not started | - |
 | 13. Responsive & Accessibility | v1.1 | 0/? | Not started | - |

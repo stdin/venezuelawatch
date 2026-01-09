@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 11 of 13 (Entity Pages Redesign)
-Plan: 2 of 4 in current phase
-Status: In progress
-Last activity: 2026-01-09 — Completed 11-02-PLAN.md (EntityLeaderboard Redesign)
+Plan: 3 of 3 in current phase
+Status: Complete
+Last activity: 2026-01-09 — Completed 11-03-PLAN.md (EntityProfile Redesign), Phase 11 complete
 
-Progress: ███████░░░ 61%
+Progress: ████████░░ 69%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 34
+- Total plans completed: 35
 - Average duration: 13 min
-- Total execution time: 7.1 hours
+- Total execution time: 7.2 hours
 
 **By Phase:**
 
@@ -36,10 +36,10 @@ Progress: ███████░░░ 61%
 | 8 | 2 | 29 min | 15 min |
 | 9 | 2 | 53 min | 27 min |
 | 10 | 4 | 8 min | 2 min |
-| 11 | 2 | 2 min | 1 min |
+| 11 | 3 | 5 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 1min, 1min, 2min, 2min, 3min
+- Last 5 plans: 3min, 1min, 1min, 2min, 2min
 - Trend: Very fast (Mantine UI migrations)
 
 ## Accumulated Context
@@ -176,6 +176,10 @@ Recent decisions affecting current work:
 - Phase 11: Entity type Badge colors: blue (Person), grape (Org), red (Gov), green (Location)
 - Phase 11: Skeleton loading in component (not parent) for better encapsulation
 - Phase 11: Loading prop pattern: loading && entities.length === 0 for initial fetch only
+- Phase 11: MantineProvider at app root (main.tsx) required for all Mantine components
+- Phase 11: Mantine Alert color='red' variant='filled' for sanctions warnings (high visibility)
+- Phase 11: Profile sections in separate Cards (Overview, Risk Intelligence, Aliases, Events)
+- Phase 11: React hooks must be called before any early returns (Rules of Hooks)
 
 ### Deferred Issues
 
@@ -196,7 +200,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-09
-Stopped at: Completed 11-02-PLAN.md (EntityLeaderboard Redesign)
+Stopped at: Completed 11-03-PLAN.md (EntityProfile Redesign), Phase 11 complete
 Resume file: None
 
-Note: Phase 11 plan 2 complete! EntityLeaderboard rebuilt with Mantine Card-based UI, Skeleton loading (5 cards), color-coded entity type badges (blue/grape/red/green), and circular rank badges. EntityLeaderboard.css deleted (159 lines removed). Virtualization preserved. Ready for 11-03-PLAN.md (EntityProfile Redesign).
+Note: Phase 11 complete! Entity Pages fully redesigned with Mantine Grid layout, SegmentedControl metric toggles, Card-based leaderboard (Skeleton loading, color-coded badges), and Card-based profiles (Alert for sanctions, Skeleton loading). Fixed critical bugs: MantineProvider missing at app root, React hooks order violation in EventList. Human verification passed with real data. Total 469 lines of custom CSS removed (Entities.css, EntityLeaderboard.css, EntityProfile.css deleted). Ready for Phase 12 (Chat Interface Polish).
