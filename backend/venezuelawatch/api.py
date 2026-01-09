@@ -1,5 +1,5 @@
 from ninja import NinjaAPI
-from core.api import router as health_router
+from core.api import router as health_router, user_router
 
 api = NinjaAPI(
     title="VenezuelaWatch API",
@@ -8,6 +8,9 @@ api = NinjaAPI(
 )
 
 # Add health check router
-api.add_router("/health", health_router)
+api.add_router("/health", health_router, tags=["Health"])
+
+# Add user profile router
+api.add_router("/user", user_router, tags=["User Profile"])
 
 # Will add more routers here in future phases
