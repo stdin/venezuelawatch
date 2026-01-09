@@ -6,6 +6,64 @@
   overflow: hidden;
 }
 
+/* App container with navigation */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Navigation bar */
+.app-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0 1.5rem;
+  height: 60px;
+  background: var(--bg-primary);
+  border-bottom: 2px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-nav-brand {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.app-nav-links {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.app-nav-link {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.app-nav-link:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.app-nav-link-active {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--risk-high);
+}
+
+/* Main content area */
+.app-content {
+  flex: 1;
+  overflow: hidden;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
