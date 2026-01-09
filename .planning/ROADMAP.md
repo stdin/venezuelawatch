@@ -43,12 +43,15 @@ Plans:
 ### Phase 3: Data Pipeline Architecture
 **Goal**: Build ingestion framework for 7 external APIs (GDELT, FRED, UN Comtrade, World Bank, ReliefWeb, USITC, Port Authorities) with mixed latency requirements
 **Depends on**: Phase 1
-**Research**: Likely (multiple external APIs, mixed latency requirements)
+**Research**: Completed (DISCOVERY.md)
 **Research topics**: GDELT API, FRED API, UN Comtrade API, World Bank API, ReliefWeb API, USITC API, Port Authority APIs, GCP Pub/Sub vs Cloud Tasks for ingestion scheduling, rate limiting strategies
-**Plans**: TBD
+**Plans**: 4 plans (infrastructure, real-time, daily batch, monthly/quarterly)
 
 Plans:
-- [ ] TBD during phase planning
+- [ ] 03-01: Celery + Redis Infrastructure Setup (Celery, Redis, django-celery-results, GCP Memorystore, Secret Manager)
+- [ ] 03-02: Real-Time Ingestion - GDELT + ReliefWeb (15-min polling, daily updates, Celery Beat, Cloud Scheduler)
+- [ ] 03-03: Daily Batch Ingestion - FRED Economic Data (fredapi, economic indicators, threshold events)
+- [ ] 03-04: Monthly/Quarterly Ingestion - UN Comtrade + World Bank (trade flows, development indicators)
 
 ### Phase 4: Risk Intelligence Core
 **Goal**: Implement risk scoring system for sanctions changes, political disruptions, supply chain events
@@ -95,7 +98,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation & Infrastructure | 4/4 | Complete | 2026-01-08 |
 | 2. Authentication & User Management | 4/4 | Complete | 2026-01-09 |
-| 3. Data Pipeline Architecture | 0/TBD | Not started | - |
+| 3. Data Pipeline Architecture | 0/4 | Planned | - |
 | 4. Risk Intelligence Core | 0/TBD | Not started | - |
 | 5. Dashboard & Events Feed | 0/TBD | Not started | - |
 | 6. Entity Watch | 0/TBD | Not started | - |
