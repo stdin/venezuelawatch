@@ -13,8 +13,11 @@ function AuthenticatedApp() {
 
   return (
     <div className="app-container">
+      {/* Skip link for keyboard navigation */}
+      <a href="#main-content" className="skip-link">Skip to main content</a>
+
       {/* Navigation */}
-      <nav className="app-nav">
+      <nav className="app-nav" aria-label="Main navigation">
         <div className="app-nav-brand">VenezuelaWatch</div>
         <div className="app-nav-links">
           <Link
@@ -39,7 +42,7 @@ function AuthenticatedApp() {
       </nav>
 
       {/* Main content */}
-      <div className="app-content">
+      <div className="app-content" id="main-content" role="main">
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/entities" element={<Entities />} />
