@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { makeAssistantToolUI } from '@assistant-ui/react'
-import './EntityPreviewCard.css'
+import { Card, Alert, Badge, Text, Group, Stack, Button, Divider } from '@mantine/core'
+import { format } from 'date-fns'
 
 /**
  * Types matching backend get_entity_profile tool
@@ -47,34 +48,39 @@ interface TrendingEntitiesResult {
 }
 
 /**
- * Get entity type badge class and label
+ * Get entity type Badge color (Phase 11 pattern)
  */
-function getEntityTypeBadge(type: string): { className: string; label: string } {
-  const typeMap: Record<string, { className: string; label: string }> = {
-    PERSON: { className: 'entity-type-person', label: 'Person' },
-    ORGANIZATION: { className: 'entity-type-org', label: 'Org' },
-    GOVERNMENT: { className: 'entity-type-gov', label: 'Gov' },
-    LOCATION: { className: 'entity-type-location', label: 'Location' },
+function getEntityTypeColor(type: string): string {
+  const typeMap: Record<string, string> = {
+    PERSON: 'blue',
+    ORGANIZATION: 'grape',
+    GOVERNMENT: 'red',
+    LOCATION: 'green',
   }
-  return typeMap[type] || { className: 'entity-type-default', label: type }
+  return typeMap[type] || 'gray'
 }
 
 /**
- * Format date for display
+ * Get entity type label
  */
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+function getEntityTypeLabel(type: string): string {
+  const typeMap: Record<string, string> = {
+    PERSON: 'Person',
+    ORGANIZATION: 'Org',
+    GOVERNMENT: 'Gov',
+    LOCATION: 'Location',
+  }
+  return typeMap[type] || type
 }
 
 /**
- * Get risk score color
+ * Get risk score Badge color (Phase 10 pattern)
  */
 function getRiskScoreColor(score: number | null): string {
-  if (score === null) return '#9ca3af'
-  if (score >= 70) return '#dc2626'
-  if (score >= 40) return '#f59e0b'
-  return '#10b981'
+  if (score === null) return 'gray'
+  if (score >= 75) return 'red'
+  if (score >= 50) return 'orange'
+  return 'blue'
 }
 
 /**
@@ -92,88 +98,99 @@ function getTrendArrow(count: number): string {
  */
 const EntityProfileCardContent = ({ result }: { result: EntityProfileResult }) => {
   const [isExpanded, setIsExpanded] = useState(false)
-  const typeInfo = getEntityTypeBadge(result.type)
   const trendArrow = getTrendArrow(result.mention_count)
 
   return (
-    <div className="entity-preview-card">
-      {/* Compact view - always visible */}
-      <div className="entity-preview-header">
-        <div className="entity-preview-title-row">
-          <h4 className="entity-preview-name">{result.name}</h4>
-          {result.is_sanctioned && (
-            <span className="badge badge-sanctioned">Sanctioned</span>
-          )}
-        </div>
-        <div className="entity-preview-meta">
-          <span className={`entity-type-badge ${typeInfo.className}`}>
-            {typeInfo.label}
-          </span>
-          <span className="entity-mentions">
+    <Card size="sm" padding="xs" withBorder>
+      <Stack gap="xs">
+        {/* Sanctions alert */}
+        {result.is_sanctioned && (
+          <Alert color="red" variant="filled" title="Sanctioned">
+            <Text size="xs">This entity appears on sanctions lists</Text>
+          </Alert>
+        )}
+
+        {/* Entity name */}
+        <Text size="sm" fw={600}>
+          {result.name}
+        </Text>
+
+        {/* Metadata row */}
+        <Group gap="xs">
+          <Badge size="sm" color={getEntityTypeColor(result.type)}>
+            {getEntityTypeLabel(result.type)}
+          </Badge>
+          <Text size="xs" c="dimmed">
             {result.mention_count} mentions {trendArrow}
-          </span>
+          </Text>
           {result.avg_risk_score !== null && (
-            <span
-              className="entity-risk-score"
-              style={{ color: getRiskScoreColor(result.avg_risk_score) }}
-            >
+            <Badge size="sm" color={getRiskScoreColor(result.avg_risk_score)}>
               Risk: {Math.round(result.avg_risk_score)}
-            </span>
+            </Badge>
           )}
-        </div>
-      </div>
+        </Group>
 
-      {/* Expanded view - conditional */}
-      {isExpanded && (
-        <div className="entity-preview-details">
-          <div className="entity-detail-section">
-            <h5 className="entity-detail-heading">Recent Mentions</h5>
-            {result.recent_mentions.length > 0 ? (
-              <ul className="entity-mentions-list">
-                {result.recent_mentions.map((mention, idx) => (
-                  <li key={idx} className="entity-mention-item">
-                    <div className="entity-mention-title">{mention.title}</div>
-                    <div className="entity-mention-meta">
-                      <span>{formatDate(mention.date)}</span>
-                      <span className="entity-mention-source">{mention.source}</span>
-                      <span
-                        className="entity-mention-risk"
-                        style={{ color: getRiskScoreColor(mention.risk_score) }}
-                      >
-                        Risk: {Math.round(mention.risk_score)}
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="entity-no-mentions">No recent mentions</p>
+        {/* Expanded view */}
+        {isExpanded && (
+          <>
+            <Divider />
+
+            {/* Recent mentions section */}
+            <Stack gap="xs">
+              <Text size="xs" fw={500}>Recent Mentions</Text>
+              {result.recent_mentions.length > 0 ? (
+                <Stack gap="xs">
+                  {result.recent_mentions.map((mention, idx) => (
+                    <Stack key={idx} gap={4}>
+                      <Text size="xs">{mention.title}</Text>
+                      <Group gap="xs">
+                        <Text size="xs" c="dimmed">
+                          {format(new Date(mention.date), 'MMM d, yyyy')}
+                        </Text>
+                        <Text size="xs" c="dimmed">{mention.source}</Text>
+                        <Badge size="xs" color={getRiskScoreColor(mention.risk_score)}>
+                          {Math.round(mention.risk_score)}
+                        </Badge>
+                      </Group>
+                    </Stack>
+                  ))}
+                </Stack>
+              ) : (
+                <Text size="xs" c="dimmed">No recent mentions</Text>
+              )}
+            </Stack>
+
+            {/* Timeline section */}
+            {(result.first_seen || result.last_seen) && (
+              <>
+                <Divider />
+                <Group gap="md">
+                  {result.first_seen && (
+                    <Text size="xs" c="dimmed">
+                      First seen: {format(new Date(result.first_seen), 'MMM d, yyyy')}
+                    </Text>
+                  )}
+                  {result.last_seen && (
+                    <Text size="xs" c="dimmed">
+                      Last seen: {format(new Date(result.last_seen), 'MMM d, yyyy')}
+                    </Text>
+                  )}
+                </Group>
+              </>
             )}
-          </div>
+          </>
+        )}
 
-          {(result.first_seen || result.last_seen) && (
-            <div className="entity-detail-section">
-              <div className="entity-timeline">
-                {result.first_seen && (
-                  <span>First seen: {formatDate(result.first_seen)}</span>
-                )}
-                {result.last_seen && (
-                  <span>Last seen: {formatDate(result.last_seen)}</span>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Toggle button */}
-      <button
-        className="entity-preview-toggle"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        {isExpanded ? 'Collapse' : 'Show profile'}
-      </button>
-    </div>
+        {/* Toggle button */}
+        <Button
+          variant="subtle"
+          size="xs"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          {isExpanded ? 'Collapse' : 'Show profile'}
+        </Button>
+      </Stack>
+    </Card>
   )
 }
 
@@ -183,9 +200,9 @@ const EntityProfileCardContent = ({ result }: { result: EntityProfileResult }) =
 const TrendingEntitiesCardContent = ({ result }: { result: TrendingEntitiesResult }) => {
   if (!result.entities || result.entities.length === 0) {
     return (
-      <div className="entity-preview-empty">
+      <Text size="sm" c="dimmed">
         No trending entities found.
-      </div>
+      </Text>
     )
   }
 
@@ -196,38 +213,46 @@ const TrendingEntitiesCardContent = ({ result }: { result: TrendingEntitiesResul
     : 'Recently Sanctioned'
 
   return (
-    <div className="trending-entities-card">
-      <div className="trending-entities-header">
-        <h3 className="trending-entities-title">{metricLabel} Entities</h3>
-        <span className="trending-entities-count">{result.count} entities</span>
-      </div>
-      <div className="trending-entities-list">
+    <Stack gap="xs">
+      {/* Header */}
+      <Group justify="space-between">
+        <Text size="sm" fw={600}>{metricLabel} Entities</Text>
+        <Text size="xs" c="dimmed">{result.count} entities</Text>
+      </Group>
+
+      {/* Entity list */}
+      <Stack gap="xs">
         {result.entities.map((entity, idx) => {
-          const typeInfo = getEntityTypeBadge(entity.type)
           const trendArrow = getTrendArrow(entity.mention_count)
 
           return (
-            <div key={entity.id} className="trending-entity-item">
-              <div className="trending-entity-rank">#{idx + 1}</div>
-              <div className="trending-entity-info">
-                <div className="trending-entity-name">{entity.name}</div>
-                <div className="trending-entity-meta">
-                  <span className={`entity-type-badge ${typeInfo.className}`}>
-                    {typeInfo.label}
-                  </span>
-                  <span className="entity-mentions">
-                    {entity.mention_count} {trendArrow}
-                  </span>
-                </div>
-              </div>
-              <div className="trending-entity-score">
-                {entity.trend_score.toFixed(2)}
-              </div>
-            </div>
+            <Card key={entity.id} size="sm" padding="xs" withBorder>
+              <Group gap="xs">
+                <Badge size="lg" circle>
+                  {idx + 1}
+                </Badge>
+                <Stack gap={4} style={{ flex: 1 }}>
+                  <Text size="sm" fw={500}>
+                    {entity.name}
+                  </Text>
+                  <Group gap="xs">
+                    <Badge size="sm" color={getEntityTypeColor(entity.type)}>
+                      {getEntityTypeLabel(entity.type)}
+                    </Badge>
+                    <Text size="xs" c="dimmed">
+                      {entity.mention_count} {trendArrow}
+                    </Text>
+                  </Group>
+                </Stack>
+                <Text size="sm" fw={600} c="dimmed">
+                  {entity.trend_score.toFixed(2)}
+                </Text>
+              </Group>
+            </Card>
           )
         })}
-      </div>
-    </div>
+      </Stack>
+    </Stack>
   )
 }
 
