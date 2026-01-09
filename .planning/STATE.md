@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 
 ## Current Position
 
-Phase: 11 of 13 (Entity Pages Redesign)
-Plan: 3 of 3 in current phase
-Status: Complete
-Last activity: 2026-01-09 — Completed 11-03-PLAN.md (EntityProfile Redesign), Phase 11 complete
+Phase: 12 of 13 (Chat Interface Polish)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-09 — Completed 12-01-PLAN.md (Event & Entity Tool Cards)
 
-Progress: ████████░░ 69%
+Progress: █████████░ 71%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 35
+- Total plans completed: 36
 - Average duration: 13 min
 - Total execution time: 7.2 hours
 
@@ -37,9 +37,10 @@ Progress: ████████░░ 69%
 | 9 | 2 | 53 min | 27 min |
 | 10 | 4 | 8 min | 2 min |
 | 11 | 3 | 5 min | 2 min |
+| 12 | 1 | 1 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 1min, 1min, 2min, 2min
+- Last 5 plans: 1min, 1min, 2min, 2min, 1min
 - Trend: Very fast (Mantine UI migrations)
 
 ## Accumulated Context
@@ -180,6 +181,9 @@ Recent decisions affecting current work:
 - Phase 11: Mantine Alert color='red' variant='filled' for sanctions warnings (high visibility)
 - Phase 11: Profile sections in separate Cards (Overview, Risk Intelligence, Aliases, Events)
 - Phase 11: React hooks must be called before any early returns (Rules of Hooks)
+- Phase 12: Chat tool cards use compact Mantine sizing (size='sm' padding='xs') vs full Dashboard components
+- Phase 12: Adaptive density pattern for chat: single items compact, lists use Stack gap='xs' spacing
+- Phase 12: Badge colors consistent across chat/dashboard/entities for visual cohesion
 
 ### Deferred Issues
 
@@ -200,7 +204,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-09
-Stopped at: Completed 11-03-PLAN.md (EntityProfile Redesign), Phase 11 complete
+Stopped at: Completed 12-01-PLAN.md (Event & Entity Tool Cards)
 Resume file: None
 
-Note: Phase 11 complete! Entity Pages fully redesigned with Mantine Grid layout, SegmentedControl metric toggles, Card-based leaderboard (Skeleton loading, color-coded badges), and Card-based profiles (Alert for sanctions, Skeleton loading). Fixed critical bugs: MantineProvider missing at app root, React hooks order violation in EventList. Human verification passed with real data. Total 469 lines of custom CSS removed (Entities.css, EntityLeaderboard.css, EntityProfile.css deleted). Ready for Phase 12 (Chat Interface Polish).
+Note: Plan 12-01 complete! Chat tool cards (EventPreviewCard, EntityPreviewCard, TrendingEntitiesCard) rebuilt with Mantine components. Badge colors now consistent across chat/dashboard/entity pages (risk: red/orange/blue, severity: SEV colors, entity type: blue/grape/red/green). Sanctions Alert matches Entity page style (red filled). Compact chat-optimized sizing with size='sm' padding='xs'. Adaptive density with Stack gap='xs' for lists. Custom CSS deleted (EventPreviewCard.css 2.9KB, EntityPreviewCard.css 4.8KB = 7.7KB removed). Phase 12: 1 of 2 plans complete. Ready for 12-02-PLAN.md (RiskTrendsChart upgrade).
