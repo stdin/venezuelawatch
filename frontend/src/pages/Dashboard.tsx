@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Container, Grid } from '@mantine/core'
+import { Container, Grid, Button, Collapse } from '@mantine/core'
+import { useMediaQuery } from '@mantine/hooks'
 import { useRiskEvents } from '../hooks/useRiskEvents'
 import { EventList } from '../components/EventList'
 import { FilterBar } from '../components/FilterBar'
@@ -17,6 +18,10 @@ export function Dashboard() {
   const [filters, setFilters] = useState<EventFilterParams>(() => loadFiltersFromStorage())
   const { events, loading, error } = useRiskEvents(filters, { pollInterval: 60000 })
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
+  const [isTrendsPanelExpanded, setIsTrendsPanelExpanded] = useState(false)
+
+  // Detect mobile viewport (below 768px = 48em)
+  const isMobile = useMediaQuery('(max-width: 48em)')
 
   // Save filters to storage whenever they change
   useEffect(() => {
@@ -57,7 +62,24 @@ export function Dashboard() {
 
         {/* Trends and detail: 6 cols desktop, full width mobile */}
         <Grid.Col span={{ base: 12, md: 6 }}>
-          {events && events.length > 0 && <TrendsPanel events={events} />}
+          {events && events.length > 0 && (
+            <>
+              {isMobile && (
+                <Button
+                  fullWidth
+                  variant="light"
+                  mb="md"
+                  onClick={() => setIsTrendsPanelExpanded(!isTrendsPanelExpanded)}
+                  aria-label={isTrendsPanelExpanded ? 'Hide trends panel' : 'Show trends panel'}
+                >
+                  {isTrendsPanelExpanded ? '▲ Hide Trends' : '▼ Show Trends'}
+                </Button>
+              )}
+              <Collapse in={!isMobile || isTrendsPanelExpanded}>
+                <TrendsPanel events={events} />
+              </Collapse>
+            </>
+          )}
           <EventDetail
             event={events?.find(e => e.id === selectedEventId) || null}
             allEvents={events || []}

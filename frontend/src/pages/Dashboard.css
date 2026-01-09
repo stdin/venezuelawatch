@@ -97,6 +97,7 @@
   width: 100%;
   color: var(--text-secondary);
   font-size: 1.125rem;
+  padding: clamp(1rem, 5vw, 2rem);
 }
 
 .loading-overlay {
@@ -128,7 +129,6 @@
 .error-state {
   flex-direction: column;
   text-align: center;
-  padding: 2rem;
 }
 
 .error-state h2 {
