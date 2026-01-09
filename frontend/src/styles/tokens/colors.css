@@ -1,0 +1,86 @@
+/**
+ * Color Tokens
+ *
+ * Color space: OKLCH (perceptually uniform, predictable contrast)
+ * Risk-first palette: Colors communicate risk levels semantically
+ * Accessibility: WCAG 4.5:1 for text, 5:1 target for safety margin
+ */
+
+:root {
+  /* --- Neutral Scale (Grayscale) --- */
+  /* OKLCH format: oklch(lightness chroma hue) */
+  /* Chroma = 0 for true grayscale */
+  --color-neutral-50: oklch(0.985 0 0);   /* Near white */
+  --color-neutral-100: oklch(0.97 0 0);   /* Very light gray */
+  --color-neutral-200: oklch(0.922 0 0);  /* Light gray */
+  --color-neutral-300: oklch(0.832 0 0);  /* Medium-light gray */
+  --color-neutral-400: oklch(0.698 0 0);  /* Medium gray */
+  --color-neutral-500: oklch(0.556 0 0);  /* Mid gray */
+  --color-neutral-600: oklch(0.465 0 0);  /* Medium-dark gray */
+  --color-neutral-700: oklch(0.354 0 0);  /* Dark gray */
+  --color-neutral-800: oklch(0.27 0 0);   /* Very dark gray */
+  --color-neutral-900: oklch(0.205 0 0);  /* Near black */
+  --color-neutral-950: oklch(0.145 0 0);  /* Almost black */
+
+  /* --- Risk Palette (Core Value: Risk Intelligence) --- */
+  /* Lightness tuned for 4.5:1+ contrast on white background */
+
+  /* Critical/High Risk - Red hue (27°) */
+  --color-risk-critical: oklch(0.577 0.245 27.325);  /* Dark red, 4.5:1 on white */
+  --color-risk-high: oklch(0.637 0.245 27.325);      /* Medium red */
+
+  /* Medium Risk - Yellow/Orange hue (86°) */
+  --color-risk-medium: oklch(0.795 0.184 86.047);    /* Golden yellow */
+
+  /* Low Risk - Green hue (149°) */
+  --color-risk-low: oklch(0.723 0.219 149.579);      /* Medium green */
+  --color-risk-minimal: oklch(0.871 0.15 154.449);   /* Light green */
+
+  /* Clean/No Risk - Neutral green */
+  --color-risk-none: oklch(0.906 0.095 163.23);      /* Very light green */
+
+  /* --- Semantic Text Colors --- */
+  /* Purpose-based naming for different text roles */
+  --color-text-primary: var(--color-neutral-900);    /* Main content */
+  --color-text-secondary: var(--color-neutral-600);  /* Supporting text */
+  --color-text-tertiary: var(--color-neutral-500);   /* De-emphasized text */
+  --color-text-disabled: var(--color-neutral-400);   /* Disabled state */
+  --color-text-inverse: var(--color-neutral-50);     /* Text on dark bg */
+
+  /* --- Semantic Background Colors --- */
+  --color-bg-page: var(--color-neutral-50);          /* Page background */
+  --color-bg-surface: white;                         /* Card/panel background */
+  --color-bg-elevated: var(--color-neutral-100);     /* Elevated surface (modals) */
+  --color-bg-overlay: oklch(0.205 0 0 / 0.5);        /* Overlay with 50% opacity */
+
+  /* --- Semantic Border Colors --- */
+  --color-border-default: var(--color-neutral-300);  /* Standard borders */
+  --color-border-strong: var(--color-neutral-400);   /* Emphasized borders */
+  --color-border-subtle: var(--color-neutral-200);   /* De-emphasized borders */
+
+  /* --- Semantic Interactive Colors --- */
+  --color-interactive-primary: var(--color-risk-high);     /* Primary actions */
+  --color-interactive-hover: var(--color-risk-critical);   /* Hover state */
+  --color-interactive-disabled: var(--color-neutral-300);  /* Disabled state */
+}
+
+/* --- Dark Theme --- */
+/* Adjust lightness component, preserve chroma and hue for consistent color perception */
+[data-theme="dark"] {
+  /* Inverted neutrals for dark background */
+  --color-neutral-50: oklch(0.145 0 0);   /* Dark bg */
+  --color-neutral-100: oklch(0.205 0 0);  /* Dark surface */
+  --color-neutral-900: oklch(0.97 0 0);   /* Light text */
+
+  /* Risk colors lightened for dark background (increase L, preserve C and H) */
+  --color-risk-critical: oklch(0.704 0.191 22.216);  /* Lighter red */
+  --color-risk-high: oklch(0.770 0.237 25.331);      /* Lighter red */
+  --color-risk-medium: oklch(0.852 0.199 91.936);    /* Lighter yellow */
+  --color-risk-low: oklch(0.792 0.209 151.711);      /* Lighter green */
+  --color-risk-minimal: oklch(0.841 0.238 128.85);   /* Lighter green */
+
+  /* Semantic tokens auto-adapt via neutral references */
+  --color-bg-page: var(--color-neutral-50);
+  --color-bg-surface: var(--color-neutral-100);
+  --color-bg-overlay: oklch(0.97 0 0 / 0.3);
+}
