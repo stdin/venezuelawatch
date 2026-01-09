@@ -230,3 +230,118 @@ class SanctionsMatch(models.Model):
 
     def __str__(self):
         return f"{self.entity_name} ({self.sanctions_list}) - {self.match_score:.2f}"
+
+
+class Entity(models.Model):
+    """
+    Deduplicated entity (person, company, government) extracted from events.
+    Aggregates mentions across all events.
+    """
+    # Primary key
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Canonical entity information
+    canonical_name = models.CharField(
+        max_length=200,
+        unique=True,
+        db_index=True,
+        help_text="Normalized/deduplicated entity name"
+    )
+    entity_type = models.CharField(
+        max_length=20,
+        db_index=True,
+        choices=[
+            ('PERSON', 'Person'),
+            ('ORGANIZATION', 'Organization'),
+            ('GOVERNMENT', 'Government Agency'),
+            ('LOCATION', 'Location'),
+        ],
+        help_text="Type of entity"
+    )
+
+    # Aliases and variations
+    aliases = ArrayField(
+        models.CharField(max_length=200),
+        default=list,
+        help_text="Known name variations (e.g., ['N. Maduro', 'President Maduro'])"
+    )
+
+    # Aggregated metadata
+    first_seen = models.DateTimeField(db_index=True)
+    last_seen = models.DateTimeField(db_index=True)
+    mention_count = models.IntegerField(default=0, db_index=True)
+
+    # Contextual information (from LLM)
+    metadata = models.JSONField(
+        blank=True,
+        null=True,
+        help_text="Additional information (roles, descriptions, etc.)"
+    )
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'entities'
+        ordering = ['-mention_count', '-last_seen']
+        indexes = [
+            models.Index(fields=['-mention_count']),
+            models.Index(fields=['-last_seen']),
+        ]
+
+    def __str__(self):
+        return f"{self.canonical_name} ({self.entity_type})"
+
+
+class EntityMention(models.Model):
+    """
+    Individual entity mention in an event (many-to-many through table).
+    Links events to deduplicated entities.
+    """
+    # Primary key
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Relationships
+    entity = models.ForeignKey(
+        Entity,
+        on_delete=models.CASCADE,
+        related_name='mentions'
+    )
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        related_name='entity_mentions'
+    )
+
+    # Mention metadata
+    raw_name = models.CharField(
+        max_length=200,
+        help_text="Exact text as it appeared in event"
+    )
+    match_score = models.FloatField(
+        help_text="Fuzzy match confidence score (0.0-1.0)"
+    )
+    relevance = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="LLM relevance score if available"
+    )
+    mentioned_at = models.DateTimeField(
+        db_index=True,
+        help_text="Denormalized from event.timestamp for trending queries"
+    )
+
+    # Timestamp
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'entity_mentions'
+        unique_together = [['entity', 'event', 'raw_name']]
+        indexes = [
+            models.Index(fields=['-mentioned_at']),
+            models.Index(fields=['entity', '-mentioned_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.raw_name} -> {self.entity.canonical_name}"

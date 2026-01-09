@@ -26,3 +26,4 @@ spacy==3.8.11
 litellm>=1.80.0
 anthropic>=0.75.0
 google-cloud-pubsub>=2.34.0
+rapidfuzz>=3.0.0
