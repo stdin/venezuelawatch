@@ -230,6 +230,45 @@ python manage.py shell
 10
 ```
 
+Test data ingestion tasks:
+
+```bash
+python manage.py shell
+>>> from data_pipeline.tasks.gdelt_tasks import ingest_gdelt_events
+>>> from data_pipeline.tasks.reliefweb_tasks import ingest_reliefweb_updates
+
+# Test GDELT ingestion (fetches last 15 minutes of Venezuela news)
+>>> result = ingest_gdelt_events.delay()
+>>> result.get(timeout=60)
+{'events_created': 5, 'events_skipped': 0, 'articles_fetched': 5}
+
+# Test ReliefWeb ingestion (fetches last 24 hours of humanitarian reports)
+>>> result = ingest_reliefweb_updates.delay()
+>>> result.get(timeout=60)
+{'events_created': 2, 'events_skipped': 0, 'reports_fetched': 2}
+
+# Check created events
+>>> from core.models import Event
+>>> Event.objects.filter(source='GDELT').count()
+5
+>>> Event.objects.filter(source='RELIEFWEB').count()
+2
+```
+
+### Periodic Task Schedule
+
+Celery Beat runs the following tasks automatically:
+
+- **GDELT ingestion**: Every 15 minutes (ingest_gdelt_events)
+- **ReliefWeb ingestion**: Every 24 hours (ingest_reliefweb_updates)
+
+To see scheduled tasks, start Celery Beat and watch the logs:
+
+```bash
+celery -A config.celery beat --loglevel=info
+# Output: Scheduler: Sending due task ingest-gdelt-events (data_pipeline.tasks.gdelt_tasks.ingest_gdelt_events)
+```
+
 ### Monitoring Tasks
 
 Monitor Celery workers and tasks:

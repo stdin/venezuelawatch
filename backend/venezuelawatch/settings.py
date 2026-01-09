@@ -201,6 +201,20 @@ CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'default'
 
+# Celery Beat Schedule for periodic tasks
+CELERY_BEAT_SCHEDULE = {
+    'ingest-gdelt-events': {
+        'task': 'data_pipeline.tasks.gdelt_tasks.ingest_gdelt_events',
+        'schedule': 900.0,  # 15 minutes in seconds
+        'args': (15,),  # lookback_minutes
+    },
+    'ingest-reliefweb-updates': {
+        'task': 'data_pipeline.tasks.reliefweb_tasks.ingest_reliefweb_updates',
+        'schedule': 86400.0,  # 24 hours in seconds
+        'args': (1,),  # lookback_days
+    },
+}
+
 # GCP Secret Manager Configuration
 GCP_PROJECT_ID = os.environ.get('GCP_PROJECT_ID', 'venezuelawatch-staging')
 SECRET_MANAGER_ENABLED = os.environ.get('SECRET_MANAGER_ENABLED', 'False').lower() == 'true'
