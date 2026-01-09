@@ -171,6 +171,7 @@ Interactive API documentation is automatically generated and available at:
 ### Additional Documentation
 
 - **Risk Intelligence API**: [docs/risk-intelligence-api.md](docs/risk-intelligence-api.md) - Multi-dimensional risk scoring, severity classification, sanctions screening for Phase 5 dashboard integration
+- **Entity Watch API**: [docs/entity-api.md](docs/entity-api.md) - Entity trending leaderboards, profiles, and timelines for Phase 6 dashboard integration
 
 ## Endpoints
 
