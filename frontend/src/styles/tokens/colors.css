@@ -96,7 +96,7 @@
 }
 
 /* --- Dark Theme --- */
-[data-theme="dark"] {
+:root[data-theme="dark"] {
   /* Inverted neutrals for dark background */
   --color-neutral-50: #0a0a0a;
   --color-neutral-50: oklch(0.145 0 0);
