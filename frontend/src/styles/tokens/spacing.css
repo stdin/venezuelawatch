@@ -35,10 +35,10 @@
   /* --- Border Radius --- */
   --radius-none: 0;
   --radius-sm: 0.125rem;  /* 2px  - Subtle rounding */
-  --radius-md: 0.375rem;  /* 6px  - Standard rounding */
-  --radius-lg: 0.5rem;    /* 8px  - Pronounced rounding */
-  --radius-xl: 0.75rem;   /* 12px - Large rounding */
-  --radius-2xl: 1rem;     /* 16px - XL rounding */
+  --radius-md: 0.25rem;   /* 4px  - Standard rounding */
+  --radius-lg: 0.375rem;  /* 6px  - Pronounced rounding */
+  --radius-xl: 0.5rem;    /* 8px  - Large rounding */
+  --radius-2xl: 0.75rem;  /* 12px - XL rounding */
   --radius-full: 9999px;  /* Full circle/pill */
 
   /* --- Shadows (subtle for modern aesthetic) --- */
