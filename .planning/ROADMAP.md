@@ -117,12 +117,13 @@ Plans:
 #### Phase 8: Design System Foundation
 **Goal**: Establish comprehensive design system with color palette, typography, spacing, and component tokens
 **Depends on**: Phase 7 (v1.0 complete)
-**Research**: Likely (modern design system patterns, CSS-in-JS vs Tailwind)
+**Research**: Completed (08-RESEARCH.md)
 **Research topics**: Design token systems, color theory for data visualization, typography scales, spacing/sizing systems, CSS architecture patterns
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 08-01: TBD (run /gsd:plan-phase 8 to break down)
+- [ ] 08-01: Design Token Foundation (typography, OKLCH colors, spacing)
+- [ ] 08-02: Storybook Interactive Style Guide
 
 #### Phase 9: Component Library Rebuild
 **Goal**: Rebuild core UI components (buttons, inputs, cards, modals, tables) with consistent design and accessibility
