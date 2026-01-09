@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 4 of 7 (Risk Intelligence Core)
-Plan: 1 of TBD in current phase
+Plan: 2 of TBD in current phase
 Status: In progress
-Last activity: 2026-01-09 — Completed 04-01-PLAN.md (Sanctions Screening Integration)
+Last activity: 2026-01-08 — Completed 04-02-PLAN.md (Multi-Dimensional Risk Aggregation)
 
-Progress: ██████░░░░ 60%
+Progress: ███████░░░ 65%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
-- Average duration: 20 min
-- Total execution time: 4.38 hours
+- Total plans completed: 14
+- Average duration: 19 min
+- Total execution time: 4.46 hours
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: ██████░░░░ 60%
 | 1 | 4 | 56 min | 14 min |
 | 2 | 4 | 24 min | 6 min |
 | 3 | 4 | 195 min | 49 min |
-| 4 | 1 | 9 min | 9 min |
+| 4 | 2 | 14 min | 7 min |
 
 **Recent Trend:**
-- Last 5 plans: 60min, 40min, 50min, 9min
-- Trend: Fast (leveraging Phase 3 LLM infrastructure)
+- Last 5 plans: 40min, 50min, 9min, 5min
+- Trend: Very fast (leveraging Phase 3/4 infrastructure)
 
 ## Accumulated Context
 
@@ -85,6 +85,11 @@ Recent decisions affecting current work:
 - Phase 4: Binary sanctions scoring (0.0=clean, 1.0=sanctioned)
 - Phase 4: 7-day rolling window for daily sanctions refresh (4 AM UTC)
 - Phase 4: OpenSanctions premium API optional upgrade path
+- Phase 4: Weighted aggregation with strict normalization (weights sum to 1.0)
+- Phase 4: Event-type-specific weight distributions for risk scoring
+- Phase 4: Sanctions dimension highest weight (0.30-0.40) as binary flag
+- Phase 4: Risk score scale changed from 0-1 to 0-100 for dashboard
+- Phase 4: Supply chain risk detection from LLM theme keywords
 
 ### Deferred Issues
 
@@ -99,8 +104,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-09
-Stopped at: Completed 04-01-PLAN.md (Sanctions Screening Integration)
+Last session: 2026-01-08
+Stopped at: Completed 04-02-PLAN.md (Multi-Dimensional Risk Aggregation)
 Resume file: None
 
-Note: Phase 4 started with existing LLM infrastructure from Phase 3
+Note: Phase 4 leveraging LLM and sanctions infrastructure from Phase 3 and 04-01

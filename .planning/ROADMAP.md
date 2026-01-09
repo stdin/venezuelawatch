@@ -62,6 +62,7 @@ Plans:
 
 Plans:
 - [x] 04-01: Sanctions Screening Integration (OpenSanctions/OFAC API, SanctionsMatch model, daily refresh task)
+- [x] 04-02: Multi-Dimensional Risk Aggregation (RiskAggregator service, event-type-specific weights, comprehensive scoring)
 - [ ] TBD during phase planning
 
 ### Phase 5: Dashboard & Events Feed
