@@ -1,25 +1,39 @@
 import { useRef } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
+import { Card, Badge, Text, Group, Stack, Skeleton } from '@mantine/core'
 import type { Entity } from '../lib/types'
-import './EntityLeaderboard.css'
 
 interface EntityLeaderboardProps {
   entities: Entity[]
   selectedId: string | null
   onSelect: (id: string) => void
+  loading?: boolean
 }
 
 /**
- * Get entity type badge class and color
+ * Get entity type badge color for Mantine Badge
  */
-function getEntityTypeBadge(type: string): { className: string; label: string } {
-  const typeMap: Record<string, { className: string; label: string }> = {
-    PERSON: { className: 'entity-type-person', label: 'Person' },
-    ORGANIZATION: { className: 'entity-type-org', label: 'Org' },
-    GOVERNMENT: { className: 'entity-type-gov', label: 'Gov' },
-    LOCATION: { className: 'entity-type-location', label: 'Location' },
+function getEntityTypeBadgeColor(type: string): string {
+  const colorMap: Record<string, string> = {
+    PERSON: 'blue',
+    ORGANIZATION: 'grape',
+    GOVERNMENT: 'red',
+    LOCATION: 'green',
   }
-  return typeMap[type] || { className: 'entity-type-default', label: type }
+  return colorMap[type] || 'gray'
+}
+
+/**
+ * Get entity type label
+ */
+function getEntityTypeLabel(type: string): string {
+  const labelMap: Record<string, string> = {
+    PERSON: 'Person',
+    ORGANIZATION: 'Org',
+    GOVERNMENT: 'Gov',
+    LOCATION: 'Location',
+  }
+  return labelMap[type] || type
 }
 
 /**
@@ -38,7 +52,7 @@ function formatMetricValue(entity: Entity): string {
  * Virtualized entity leaderboard component
  * Displays entities with rank, name, type badge, and metric value
  */
-export function EntityLeaderboard({ entities, selectedId, onSelect }: EntityLeaderboardProps) {
+export function EntityLeaderboard({ entities, selectedId, onSelect, loading }: EntityLeaderboardProps) {
   const parentRef = useRef<HTMLDivElement>(null)
 
   // Set up virtualizer for performance with large lists
@@ -51,68 +65,105 @@ export function EntityLeaderboard({ entities, selectedId, onSelect }: EntityLead
 
   const virtualItems = virtualizer.getVirtualItems()
 
+  // Skeleton loading state
+  if (loading) {
+    return (
+      <Stack gap="sm" p="sm">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <Card key={index} padding="sm" withBorder>
+            <Stack gap="xs">
+              <Skeleton height={20} width="80%" />
+              <Skeleton height={14} width="60%" />
+              <Skeleton height={14} width="40%" />
+            </Stack>
+          </Card>
+        ))}
+      </Stack>
+    )
+  }
+
   if (entities.length === 0) {
     return (
-      <div className="entity-leaderboard-empty">
+      <Text c="dimmed" ta="center" p="xl" size="sm">
         No entities found
-      </div>
+      </Text>
     )
   }
 
   return (
-    <div ref={parentRef} className="entity-leaderboard-container">
+    <div
+      ref={parentRef}
+      style={{
+        flex: 1,
+        width: '100%',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+      }}
+    >
       <div
-        className="entity-leaderboard-inner"
         style={{
           height: `${virtualizer.getTotalSize()}px`,
+          width: '100%',
           position: 'relative',
         }}
       >
         {virtualItems.map((virtualItem) => {
           const entity = entities[virtualItem.index]
-          const typeInfo = getEntityTypeBadge(entity.entity_type)
           const isSelected = entity.id === selectedId
           const rank = entity.trending_rank || virtualItem.index + 1
 
           return (
             <div
               key={entity.id}
-              className="virtual-item"
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 width: '100%',
                 transform: `translateY(${virtualItem.start}px)`,
+                padding: '0 0.5rem',
               }}
             >
-              <div
-                className={`entity-row ${isSelected ? 'entity-row-selected' : ''}`}
+              <Card
+                padding="sm"
+                withBorder
                 onClick={() => onSelect(entity.id)}
+                style={{
+                  cursor: 'pointer',
+                  backgroundColor: isSelected ? 'var(--mantine-color-blue-light)' : undefined,
+                  marginBottom: '8px',
+                }}
               >
-                {/* Rank badge */}
-                <div className="entity-rank">
-                  <span className="rank-number">#{rank}</span>
-                </div>
+                <Group justify="space-between">
+                  {/* Left side: Rank, name, type badge */}
+                  <Group gap="xs" style={{ flex: 1, minWidth: 0 }}>
+                    {/* Rank badge */}
+                    <Badge size="lg" variant="filled" circle color="gray">
+                      #{rank}
+                    </Badge>
 
-                {/* Entity info */}
-                <div className="entity-info">
-                  <div className="entity-name">{entity.canonical_name}</div>
-                  <div className="entity-meta">
-                    <span className={`entity-type-badge ${typeInfo.className}`}>
-                      {typeInfo.label}
-                    </span>
-                    <span className="entity-mentions">
-                      {entity.mention_count} {entity.mention_count === 1 ? 'mention' : 'mentions'}
-                    </span>
-                  </div>
-                </div>
+                    {/* Entity info */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <Text size="sm" fw={500} truncate>
+                        {entity.canonical_name}
+                      </Text>
+                      <Group gap="xs" mt={4}>
+                        <Badge size="sm" color={getEntityTypeBadgeColor(entity.entity_type)}>
+                          {getEntityTypeLabel(entity.entity_type)}
+                        </Badge>
+                        <Text size="xs" c="dimmed">
+                          {entity.mention_count} {entity.mention_count === 1 ? 'mention' : 'mentions'}
+                        </Text>
+                      </Group>
+                    </div>
+                  </Group>
 
-                {/* Metric value */}
-                <div className="entity-metric">
-                  {formatMetricValue(entity)}
-                </div>
-              </div>
+                  {/* Right side: Metric value */}
+                  <Text size="xs" c="dimmed" style={{ flexShrink: 0, minWidth: '60px', textAlign: 'right' }}>
+                    {formatMetricValue(entity)}
+                  </Text>
+                </Group>
+              </Card>
             </div>
           )
         })}
