@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.headless",
     "corsheaders",
+    "django_celery_results",
     "core",
 ]
 
@@ -193,3 +194,8 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 
 # Email backend for development
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Celery Configuration
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'default'

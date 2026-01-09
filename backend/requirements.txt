@@ -10,3 +10,11 @@ django-storages[google]>=1.14
 google-cloud-storage>=2.10
 django-allauth>=0.63.0
 djangorestframework-simplejwt>=5.3
+celery==5.4.0
+channels_redis==4.3.0
+django-celery-results==2.5.1
+django-redis==5.4.0
+fakeredis==2.33.0
+google-cloud-secret-manager==2.21.1
+opentelemetry-instrumentation-celery==0.60b1
+redis==5.1.1
