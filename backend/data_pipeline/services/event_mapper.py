@@ -242,20 +242,92 @@ def map_fred_to_event(observation: Dict[str, Any], series_config: Dict[str, Any]
     return event
 
 
-def map_comtrade_to_event(trade_record: Dict[str, Any]) -> Event:
+def map_comtrade_to_event(trade_record: Dict[str, Any], commodity_info: Dict[str, Any]) -> Event:
     """
     Map UN Comtrade trade data to Event model.
 
-    Placeholder for Plan 03-04 (Monthly/Quarterly Ingestion).
+    Comtrade API structure (simplified):
+    - period: Time period (YYYYMM)
+    - reporterCode: Reporter country ISO3 (VEN)
+    - partnerCode: Partner country ISO3
+    - cmdCode: Commodity HS code
+    - flowCode: M (imports) or X (exports)
+    - primaryValue: Trade value in USD
+    - netWeight: Weight in kg
+    - quantityUnit: Quantity unit
 
     Args:
-        trade_record: UN Comtrade record dict
+        trade_record: Comtrade trade flow dict
+        commodity_info: Commodity metadata from comtrade_config.py
 
     Returns:
         Event instance (not saved to database)
     """
-    # TODO: Implement in Plan 03-04
-    raise NotImplementedError("Comtrade mapping will be implemented in Plan 03-04")
+    # Extract trade flow details
+    period = str(trade_record.get('period', ''))
+    partner = trade_record.get('partnerCode', 'Unknown')
+    commodity_code = str(trade_record.get('cmdCode', ''))
+    flow_code = trade_record.get('flowCode', 'M')
+    flow_type = 'Imports' if flow_code == 'M' else 'Exports'
+
+    # Trade values
+    trade_value = float(trade_record.get('primaryValue', 0))  # USD
+    quantity = trade_record.get('netWeight')  # kg
+
+    # Parse period to datetime (YYYYMM format)
+    try:
+        if len(period) == 6:  # YYYYMM
+            year = int(period[:4])
+            month = int(period[4:6])
+            # Use last day of month as timestamp
+            from calendar import monthrange
+            last_day = monthrange(year, month)[1]
+            timestamp = datetime(year, month, last_day)
+        else:  # YYYY format
+            year = int(period)
+            timestamp = datetime(year, 12, 31)  # End of year
+        timestamp = timezone.make_aware(timestamp, dt_timezone.utc)
+    except (ValueError, TypeError):
+        logger.warning(f"Could not parse Comtrade period: {period}")
+        timestamp = timezone.now()
+
+    # Build title
+    commodity_name = commodity_info.get('name', f'Commodity {commodity_code}')
+    if trade_value >= 1_000_000_000:  # Billions
+        value_str = f"${trade_value/1_000_000_000:.2f}B"
+    elif trade_value >= 1_000_000:  # Millions
+        value_str = f"${trade_value/1_000_000:.1f}M"
+    else:
+        value_str = f"${trade_value:,.0f}"
+
+    title = f"{commodity_name}: {flow_type} {value_str}"
+
+    # Build content JSON
+    content = {
+        'period': period,
+        'commodity_code': commodity_code,
+        'commodity_name': commodity_name,
+        'commodity_category': commodity_info.get('category'),
+        'partner_country': partner,
+        'flow_type': flow_type.lower(),
+        'trade_value_usd': trade_value,
+        'quantity_kg': quantity,
+        'raw_comtrade': trade_record,
+    }
+
+    # Create Event instance
+    event = Event(
+        source='COMTRADE',
+        event_type='TRADE',
+        timestamp=timestamp,
+        title=title[:500],
+        content=content,
+        sentiment=None,
+        risk_score=None,  # Computed in Phase 4
+        entities=[],
+    )
+
+    return event
 
 
 def map_worldbank_to_event(indicator: Dict[str, Any]) -> Event:
