@@ -177,7 +177,7 @@ Plans:
 
 Plans:
 - [x] 13-01: Responsive Foundation & A11y Setup (Mantine breakpoints, Storybook a11y, skip links, ARIA landmarks)
-- [ ] 13-02: Dashboard Responsive & Keyboard Nav
+- [x] 13-02: Dashboard Responsive & Keyboard Nav (mobile-first Grid, collapsible TrendsPanel, keyboard EventCards, ARIA labels)
 - [ ] 13-03: Entities & Chat Responsive
 
 ## Progress
@@ -196,4 +196,4 @@ Plans:
 | 10. Dashboard Redesign | v1.1 | 4/4 | Complete | 2026-01-09 |
 | 11. Entity Pages Redesign | v1.1 | 3/3 | Complete | 2026-01-09 |
 | 12. Chat Interface Polish | v1.1 | 2/2 | Complete | 2026-01-09 |
-| 13. Responsive & Accessibility | v1.1 | 1/3 | In progress | - |
+| 13. Responsive & Accessibility | v1.1 | 2/3 | In progress | - |

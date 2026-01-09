@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 13 of 13 (Responsive & Accessibility)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-01-09 — Completed 13-01-PLAN.md
+Last activity: 2026-01-09 — Completed 13-02-PLAN.md
 
-Progress: ███████████ 95% (38 of 40 plans complete)
+Progress: ███████████ 97% (39 of 40 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 38
+- Total plans completed: 39
 - Average duration: 13 min
-- Total execution time: 8.0 hours
+- Total execution time: 8.2 hours
 
 **By Phase:**
 
@@ -38,11 +38,11 @@ Progress: ███████████ 95% (38 of 40 plans complete)
 | 10 | 4 | 8 min | 2 min |
 | 11 | 3 | 5 min | 2 min |
 | 12 | 2 | 47 min | 24 min |
-| 13 | 1 | 2 min | 2 min |
+| 13 | 2 | 12 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 1min, 1min, 2min, 2min, 2min
-- Trend: Fast (foundation and polish tasks, no complex logic)
+- Last 5 plans: 1min, 2min, 2min, 10min, 10min
+- Trend: Fast (responsive and accessibility polish)
 
 ## Accumulated Context
 
@@ -192,6 +192,10 @@ Recent decisions affecting current work:
 - Phase 13: Storybook a11y addon test mode set to 'error' to fail fast on accessibility violations
 - Phase 13: Skip link pattern for keyboard navigation (positioned absolutely, visible on focus)
 - Phase 13: ARIA landmarks with semantic HTML (nav with aria-label, main with role)
+- Phase 13: TrendsPanel collapsed by default on mobile with expand button (not hidden entirely)
+- Phase 13: Mantine's built-in focus styles used (meet WCAG 2.1 AA without custom CSS)
+- Phase 13: role='feed' for EventList (not role='list') for better screen reader navigation of dynamic content
+- Phase 13: ARIA live regions: assertive for errors, polite for loading/status announcements
 
 ### Deferred Issues
 
@@ -212,7 +216,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-09
-Stopped at: Completed 13-01-PLAN.md (Responsive Foundation & A11y Setup)
+Stopped at: Completed 13-02-PLAN.md (Dashboard Responsive & Keyboard Nav)
 Resume file: None
 
-Note: **Phase 13 in progress (1 of 3 plans complete).** Plan 13-01 established responsive foundation: custom Mantine theme with mobile-first breakpoints (xs: 576px through xl: 1408px), Storybook a11y addon configured to 'error' mode for strict violations, skip links for keyboard navigation with focus-visible styling, and ARIA landmarks (nav with aria-label, main with role). Ready for 13-02-PLAN.md (Dashboard Responsive & Keyboard Nav).
+Note: **Phase 13 in progress (2 of 3 plans complete).** Plan 13-02 made Dashboard mobile-responsive (320px-1440px+) with collapsible TrendsPanel on mobile, full keyboard navigation (EventCard tabIndex, Enter/Space handlers), and ARIA labels for filters (role="search"), error states (role="alert" aria-live="assertive"), loading states (role="status" aria-live="polite"), and event feed (role="feed"). Ready for 13-03-PLAN.md (Entities & Chat Responsive).
