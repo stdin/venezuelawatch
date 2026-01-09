@@ -10,8 +10,8 @@ None
 
 ## Phases
 
-- [ ] **Phase 1: Foundation & Infrastructure** - Django + React project setup, GCP infrastructure, database schema
-- [ ] **Phase 2: Authentication & User Management** - django-allauth integration, user accounts, frontend shell
+- [x] **Phase 1: Foundation & Infrastructure** - Django + React project setup, GCP infrastructure, database schema
+- [x] **Phase 2: Authentication & User Management** - django-allauth integration, user accounts, frontend shell
 - [ ] **Phase 3: Data Pipeline Architecture** - Ingestion framework for 7 data sources with mixed latency
 - [ ] **Phase 4: Risk Intelligence Core** - Risk scoring engine for sanctions, political, supply chain disruptions
 - [ ] **Phase 5: Dashboard & Events Feed** - Real-time event aggregation, filtering, search, sentiment
@@ -93,8 +93,8 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Infrastructure | 0/TBD | Not started | - |
-| 2. Authentication & User Management | 0/TBD | Not started | - |
+| 1. Foundation & Infrastructure | 4/4 | Complete | 2026-01-08 |
+| 2. Authentication & User Management | 4/4 | Complete | 2026-01-09 |
 | 3. Data Pipeline Architecture | 0/TBD | Not started | - |
 | 4. Risk Intelligence Core | 0/TBD | Not started | - |
 | 5. Dashboard & Events Feed | 0/TBD | Not started | - |
