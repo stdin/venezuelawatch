@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 10 of 13 (Dashboard Redesign)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-09 — Completed 10-01-PLAN.md (Responsive Layout & Grid System)
+Last activity: 2026-01-09 — Completed 10-02-PLAN.md (Events Feed Redesign)
 
-Progress: █████░░░░░ 52%
+Progress: █████░░░░░ 54%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 29
+- Total plans completed: 30
 - Average duration: 14 min
 - Total execution time: 7.0 hours
 
@@ -35,11 +35,11 @@ Progress: █████░░░░░ 52%
 | 7 | 4 | 36 min | 9 min |
 | 8 | 2 | 29 min | 15 min |
 | 9 | 2 | 53 min | 27 min |
-| 10 | 1 | 1 min | 1 min |
+| 10 | 2 | 3 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 10min, 19min, 18min, 35min, 1min
-- Trend: Fast (simple layout migration)
+- Last 5 plans: 19min, 18min, 35min, 1min, 2min
+- Trend: Fast (simple component migrations)
 
 ## Accumulated Context
 
@@ -157,6 +157,10 @@ Recent decisions affecting current work:
 - Phase 10: Container fluid for full-width dashboard layouts
 - Phase 10: React Query (@tanstack/react-query) for data fetching/caching in dashboards
 - Phase 10: date-fns for date manipulation in time-series filtering
+- Phase 10: Mantine Badge colors for risk scores: >70=red, 50-70=orange, <50=blue
+- Phase 10: Mantine Badge colors for severity: SEV1=red, SEV2=orange, SEV3=yellow, SEV4=blue, SEV5=gray
+- Phase 10: Skeleton loading pattern with 5 cards for perceived performance
+- Phase 10: EventList component owns all loading states for separation of concerns
 
 ### Deferred Issues
 
@@ -177,7 +181,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-09
-Stopped at: Completed 10-01-PLAN.md (Responsive Layout & Grid System)
+Stopped at: Completed 10-02-PLAN.md (Events Feed Redesign)
 Resume file: None
 
-Note: Phase 10 Plan 1 complete. Dashboard migrated to Mantine Grid responsive layout (2-column desktop, stacked mobile). React Query and date-fns installed for future data fetching. Removed custom CSS layout. Ready for 10-02-PLAN.md (Events Feed Redesign).
+Note: Phase 10 Plan 2 complete. EventCard and EventList rebuilt with Mantine Card, Badge, Text, Group, Stack components. Skeleton loading states provide instant visual feedback. All custom CSS removed from event components. Badge color-coding for risk and severity. Ready for 10-03-PLAN.md (Data Visualization with Recharts).
