@@ -144,6 +144,7 @@ export function useChatRuntime() {
       createdAt: new Date() // Could enhance with actual timestamps
     })),
     isRunning: isLoading,
+    convertMessage: (message) => message, // Pass through - messages already in correct format
     onNew: async (message) => {
       // Extract text content from assistant-ui message format
       const textContent = message.content

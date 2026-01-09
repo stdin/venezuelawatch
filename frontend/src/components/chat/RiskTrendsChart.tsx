@@ -111,8 +111,8 @@ const RiskTrendsChartContent = ({ result }: { result: RiskTrendsResult }) => {
                 padding: '8px',
               }}
               labelFormatter={formatTooltipDate}
-              formatter={(value: number, name: string, props: any) => {
-                if (name === 'avg_risk_score') {
+              formatter={(value: number | undefined, name: string | undefined, props: any) => {
+                if (name === 'avg_risk_score' && value !== undefined) {
                   return [
                     <>
                       <span style={{ color: getRiskColor(value), fontWeight: 600 }}>
@@ -127,7 +127,7 @@ const RiskTrendsChartContent = ({ result }: { result: RiskTrendsResult }) => {
                     'Avg Risk',
                   ]
                 }
-                return [value, name]
+                return [value ?? 0, name ?? '']
               }}
             />
             <Line
