@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Container, Grid } from '@mantine/core'
 import { useRiskEvents } from '../hooks/useRiskEvents'
 import { EventList } from '../components/EventList'
 import { FilterBar } from '../components/FilterBar'
@@ -6,7 +7,6 @@ import { EventDetail } from '../components/EventDetail'
 import { TrendsPanel } from '../components/TrendsPanel'
 import { loadFiltersFromStorage, saveFiltersToStorage } from '../lib/filterStorage'
 import type { EventFilterParams } from '../lib/types'
-import './Dashboard.css'
 
 /**
  * Dashboard page with split-view layout
@@ -28,48 +28,50 @@ export function Dashboard() {
   }
 
   return (
-    <div className="dashboard-container">
-      {/* Left panel: Event list */}
-      <div className="events-panel">
-        <FilterBar filters={filters} onFiltersChange={handleFiltersChange} />
+    <Container fluid>
+      <Grid>
+        {/* Events feed: 6 cols desktop, full width mobile */}
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <FilterBar filters={filters} onFiltersChange={handleFiltersChange} />
 
-        {loading && !events && (
-          <div className="loading-state">Loading events...</div>
-        )}
+          {loading && !events && (
+            <div className="loading-state">Loading events...</div>
+          )}
 
-        {error && (
-          <div className="error-state">
-            <h2>Error Loading Events</h2>
-            <p>{error.message}</p>
-          </div>
-        )}
+          {error && (
+            <div className="error-state">
+              <h2>Error Loading Events</h2>
+              <p>{error.message}</p>
+            </div>
+          )}
 
-        {!loading && !error && (!events || events.length === 0) && (
-          <div className="empty-state">No events found with current filters</div>
-        )}
+          {!loading && !error && (!events || events.length === 0) && (
+            <div className="empty-state">No events found with current filters</div>
+          )}
 
-        {events && events.length > 0 && (
-          <EventList
-            events={events}
-            selectedEventId={selectedEventId}
+          {events && events.length > 0 && (
+            <EventList
+              events={events}
+              selectedEventId={selectedEventId}
+              onSelectEvent={setSelectedEventId}
+            />
+          )}
+
+          {loading && events && (
+            <div className="loading-overlay">Updating...</div>
+          )}
+        </Grid.Col>
+
+        {/* Trends and detail: 6 cols desktop, full width mobile */}
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          {events && events.length > 0 && <TrendsPanel events={events} />}
+          <EventDetail
+            event={events?.find(e => e.id === selectedEventId) || null}
+            allEvents={events || []}
             onSelectEvent={setSelectedEventId}
           />
-        )}
-
-        {loading && events && (
-          <div className="loading-overlay">Updating...</div>
-        )}
-      </div>
-
-      {/* Right panel: Trends and Event details */}
-      <div className="detail-panel">
-        {events && events.length > 0 && <TrendsPanel events={events} />}
-        <EventDetail
-          event={events?.find(e => e.id === selectedEventId) || null}
-          allEvents={events || []}
-          onSelectEvent={setSelectedEventId}
-        />
-      </div>
-    </div>
+        </Grid.Col>
+      </Grid>
+    </Container>
   )
 }
