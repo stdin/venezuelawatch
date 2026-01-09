@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_celery_results",
     "core",
+    "data_pipeline",
 ]
 
 # Custom User Model
