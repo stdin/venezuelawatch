@@ -41,11 +41,11 @@ def ingest_gdelt_events(self, lookback_minutes: int = 15) -> Dict[str, Any]:
     # GDELT DOC API v2.0 endpoint
     # mode=artlist: Return article list (not full text)
     # format=json: JSON response
-    # query: Search terms (Venezuela-related)
+    # query: Search terms (Venezuela-related) - OR queries must be in parentheses
     # timespan: Xm for minutes, Xh for hours, Xd for days
     api_url = "https://api.gdeltproject.org/api/v2/doc/doc"
     params = {
-        'query': 'venezuela OR maduro OR caracas',
+        'query': '(venezuela OR maduro OR caracas)',  # Parentheses required for OR queries
         'mode': 'artlist',
         'format': 'json',
         'timespan': f'{lookback_minutes}m',
