@@ -1,13 +1,13 @@
 {
   "mode": "yolo",
-  "depth": "standard",
+  "depth": "quick",
   "gates": {
     "confirm_project": false,
     "confirm_phases": false,
     "confirm_roadmap": false,
     "confirm_breakdown": false,
     "confirm_plan": false,
-    "execute_next_plan": false,
+    "execute_next_plan": true,
     "issues_review": true,
     "confirm_transition": false
   },

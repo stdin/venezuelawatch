@@ -1,0 +1,193 @@
+---
+phase: 08-design-system-foundation
+plan: 02
+subsystem: documentation
+tags: [storybook, design-tokens, interactive-style-guide, storybook-10]
+
+# Dependency graph
+requires:
+  - phase: 08-design-system-foundation
+    provides: Design token foundation (typography, colors, spacing from 08-01)
+
+provides:
+  - Storybook 10.1.11 installation with Vite builder
+  - Custom VenezuelaWatch theme with design token colors
+  - Interactive token documentation (Typography, Colors, Spacing stories)
+  - Theme switcher for light/dark mode testing
+  - Live style guide at localhost:6006
+
+affects: [design-system, documentation, developer-experience, phase-09-component-library]
+
+# Tech tracking
+tech-stack:
+  added: [storybook@10.1.11, @storybook/react-vite, @storybook/addon-a11y, @storybook/addon-vitest, @storybook/addon-docs, @chromatic-com/storybook]
+  patterns: [storybook-10-api, custom-theming, mdx-stories, tsx-stories, theme-decorator, design-token-documentation]
+
+key-files:
+  created:
+    - frontend/.storybook/main.ts
+    - frontend/.storybook/manager.ts
+    - frontend/.storybook/preview.tsx
+    - frontend/.storybook/vitest.setup.ts
+    - frontend/src/stories/DesignTokens/Typography.stories.tsx
+    - frontend/src/stories/DesignTokens/Colors.stories.tsx
+    - frontend/src/stories/DesignTokens/Spacing.stories.tsx
+  modified:
+    - frontend/package.json
+    - frontend/package-lock.json
+    - frontend/.gitignore
+    - frontend/eslint.config.js
+    - frontend/vite.config.ts
+    - frontend/vitest.shims.d.ts
+    - frontend/src/styles/tokens/spacing.css
+
+key-decisions:
+  - "Storybook 10 API changes: imports from 'storybook/*' not '@storybook/*'"
+  - "preview.tsx instead of preview.ts for JSX support in decorators"
+  - "Introduction.mdx removed (blocks import incompatible with Storybook 10)"
+  - "Border radius reduced by ~33% based on user feedback (md: 6px → 4px)"
+  - "Theme decorator applies data-theme attribute for light/dark testing"
+  - "Custom theme uses design token hex values for Storybook UI"
+
+patterns-established:
+  - "Storybook 10 import pattern: 'storybook/manager-api', 'storybook/theming'"
+  - "TSX preview file for React components in decorators"
+  - "Story structure: TypeScript functional components with inline styles using CSS variables"
+  - "Global theme decorator with useEffect hook for data-theme attribute"
+  - "Design token documentation pattern: visual examples + code tokens + descriptions"
+
+issues-created: []
+
+# Metrics
+duration: 19 min
+completed: 2026-01-09
+---
+
+# Phase 8 Plan 2: Storybook Interactive Style Guide Summary
+
+**Storybook 10 installed with custom VenezuelaWatch theme and interactive design token documentation**
+
+## Performance
+
+- **Duration:** 19 min
+- **Started:** 2026-01-09T08:11:49Z
+- **Completed:** 2026-01-09T08:30:18Z
+- **Tasks:** 3 (+ 2 auto-fix deviations)
+- **Files created:** 7
+- **Files modified:** 7
+
+## Accomplishments
+
+- Storybook 10.1.11 installed with Vite builder and React support
+- Custom theme matching VenezuelaWatch risk-first color palette
+- Theme switcher decorator for light/dark mode testing
+- Typography story with 7 font sizes and 4 weights
+- Colors story with risk palette (6 colors), neutral scale (11 colors), semantic tokens (6)
+- Spacing story with spacing scale (9), border radius (7), shadows (4)
+- Interactive style guide running at localhost:6006
+- A11y addon enabled for accessibility testing
+- Vitest + Playwright integration for story testing
+
+## Task Commits
+
+Each task was committed atomically:
+
+1. **Task 1: Install Storybook with Vite + design tokens** - `7b767d5` (chore)
+2. **Task 2: Add custom theme with design tokens** - `2e3c2c2` (feat)
+3. **Task 3: Add design token documentation stories** - `ab4b6e6` (docs)
+
+**Auto-fix deviations:**
+4. **Fix Storybook 10 compatibility** - `41ce966` (fix)
+5. **Reduce border radius per user feedback** - `3762c07` (fix)
+
+**Plan metadata:** (pending - will commit with STATE/ROADMAP updates)
+
+## Files Created/Modified
+
+**Created:**
+- `.storybook/main.ts` - Storybook config (stories glob, addons, framework)
+- `.storybook/manager.ts` - Custom theme with VenezuelaWatch colors
+- `.storybook/preview.tsx` - Theme decorator, backgrounds, global types
+- `.storybook/vitest.setup.ts` - Vitest test setup for stories
+- `src/stories/DesignTokens/Typography.stories.tsx` - Type scale + weights
+- `src/stories/DesignTokens/Colors.stories.tsx` - Risk palette + neutrals + semantics
+- `src/stories/DesignTokens/Spacing.stories.tsx` - Spacing + radius + shadows
+
+**Modified:**
+- `package.json` - Added storybook scripts and dependencies
+- `package-lock.json` - 174 new packages (Storybook, Playwright, Vitest)
+- `.gitignore` - Added *storybook.log and storybook-static/
+- `eslint.config.js` - Added eslint-plugin-storybook
+- `vite.config.ts` - Added Vitest + Playwright + storybookTest plugin
+- `vitest.shims.d.ts` - Generated by Storybook
+- `src/styles/tokens/spacing.css` - Reduced border radius values
+
+## Decisions Made
+
+- **Storybook 10 API changes:** Imports changed from `@storybook/manager-api` → `storybook/manager-api` and `@storybook/theming/create` → `storybook/theming`
+- **preview.tsx not .ts:** Renamed to enable JSX syntax in theme decorator
+- **Introduction.mdx removed:** MDX blocks import incompatible with Storybook 10 (no `storybook/blocks` export)
+- **Border radius reduced:** User feedback "buttons are too rounded" - reduced md/lg/xl/2xl by ~33%
+- **Theme decorator pattern:** useEffect hook sets `document.documentElement.dataset.theme` for global theme switching
+- **Custom theme hex values:** OKLCH colors converted to hex for Storybook UI compatibility
+
+## Deviations from Plan
+
+### Auto-fixed Issues
+
+**1. [Rule 2 - Missing Critical] Storybook 10 import compatibility**
+- **Found during:** Task 1 verification - Storybook failed to start with import resolution errors
+- **Issue:** Plan used Storybook 8.x import paths (`@storybook/manager-api`, `@storybook/theming/create`) but Storybook 10 changed to `storybook/*` package exports
+- **Fix:** Updated manager.ts imports and renamed preview.ts → preview.tsx for JSX support
+- **Files modified:** .storybook/manager.ts, .storybook/preview.tsx
+- **Verification:** Storybook starts successfully on localhost:6006 without errors
+- **Committed in:** 41ce966
+
+**2. [Rule 3 - User Feedback] Border radius too rounded**
+- **Found during:** Checkpoint verification - user reported "buttons are too rounded"
+- **Issue:** Border radius scale (md: 6px, lg: 8px, xl: 12px, 2xl: 16px) created overly rounded corners
+- **Fix:** Reduced all radius values by ~33% (md: 4px, lg: 6px, xl: 8px, 2xl: 12px)
+- **Files modified:** frontend/src/styles/tokens/spacing.css
+- **Verification:** User confirmed "looks good" after change
+- **Committed in:** 3762c07
+
+---
+
+**Total deviations:** 2 auto-fixed (1 missing critical, 1 user feedback)
+**Impact on plan:** Import compatibility fix essential for Storybook 10. Border radius adjustment improves UI aesthetic per user preference. No scope creep.
+
+## Checkpoint Verification
+
+**Human verification passed:** User confirmed Storybook looks good at localhost:6006
+
+Verified working:
+- Storybook UI loads with VenezuelaWatch theme (red primary, neutral grays)
+- Design Tokens section visible in sidebar
+- Typography story shows 7 font sizes with 1.25 ratio
+- Colors story displays risk palette with swatches
+- Spacing story visualizes spacing scale
+- Theme switcher appears in toolbar
+- Border radius feels appropriate (not too rounded)
+
+## Next Phase Readiness
+
+**Phase 8 Plan 2: Complete** - Interactive style guide delivered
+
+Deliverables working:
+- Storybook 10.1.11 running on localhost:6006
+- Custom VenezuelaWatch theme applied
+- 3 design token documentation stories (Typography, Colors, Spacing)
+- Theme switcher for light/dark mode testing
+- A11y addon enabled for accessibility checks
+- Border radius adjusted per user feedback
+
+Known limitations:
+- Introduction.mdx removed (MDX incompatible with Storybook 10)
+- Dark theme foundation exists but switching mechanism still not functional (issue from 08-01)
+
+**Ready for:** Phase 9 Component Library Rebuild
+
+---
+
+*Phase: 08-design-system-foundation*
+*Completed: 2026-01-09*

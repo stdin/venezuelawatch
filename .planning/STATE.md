@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 8 of 13 (Design System Foundation)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-01-09 — Completed 08-01-PLAN.md
+Plan: 2 of 2 in current phase
+Status: Complete
+Last activity: 2026-01-09 — Completed 08-02-PLAN.md (Storybook interactive style guide)
 
-Progress: ████░░░░░░ 39%
+Progress: ████░░░░░░ 42%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 25
-- Average duration: 13 min
-- Total execution time: 5.8 hours
+- Total plans completed: 26
+- Average duration: 14 min
+- Total execution time: 6.1 hours
 
 **By Phase:**
 
@@ -33,11 +33,11 @@ Progress: ████░░░░░░ 39%
 | 4 | 4 | 26 min | 7 min |
 | 6 | 4 | 23 min | 6 min |
 | 7 | 4 | 36 min | 9 min |
-| 8 | 1 | 10 min | 10 min |
+| 8 | 2 | 29 min | 15 min |
 
 **Recent Trend:**
-- Last 5 plans: 2min, 15min, 8min, 11min, 10min
-- Trend: Very fast (mature infrastructure)
+- Last 5 plans: 15min, 8min, 11min, 10min, 19min
+- Trend: Fast (documentation-heavy tasks)
 
 ## Accumulated Context
 
@@ -140,6 +140,11 @@ Recent decisions affecting current work:
 - Phase 8: Risk-first semantic color naming (--color-risk-high) not visual naming
 - Phase 8: Layered token system: primitives → semantic tokens for theme flexibility
 - Phase 8: System font stacks for zero-latency rendering
+- Phase 8: Storybook 10 API changes (imports from 'storybook/*' not '@storybook/*')
+- Phase 8: preview.tsx instead of preview.ts for JSX support in decorators
+- Phase 8: Border radius scale reduced by ~33% (md: 6px → 4px) for subtler rounding
+- Phase 8: Theme decorator with useEffect for data-theme attribute switching
+- Phase 8: Design token documentation pattern with visual examples and code tokens
 
 ### Deferred Issues
 
@@ -160,7 +165,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-09
-Stopped at: Completed 08-01-PLAN.md (design token foundation)
+Stopped at: Completed Phase 8 (Design System Foundation) with 08-02-PLAN.md
 Resume file: None
 
-Note: Phase 8 Plan 1 complete. Design tokens established with typography (1.25 ratio), OKLCH colors (hex fallbacks), spacing scales. Ready for Plan 08-02 (Storybook setup). Known issue: dark theme switching needs debugging.
+Note: Phase 8 complete. Design tokens established (08-01) + Storybook interactive style guide deployed (08-02). Storybook 10 running at localhost:6006 with custom VenezuelaWatch theme and 3 token documentation stories. Known issues: dark theme switching mechanism needs debugging, Introduction.mdx removed due to Storybook 10 incompatibility. Ready for Phase 9 (Component Library Rebuild).
