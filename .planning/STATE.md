@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-08)
 
 **Core value:** Accurate risk intelligence that identifies sanctions changes, political disruptions, and trade opportunities before they impact investment decisions.
-**Current focus:** Phase 2 — Authentication & User Management
+**Current focus:** Phase 4 — Risk Intelligence Core
 
 ## Current Position
 
-Phase: 2 of 7 (Authentication & User Management)
+Phase: 3 of 7 (Data Pipeline Architecture)
 Plan: 4 of 4 in current phase
 Status: Phase complete
-Last activity: 2026-01-09 — Completed 02-04-PLAN.md (React authentication UI)
+Last activity: 2026-01-08 — Completed 03-04-PLAN.md (Monthly/Quarterly - Comtrade + World Bank)
 
-Progress: █████░░░░░ 50%
+Progress: ██████░░░░ 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 9 min
-- Total execution time: 1.33 hours
+- Total plans completed: 12
+- Average duration: 21 min
+- Total execution time: 4.23 hours
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: █████░░░░░ 50%
 |-------|-------|-------|----------|
 | 1 | 4 | 56 min | 14 min |
 | 2 | 4 | 24 min | 6 min |
+| 3 | 4 | 195 min | 49 min |
 
 **Recent Trend:**
-- Last 5 plans: 8min, 6min, 8min, 2min
-- Trend: Improving
+- Last 5 plans: 45min, 60min, 40min, 50min
+- Trend: Stable (data pipeline complexity)
 
 ## Accumulated Context
 
@@ -62,6 +63,22 @@ Recent decisions affecting current work:
 - Phase 2: Console email backend for development
 - Phase 2: Email verification disabled for development (ACCOUNT_EMAIL_VERIFICATION='none')
 - Phase 2: Session-based authentication via django_auth (not JWT tokens)
+- Phase 3: Celery + Redis for async task queue (don't hand-roll)
+- Phase 3: django-celery-results for ORM result backend in PostgreSQL
+- Phase 3: GCP Secret Manager with environment variable fallback for API credentials
+- Phase 3: Tenacity for exponential backoff retry strategy (not custom)
+- Phase 3: Token bucket RateLimiter for API rate limit compliance
+- Phase 3: GDELT 15-minute polling for real-time event detection
+- Phase 3: ReliefWeb daily polling for humanitarian crisis updates
+- Phase 3: Celery Beat for local development, Cloud Scheduler for production
+- Phase 3: HTTP trigger endpoints for Cloud Scheduler integration
+- Phase 3: Deduplication by URL/ID using JSONField queries
+- Phase 3: FRED daily batch ingestion for 6 key Venezuela economic series
+- Phase 3: Parallel series fetching using Celery group for performance
+- Phase 3: Threshold-based economic event generation (oil > 10%, inflation > 5%)
+- Phase 3: UN Comtrade monthly ingestion for trade flows (oil, food, medicine, machinery)
+- Phase 3: World Bank quarterly ingestion for 10 development indicators
+- Phase 3: Backfill management commands for historical data ingestion
 
 ### Deferred Issues
 
@@ -76,6 +93,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-09 00:30
-Stopped at: Completed 02-04-PLAN.md (React authentication UI) - Phase 2 complete
+Last session: 2026-01-09
+Stopped at: Created retroactive summaries for Phase 3 (all 4 plans complete)
 Resume file: None
+
+Note: Phase 3 work completed on 2026-01-08 but summaries created retroactively on 2026-01-09
