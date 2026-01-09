@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 11 of 13 (Entity Pages Redesign)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-09 — Completed 11-01-PLAN.md (Layout & Metric Toggles)
+Last activity: 2026-01-09 — Completed 11-02-PLAN.md (EntityLeaderboard Redesign)
 
-Progress: ███████░░░ 59%
+Progress: ███████░░░ 61%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 33
+- Total plans completed: 34
 - Average duration: 13 min
 - Total execution time: 7.1 hours
 
@@ -36,10 +36,10 @@ Progress: ███████░░░ 59%
 | 8 | 2 | 29 min | 15 min |
 | 9 | 2 | 53 min | 27 min |
 | 10 | 4 | 8 min | 2 min |
-| 11 | 1 | 1 min | 1 min |
+| 11 | 2 | 2 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: 1min, 2min, 2min, 3min, 35min
+- Last 5 plans: 1min, 1min, 2min, 2min, 3min
 - Trend: Very fast (Mantine UI migrations)
 
 ## Accumulated Context
@@ -172,6 +172,10 @@ Recent decisions affecting current work:
 - Phase 10: Mantine form component pattern across all filter controls
 - Phase 11: Grid.Col span={{ base: 12, md: 5 }} for 40% width on desktop split-view
 - Phase 11: SegmentedControl fullWidth for professional metric toggle UI
+- Phase 11: Badge size="lg" circle for rank numbers in lists
+- Phase 11: Entity type Badge colors: blue (Person), grape (Org), red (Gov), green (Location)
+- Phase 11: Skeleton loading in component (not parent) for better encapsulation
+- Phase 11: Loading prop pattern: loading && entities.length === 0 for initial fetch only
 
 ### Deferred Issues
 
@@ -192,7 +196,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-09
-Stopped at: Completed 11-01-PLAN.md (Layout & Metric Toggles)
+Stopped at: Completed 11-02-PLAN.md (EntityLeaderboard Redesign)
 Resume file: None
 
-Note: Phase 11 plan 1 complete! Entities page layout migrated to Mantine Grid (2-column responsive) with SegmentedControl for metric switching. Entities.css deleted (181 lines removed). Ready for 11-02-PLAN.md (EntityLeaderboard Redesign).
+Note: Phase 11 plan 2 complete! EntityLeaderboard rebuilt with Mantine Card-based UI, Skeleton loading (5 cards), color-coded entity type badges (blue/grape/red/green), and circular rank badges. EntityLeaderboard.css deleted (159 lines removed). Virtualization preserved. Ready for 11-03-PLAN.md (EntityProfile Redesign).
