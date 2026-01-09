@@ -5,6 +5,7 @@ import { LoginForm } from './components/LoginForm'
 import { RegisterForm } from './components/RegisterForm'
 import { Dashboard } from './pages/Dashboard'
 import { Entities } from './pages/Entities'
+import { Chat } from './pages/Chat'
 import './App.css'
 
 function AuthenticatedApp() {
@@ -28,6 +29,12 @@ function AuthenticatedApp() {
           >
             Entities
           </Link>
+          <Link
+            to="/chat"
+            className={`app-nav-link ${location.pathname === '/chat' ? 'app-nav-link-active' : ''}`}
+          >
+            Chat
+          </Link>
         </div>
       </nav>
 
@@ -36,6 +43,7 @@ function AuthenticatedApp() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/entities" element={<Entities />} />
+          <Route path="/chat" element={<Chat />} />
         </Routes>
       </div>
     </div>
