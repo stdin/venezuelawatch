@@ -1,5 +1,5 @@
+import { Card, Text, Badge, Group, Stack } from '@mantine/core'
 import type { RiskEvent } from '../lib/types'
-import './EventCard.css'
 
 interface EventCardProps {
   event: RiskEvent
@@ -26,78 +26,101 @@ function formatRelativeTime(timestamp: string): string {
 }
 
 /**
- * Get risk score color class based on value
+ * Get risk score Badge color based on value
  */
-function getRiskScoreClass(score: number): string {
-  if (score >= 75) return 'risk-critical'
-  if (score >= 50) return 'risk-high'
-  if (score >= 25) return 'risk-medium'
-  return 'risk-low'
+function getRiskScoreColor(score: number): string {
+  if (score >= 70) return 'red'
+  if (score >= 50) return 'orange'
+  return 'blue'
 }
 
 /**
- * Get severity display info
+ * Get severity Badge color based on SEV level
  */
-function getSeverityInfo(severity: string): { label: string; className: string } {
-  const severityMap: Record<string, { label: string; className: string }> = {
-    SEV1_CRITICAL: { label: 'SEV1', className: 'severity-critical' },
-    SEV2_HIGH: { label: 'SEV2', className: 'severity-high' },
-    SEV3_MEDIUM: { label: 'SEV3', className: 'severity-medium' },
-    SEV4_LOW: { label: 'SEV4', className: 'severity-low' },
-    SEV5_MINIMAL: { label: 'SEV5', className: 'severity-minimal' },
+function getSeverityColor(severity: string): string {
+  const severityMap: Record<string, string> = {
+    SEV1_CRITICAL: 'red',
+    SEV2_HIGH: 'orange',
+    SEV3_MEDIUM: 'yellow',
+    SEV4_LOW: 'blue',
+    SEV5_MINIMAL: 'gray',
   }
-  return severityMap[severity] || { label: severity, className: 'severity-medium' }
+  return severityMap[severity] || 'gray'
+}
+
+/**
+ * Get severity label (SEV1, SEV2, etc.)
+ */
+function getSeverityLabel(severity: string): string {
+  const match = severity.match(/^SEV(\d)/)
+  return match ? `SEV${match[1]}` : severity
 }
 
 /**
  * Get sentiment indicator
  */
-function getSentimentInfo(sentiment: number): { icon: string; className: string; label: string } {
-  if (sentiment > 0.3) return { icon: '↑', className: 'sentiment-positive', label: 'Positive' }
-  if (sentiment < -0.3) return { icon: '↓', className: 'sentiment-negative', label: 'Negative' }
-  return { icon: '→', className: 'sentiment-neutral', label: 'Neutral' }
+function getSentimentInfo(sentiment: number): { icon: string; label: string } {
+  if (sentiment > 0.3) return { icon: '↑', label: 'Positive' }
+  if (sentiment < -0.3) return { icon: '↓', label: 'Negative' }
+  return { icon: '→', label: 'Neutral' }
 }
 
 /**
  * Event card component displaying moderate information density
  */
 export function EventCard({ event, isSelected, onSelect }: EventCardProps) {
-  const riskClass = getRiskScoreClass(event.risk_score)
-  const severityInfo = getSeverityInfo(event.severity)
+  const riskColor = getRiskScoreColor(event.risk_score)
+  const severityColor = getSeverityColor(event.severity)
+  const severityLabel = getSeverityLabel(event.severity)
   const sentimentInfo = getSentimentInfo(event.sentiment)
   const relativeTime = formatRelativeTime(event.timestamp)
 
   return (
-    <div
-      className={`event-card ${isSelected ? 'event-card-selected' : ''}`}
+    <Card
+      padding="md"
+      withBorder
       onClick={onSelect}
+      style={{
+        cursor: 'pointer',
+        backgroundColor: isSelected ? 'var(--mantine-color-blue-light)' : undefined,
+      }}
     >
-      {/* Header: Title and badges */}
-      <div className="event-card-header">
-        <h3 className="event-card-title">{event.title}</h3>
-        <div className="event-card-badges">
-          <span className={`badge badge-risk ${riskClass}`}>
-            {Math.round(event.risk_score)}
-          </span>
-          <span className={`badge badge-severity ${severityInfo.className}`}>
-            {severityInfo.label}
-          </span>
-        </div>
-      </div>
+      <Stack gap="xs">
+        {/* Title and badges */}
+        <Group justify="space-between" align="flex-start">
+          <Text size="sm" fw={700} style={{ flex: 1 }}>
+            {event.title}
+          </Text>
+          <Group gap="xs">
+            <Badge color={riskColor} size="sm">
+              {Math.round(event.risk_score)}
+            </Badge>
+            <Badge color={severityColor} size="sm">
+              {severityLabel}
+            </Badge>
+          </Group>
+        </Group>
 
-      {/* Timestamp */}
-      <div className="event-card-timestamp">{relativeTime}</div>
+        {/* Timestamp */}
+        <Text size="xs" c="dimmed">
+          {relativeTime}
+        </Text>
 
-      {/* Summary */}
-      <p className="event-card-summary">{event.summary}</p>
+        {/* Summary */}
+        <Text size="sm" lineClamp={2}>
+          {event.summary}
+        </Text>
 
-      {/* Footer: Source and sentiment */}
-      <div className="event-card-footer">
-        <span className="badge badge-source">{event.source}</span>
-        <span className={`sentiment-indicator ${sentimentInfo.className}`} title={sentimentInfo.label}>
-          {sentimentInfo.icon}
-        </span>
-      </div>
-    </div>
+        {/* Footer: Source and sentiment */}
+        <Group justify="space-between">
+          <Badge variant="light" size="sm">
+            {event.source}
+          </Badge>
+          <Text size="xs" c="dimmed" title={sentimentInfo.label}>
+            {sentimentInfo.icon}
+          </Text>
+        </Group>
+      </Stack>
+    </Card>
   )
 }
