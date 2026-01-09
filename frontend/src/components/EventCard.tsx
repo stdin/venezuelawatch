@@ -75,11 +75,22 @@ export function EventCard({ event, isSelected, onSelect }: EventCardProps) {
   const sentimentInfo = getSentimentInfo(event.sentiment)
   const relativeTime = formatRelativeTime(event.timestamp)
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onSelect()
+    }
+  }
+
   return (
     <Card
       padding="md"
       withBorder
       onClick={onSelect}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="button"
+      aria-pressed={isSelected}
       style={{
         cursor: 'pointer',
         backgroundColor: isSelected ? 'var(--mantine-color-blue-light)' : undefined,
