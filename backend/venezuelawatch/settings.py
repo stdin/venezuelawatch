@@ -218,6 +218,16 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': 86400.0,  # 24 hours in seconds
         'args': (7,),  # lookback_days (7 days to catch late-arriving data)
     },
+    'ingest-comtrade-trade-data': {
+        'task': 'data_pipeline.tasks.comtrade_tasks.ingest_comtrade_trade_data',
+        'schedule': 2592000.0,  # 30 days in seconds (monthly)
+        'args': (3,),  # lookback_months (accounts for 2-3 month data lag)
+    },
+    'ingest-worldbank-indicators': {
+        'task': 'data_pipeline.tasks.worldbank_tasks.ingest_worldbank_indicators',
+        'schedule': 7776000.0,  # 90 days in seconds (quarterly)
+        'args': (2,),  # lookback_years (World Bank data is annual)
+    },
 }
 
 # GCP Secret Manager Configuration

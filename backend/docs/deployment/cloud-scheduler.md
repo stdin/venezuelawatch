@@ -103,6 +103,44 @@ gcloud scheduler jobs create http fred-ingestion \
 **Timezone**: UTC
 **Lookback**: 7 days to catch late-arriving economic data
 
+### UN Comtrade Trade Data Ingestion (Monthly on 1st at 2 AM UTC)
+
+```bash
+gcloud scheduler jobs create http comtrade-ingestion \
+  --location=us-central1 \
+  --schedule="0 2 1 * *" \
+  --uri="https://venezuelawatch-api.run.app/api/tasks/trigger/comtrade" \
+  --http-method=POST \
+  --oidc-service-account-email=venezuelawatch-scheduler@venezuelawatch-staging.iam.gserviceaccount.com \
+  --headers="Content-Type=application/json" \
+  --message-body='{"lookback_months": 3}' \
+  --time-zone="UTC" \
+  --project=venezuelawatch-staging
+```
+
+**Schedule Format**: `0 2 1 * *` = Monthly on the 1st at 2:00 AM
+**Timezone**: UTC
+**Lookback**: 3 months to account for 2-3 month data lag in Comtrade
+
+### World Bank Development Indicators (Quarterly on 1st at 3 AM UTC)
+
+```bash
+gcloud scheduler jobs create http worldbank-ingestion \
+  --location=us-central1 \
+  --schedule="0 3 1 */3 *" \
+  --uri="https://venezuelawatch-api.run.app/api/tasks/trigger/worldbank" \
+  --http-method=POST \
+  --oidc-service-account-email=venezuelawatch-scheduler@venezuelawatch-staging.iam.gserviceaccount.com \
+  --headers="Content-Type=application/json" \
+  --message-body='{"lookback_years": 2}' \
+  --time-zone="UTC" \
+  --project=venezuelawatch-staging
+```
+
+**Schedule Format**: `0 3 1 */3 *` = Quarterly on the 1st at 3:00 AM (Jan/Apr/Jul/Oct)
+**Timezone**: UTC
+**Lookback**: 2 years (World Bank data is annual with 1-2 year lag)
+
 ## 4. Verify Scheduler Jobs
 
 List all Cloud Scheduler jobs:
@@ -117,6 +155,8 @@ ID                    LOCATION      SCHEDULE (TZ)              TARGET_TYPE  STAT
 gdelt-ingestion       us-central1   */15 * * * * (Etc/UTC)     HTTP         ENABLED
 reliefweb-ingestion   us-central1   0 9 * * * (Etc/UTC)        HTTP         ENABLED
 fred-ingestion        us-central1   0 10 * * * (Etc/UTC)       HTTP         ENABLED
+comtrade-ingestion    us-central1   0 2 1 * * (Etc/UTC)        HTTP         ENABLED
+worldbank-ingestion   us-central1   0 3 1 */3 * (Etc/UTC)      HTTP         ENABLED
 ```
 
 Describe a specific job:
@@ -139,6 +179,16 @@ gcloud scheduler jobs run gdelt-ingestion \
 
 # Test ReliefWeb ingestion
 gcloud scheduler jobs run reliefweb-ingestion \
+  --location=us-central1 \
+  --project=venezuelawatch-staging
+
+# Test Comtrade ingestion
+gcloud scheduler jobs run comtrade-ingestion \
+  --location=us-central1 \
+  --project=venezuelawatch-staging
+
+# Test World Bank ingestion
+gcloud scheduler jobs run worldbank-ingestion \
   --location=us-central1 \
   --project=venezuelawatch-staging
 ```
@@ -297,7 +347,8 @@ gcloud logging read "resource.type=cloud_run_revision AND resource.labels.servic
 
 **Estimated Cost**:
 - 3 jobs (GDELT + ReliefWeb + FRED): **Free**
-- Future jobs (Comtrade, World Bank): $0.20/month
+- 2 additional jobs (Comtrade + World Bank): $0.20/month
+- **Total**: $0.20/month
 
 **Tips**:
 - Use Cloud Scheduler for production cron
@@ -311,6 +362,8 @@ gcloud logging read "resource.type=cloud_run_revision AND resource.labels.servic
 - [ ] GDELT ingestion job created (every 15 minutes)
 - [ ] ReliefWeb ingestion job created (daily at 9 AM)
 - [ ] FRED ingestion job created (daily at 10 AM)
+- [ ] Comtrade ingestion job created (monthly on 1st at 2 AM)
+- [ ] World Bank ingestion job created (quarterly on 1st at 3 AM)
 - [ ] Jobs tested manually with `gcloud scheduler jobs run`
 - [ ] Task trigger API endpoint deployed and accessible
 - [ ] Cloud Run service allows service account invocations

@@ -11,6 +11,8 @@ from django.http import HttpRequest, JsonResponse
 from data_pipeline.tasks.gdelt_tasks import ingest_gdelt_events
 from data_pipeline.tasks.reliefweb_tasks import ingest_reliefweb_updates
 from data_pipeline.tasks.fred_tasks import ingest_fred_series
+from data_pipeline.tasks.comtrade_tasks import ingest_comtrade_trade_data
+from data_pipeline.tasks.worldbank_tasks import ingest_worldbank_indicators
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +30,14 @@ class ReliefWebTriggerRequest(Schema):
 
 class FREDTriggerRequest(Schema):
     lookback_days: int = 7
+
+
+class ComtradeTriggerRequest(Schema):
+    lookback_months: int = 3
+
+
+class WorldBankTriggerRequest(Schema):
+    lookback_years: int = 2
 
 
 class TaskTriggerResponse(Schema):
@@ -133,6 +143,74 @@ def trigger_fred_ingestion(request: HttpRequest, payload: FREDTriggerRequest):
 
     except Exception as e:
         logger.error(f"Failed to trigger FRED ingestion: {e}", exc_info=True)
+        return JsonResponse(
+            {"status": "error", "message": str(e)},
+            status=500
+        )
+
+
+@router.post("/trigger/comtrade", response=TaskTriggerResponse)
+def trigger_comtrade_ingestion(request: HttpRequest, payload: ComtradeTriggerRequest):
+    """
+    Trigger UN Comtrade trade data ingestion task.
+
+    Called by GCP Cloud Scheduler monthly on the 1st at 2 AM UTC.
+
+    Args:
+        payload: Request body with lookback_months parameter
+
+    Returns:
+        TaskTriggerResponse with task ID and status
+    """
+    logger.info(f"Triggering Comtrade ingestion (lookback: {payload.lookback_months} months)")
+
+    try:
+        # Dispatch Celery task asynchronously
+        result = ingest_comtrade_trade_data.delay(lookback_months=payload.lookback_months)
+
+        return TaskTriggerResponse(
+            status="dispatched",
+            task_id=result.id,
+            task_name="comtrade",
+            message=f"Comtrade ingestion task dispatched with {payload.lookback_months} month lookback"
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to trigger Comtrade ingestion: {e}", exc_info=True)
+        return JsonResponse(
+            {"status": "error", "message": str(e)},
+            status=500
+        )
+
+
+@router.post("/trigger/worldbank", response=TaskTriggerResponse)
+def trigger_worldbank_ingestion(request: HttpRequest, payload: WorldBankTriggerRequest):
+    """
+    Trigger World Bank development indicators ingestion task.
+
+    Called by GCP Cloud Scheduler quarterly on the 1st at 3 AM UTC.
+
+    Args:
+        payload: Request body with lookback_years parameter
+
+    Returns:
+        TaskTriggerResponse with task ID and status
+    """
+    logger.info(f"Triggering World Bank ingestion (lookback: {payload.lookback_years} years)")
+
+    try:
+        # Dispatch Celery task asynchronously
+        result = ingest_worldbank_indicators.delay(lookback_years=payload.lookback_years)
+
+        return TaskTriggerResponse(
+            status="dispatched",
+            task_id=result.id,
+            task_name="worldbank",
+            message=f"World Bank ingestion task dispatched with {payload.lookback_years} year lookback"
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to trigger World Bank ingestion: {e}", exc_info=True)
         return JsonResponse(
             {"status": "error", "message": str(e)},
             status=500
