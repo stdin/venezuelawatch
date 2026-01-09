@@ -8,6 +8,17 @@ import React from 'react'
 import { AssistantRuntimeProvider } from '@assistant-ui/react'
 import { useChatRuntime } from '../lib/chatRuntime'
 
+// Import tool UI components to register them with makeAssistantToolUI
+import { EventPreviewCard } from './chat/EventPreviewCard'
+import { EntityPreviewCard, TrendingEntitiesCard } from './chat/EntityPreviewCard'
+import { RiskTrendsChart } from './chat/RiskTrendsChart'
+
+// Prevent unused variable warnings
+void EventPreviewCard
+void EntityPreviewCard
+void TrendingEntitiesCard
+void RiskTrendsChart
+
 interface ChatProviderProps {
   children: React.ReactNode
 }
