@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Card, Badge, Text, Group, Stack, Skeleton } from '@mantine/core'
 import type { Entity } from '../lib/types'
@@ -90,9 +90,37 @@ export function EntityLeaderboard({ entities, selectedId, onSelect, loading }: E
     )
   }
 
+  // Handle keyboard navigation
+  const handleKeyDown = useCallback((event: React.KeyboardEvent, index: number) => {
+    const entity = entities[index]
+
+    // Enter or Space to select
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onSelect(entity.id)
+    }
+
+    // Arrow keys to navigate
+    else if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      const nextIndex = Math.min(index + 1, entities.length - 1)
+      const nextElement = document.querySelector(`[data-entity-index="${nextIndex}"]`) as HTMLElement
+      nextElement?.focus()
+    }
+    else if (event.key === 'ArrowUp') {
+      event.preventDefault()
+      const prevIndex = Math.max(index - 1, 0)
+      const prevElement = document.querySelector(`[data-entity-index="${prevIndex}"]`) as HTMLElement
+      prevElement?.focus()
+    }
+  }, [entities, onSelect])
+
   return (
     <div
       ref={parentRef}
+      role="feed"
+      aria-label="Entity leaderboard"
+      aria-busy={loading}
       style={{
         flex: 1,
         width: '100%',
@@ -128,6 +156,12 @@ export function EntityLeaderboard({ entities, selectedId, onSelect, loading }: E
                 padding="sm"
                 withBorder
                 onClick={() => onSelect(entity.id)}
+                onKeyDown={(e) => handleKeyDown(e, virtualItem.index)}
+                tabIndex={0}
+                role="button"
+                aria-label={`${entity.canonical_name}, rank ${rank}, ${entity.mention_count} mentions`}
+                aria-pressed={isSelected}
+                data-entity-index={virtualItem.index}
                 style={{
                   cursor: 'pointer',
                   backgroundColor: isSelected ? 'var(--mantine-color-blue-light)' : undefined,
