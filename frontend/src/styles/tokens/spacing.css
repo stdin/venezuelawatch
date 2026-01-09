@@ -1,0 +1,49 @@
+/**
+ * Spacing and Sizing Tokens
+ *
+ * Consistent spacing scale for margins, padding, gaps
+ * Base unit: 0.25rem (4px) for fine-grained control
+ */
+
+:root {
+  /* --- Spacing Scale --- */
+  /* Fine control at small sizes, larger jumps at larger sizes */
+  --spacing-0: 0;
+  --spacing-2xs: 0.25rem;   /* 4px  - Tight spacing, icons */
+  --spacing-xs: 0.5rem;     /* 8px  - Compact spacing */
+  --spacing-sm: 0.75rem;    /* 12px - Small spacing */
+  --spacing-md: 1rem;       /* 16px - Base spacing */
+  --spacing-lg: 1.5rem;     /* 24px - Medium spacing */
+  --spacing-xl: 2rem;       /* 32px - Large spacing */
+  --spacing-2xl: 3rem;      /* 48px - Extra large spacing */
+  --spacing-3xl: 4rem;      /* 64px - XXL spacing */
+
+  /* --- Sizing Scale --- */
+  /* For width/height constraints */
+  --size-xs: 20rem;   /* 320px - Mobile viewport */
+  --size-sm: 24rem;   /* 384px - Small container */
+  --size-md: 28rem;   /* 448px - Medium container */
+  --size-lg: 32rem;   /* 512px - Large container */
+  --size-xl: 36rem;   /* 576px - XL container */
+  --size-2xl: 42rem;  /* 672px - 2XL container */
+  --size-3xl: 48rem;  /* 768px - 3XL container */
+  --size-4xl: 56rem;  /* 896px - 4XL container */
+  --size-5xl: 64rem;  /* 1024px - 5XL container */
+  --size-6xl: 72rem;  /* 1152px - 6XL container */
+  --size-7xl: 80rem;  /* 1280px - 7XL container */
+
+  /* --- Border Radius --- */
+  --radius-none: 0;
+  --radius-sm: 0.125rem;  /* 2px  - Subtle rounding */
+  --radius-md: 0.375rem;  /* 6px  - Standard rounding */
+  --radius-lg: 0.5rem;    /* 8px  - Pronounced rounding */
+  --radius-xl: 0.75rem;   /* 12px - Large rounding */
+  --radius-2xl: 1rem;     /* 16px - XL rounding */
+  --radius-full: 9999px;  /* Full circle/pill */
+
+  /* --- Shadows (subtle for modern aesthetic) --- */
+  --shadow-sm: 0 1px 2px 0 oklch(0.205 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px oklch(0.205 0 0 / 0.1), 0 2px 4px -2px oklch(0.205 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px oklch(0.205 0 0 / 0.1), 0 4px 6px -4px oklch(0.205 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px oklch(0.205 0 0 / 0.1), 0 8px 10px -6px oklch(0.205 0 0 / 0.1);
+}
