@@ -1,0 +1,52 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Design Tokens/Introduction" />
+
+# VenezuelaWatch Design System
+
+Modern, accessible design foundation for risk intelligence.
+
+## Core Principles
+
+### Typography Scale
+Clear size hierarchy that distinguishes headlines, body text, captions, and metadata. Makes scanning risk data effortless.
+
+**Modular ratio:** 1.25 (Major Third) - balanced for data applications
+
+### Risk-First Colors
+Colors communicate risk levels semantically using OKLCH color space for perceptual uniformity.
+
+- **Critical/High Risk:** Red hues
+- **Medium Risk:** Yellow/Orange hues
+- **Low Risk:** Green hues
+- **Neutral:** Grayscale for backgrounds and text
+
+### Spacing & Sizing
+Consistent spacing scale from 4px to 64px with semantic naming.
+
+## How to Use
+
+All design tokens are available as CSS custom properties (CSS variables):
+
+```css
+/* Typography */
+font-size: var(--font-size-lg);
+font-weight: var(--font-weight-semibold);
+line-height: var(--line-height-tight);
+
+/* Colors */
+color: var(--color-text-primary);
+background-color: var(--color-bg-surface);
+border-color: var(--color-risk-high);
+
+/* Spacing */
+padding: var(--spacing-md);
+gap: var(--spacing-sm);
+border-radius: var(--radius-md);
+```
+
+## Dark Mode
+
+Toggle the theme switcher in the toolbar to test light/dark mode.
+
+Dark theme adjusts color lightness while preserving hue and chroma for consistent color perception.
