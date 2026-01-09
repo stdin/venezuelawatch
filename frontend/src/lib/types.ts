@@ -174,3 +174,37 @@ export interface EntityTimeline {
  * Metric types for entity trending
  */
 export type EntityMetric = 'mentions' | 'risk' | 'sanctions'
+
+/**
+ * Chat message matching Django backend format
+ */
+export interface ChatMessage {
+  /** Message role - user or assistant */
+  role: 'user' | 'assistant'
+  /** Message text content */
+  content: string
+}
+
+/**
+ * Tool call in assistant message
+ */
+export interface ToolCall {
+  /** Tool identifier */
+  id: string
+  /** Tool name */
+  name: string
+  /** Tool input parameters as JSON */
+  input: Record<string, any>
+}
+
+/**
+ * Tool execution result
+ */
+export interface ToolResult {
+  /** Tool call ID this result corresponds to */
+  tool_use_id: string
+  /** Result content as JSON */
+  content: any
+  /** Whether the tool call resulted in an error */
+  is_error?: boolean
+}
