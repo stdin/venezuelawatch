@@ -104,8 +104,32 @@
   --color-neutral-100: #171717;
   --color-neutral-100: oklch(0.205 0 0);
 
+  --color-neutral-200: #262626;
+  --color-neutral-200: oklch(0.27 0 0);
+
+  --color-neutral-300: #404040;
+  --color-neutral-300: oklch(0.354 0 0);
+
+  --color-neutral-400: #525252;
+  --color-neutral-400: oklch(0.465 0 0);
+
+  --color-neutral-500: #737373;
+  --color-neutral-500: oklch(0.556 0 0);
+
+  --color-neutral-600: #a3a3a3;
+  --color-neutral-600: oklch(0.698 0 0);
+
+  --color-neutral-700: #d4d4d4;
+  --color-neutral-700: oklch(0.832 0 0);
+
+  --color-neutral-800: #e5e5e5;
+  --color-neutral-800: oklch(0.922 0 0);
+
   --color-neutral-900: #f5f5f5;
   --color-neutral-900: oklch(0.97 0 0);
+
+  --color-neutral-950: #fafafa;
+  --color-neutral-950: oklch(0.985 0 0);
 
   /* Risk colors lightened for dark background */
   --color-risk-critical: #f87171;
