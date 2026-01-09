@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "django_celery_results",
     "core",
     "data_pipeline",
+    "chat",
 ]
 
 # Custom User Model
