@@ -83,7 +83,7 @@ Each task was committed atomically:
 1. **Task 1: Create Django chat API router with streaming support** - `1220b9c` (feat)
 2. **Task 2: Implement tool calling for VenezuelaWatch data access** - `b0e9d8c` (feat)
 
-**Plan metadata:** (pending - to be committed after SUMMARY.md)
+**Plan metadata:** `b339165` (docs: complete plan)
 
 ## Files Created/Modified
 
