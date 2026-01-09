@@ -1,46 +1,47 @@
 import { useState, useEffect } from 'react'
+import { Card, Alert, Badge, Text, Title, Stack, Group, Divider, List, Skeleton } from '@mantine/core'
+import { format } from 'date-fns'
 import { api } from '../lib/api'
 import type { EntityProfile as EntityProfileType } from '../lib/types'
-import './EntityProfile.css'
 
 interface EntityProfileProps {
   entityId: string
 }
 
 /**
- * Format timestamp to readable date
+ * Get entity type badge color for Mantine Badge
  */
-function formatDate(timestamp: string): string {
-  const date = new Date(timestamp)
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  })
-}
-
-/**
- * Get entity type display info
- */
-function getEntityTypeInfo(type: string): { className: string; label: string } {
-  const typeMap: Record<string, { className: string; label: string }> = {
-    PERSON: { className: 'entity-type-person', label: 'Person' },
-    ORGANIZATION: { className: 'entity-type-org', label: 'Organization' },
-    GOVERNMENT: { className: 'entity-type-gov', label: 'Government' },
-    LOCATION: { className: 'entity-type-location', label: 'Location' },
+function getEntityTypeBadgeColor(type: string): string {
+  const colorMap: Record<string, string> = {
+    PERSON: 'blue',
+    ORGANIZATION: 'grape',
+    GOVERNMENT: 'red',
+    LOCATION: 'green',
   }
-  return typeMap[type] || { className: 'entity-type-default', label: type }
+  return colorMap[type] || 'gray'
 }
 
 /**
- * Get risk score color class
+ * Get entity type label
  */
-function getRiskScoreClass(score: number | null | undefined): string {
-  if (score === null || score === undefined) return 'risk-unknown'
-  if (score >= 75) return 'risk-critical'
-  if (score >= 50) return 'risk-high'
-  if (score >= 25) return 'risk-medium'
-  return 'risk-low'
+function getEntityTypeLabel(type: string): string {
+  const labelMap: Record<string, string> = {
+    PERSON: 'Person',
+    ORGANIZATION: 'Organization',
+    GOVERNMENT: 'Government',
+    LOCATION: 'Location',
+  }
+  return labelMap[type] || type
+}
+
+/**
+ * Get risk score badge color
+ */
+function getRiskScoreColor(score: number | null | undefined): string {
+  if (score === null || score === undefined) return 'gray'
+  if (score >= 75) return 'red'
+  if (score >= 50) return 'orange'
+  return 'blue'
 }
 
 /**
@@ -83,115 +84,154 @@ export function EntityProfile({ entityId }: EntityProfileProps) {
 
   if (loading) {
     return (
-      <div className="entity-profile-loading">
-        <p>Loading entity profile...</p>
-      </div>
+      <Stack gap="md" p="md">
+        <Skeleton height={30} width="60%" />
+        <Card padding="md" withBorder>
+          <Stack gap="xs">
+            <Skeleton height={20} width="40%" />
+            <Skeleton height={16} width="80%" />
+            <Skeleton height={16} width="70%" />
+          </Stack>
+        </Card>
+        <Card padding="md" withBorder>
+          <Stack gap="xs">
+            <Skeleton height={20} width="40%" />
+            <Skeleton height={16} width="60%" />
+          </Stack>
+        </Card>
+      </Stack>
     )
   }
 
   if (error) {
     return (
-      <div className="entity-profile-error">
-        <h3>Error Loading Profile</h3>
-        <p>{error}</p>
-      </div>
+      <Card padding="md" withBorder>
+        <Stack gap="sm">
+          <Title order={4} c="red">Error Loading Profile</Title>
+          <Text c="dimmed">{error}</Text>
+        </Stack>
+      </Card>
     )
   }
 
   if (!profile) {
-    return null
+    return (
+      <Card padding="md" withBorder>
+        <Text c="dimmed" ta="center">Select an entity to view profile</Text>
+      </Card>
+    )
   }
 
-  const typeInfo = getEntityTypeInfo(profile.entity_type)
-  const riskClass = getRiskScoreClass(profile.risk_score)
-
   return (
-    <div className="entity-profile">
-      {/* Header */}
-      <div className="entity-profile-header">
-        <div className="entity-profile-title-row">
-          <h2 className="entity-profile-name">{profile.canonical_name}</h2>
-          {profile.trending_rank && (
-            <span className="entity-profile-rank">#{profile.trending_rank}</span>
-          )}
-        </div>
-        <div className="entity-profile-badges">
-          <span className={`entity-type-badge ${typeInfo.className}`}>
-            {typeInfo.label}
-          </span>
-        </div>
-      </div>
+    <Stack gap="md" p="md">
+      {/* Header with entity name */}
+      <Group justify="space-between">
+        <Title order={3}>{profile.canonical_name}</Title>
+        {profile.trending_rank && (
+          <Badge size="lg" variant="outline" color="gray">
+            #{profile.trending_rank}
+          </Badge>
+        )}
+      </Group>
 
-      {/* Sanctions Warning */}
+      {/* Sanctions Warning Alert */}
       {profile.sanctions_status && (
-        <div className="sanctions-warning">
-          <strong>⚠️ Sanctions Alert:</strong> This entity appears on sanctions lists
-        </div>
+        <Alert color="red" variant="filled" title="Sanctioned Entity">
+          This entity appears on sanctions lists
+        </Alert>
       )}
 
-      {/* Overview Stats */}
-      <div className="entity-profile-section">
-        <h3>Overview</h3>
-        <div className="entity-stats-grid">
-          <div className="stat-item">
-            <span className="stat-label">Mentions</span>
-            <span className="stat-value">{profile.mention_count}</span>
-          </div>
-          {profile.risk_score !== null && profile.risk_score !== undefined && (
-            <div className="stat-item">
-              <span className="stat-label">Risk Score</span>
-              <span className={`stat-value stat-value-risk ${riskClass}`}>
+      {/* Overview Card */}
+      <Card padding="md" withBorder>
+        <Stack gap="sm">
+          <Title order={4}>Overview</Title>
+          <Group gap="xs">
+            <Badge color={getEntityTypeBadgeColor(profile.entity_type)}>
+              {getEntityTypeLabel(profile.entity_type)}
+            </Badge>
+            <Text size="sm">
+              {profile.mention_count} {profile.mention_count === 1 ? 'mention' : 'mentions'}
+            </Text>
+          </Group>
+          <Divider />
+          <Group justify="space-between">
+            <Text size="sm" c="dimmed">First Seen</Text>
+            <Text size="sm">{format(new Date(profile.first_seen), 'MMM d, yyyy')}</Text>
+          </Group>
+          <Group justify="space-between">
+            <Text size="sm" c="dimmed">Last Seen</Text>
+            <Text size="sm">{format(new Date(profile.last_seen), 'MMM d, yyyy')}</Text>
+          </Group>
+        </Stack>
+      </Card>
+
+      {/* Risk Intelligence Card */}
+      {(profile.risk_score !== null && profile.risk_score !== undefined) && (
+        <Card padding="md" withBorder>
+          <Stack gap="sm">
+            <Title order={4}>Risk Intelligence</Title>
+            <Group justify="space-between">
+              <Text size="sm" c="dimmed">Risk Score</Text>
+              <Badge size="lg" color={getRiskScoreColor(profile.risk_score)}>
                 {Math.round(profile.risk_score)}
-              </span>
-            </div>
-          )}
-          <div className="stat-item">
-            <span className="stat-label">First Seen</span>
-            <span className="stat-value">{formatDate(profile.first_seen)}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">Last Seen</span>
-            <span className="stat-value">{formatDate(profile.last_seen)}</span>
-          </div>
-        </div>
-      </div>
+              </Badge>
+            </Group>
+            {profile.sanctions_status && (
+              <Group justify="space-between">
+                <Text size="sm" c="dimmed">Sanctions Status</Text>
+                <Badge size="sm" color="red">Sanctioned</Badge>
+              </Group>
+            )}
+          </Stack>
+        </Card>
+      )}
 
-      {/* Aliases */}
+      {/* Known Aliases Card */}
       {profile.aliases && profile.aliases.length > 0 && (
-        <div className="entity-profile-section">
-          <h3>Known Aliases</h3>
-          <div className="entity-aliases">
-            {profile.aliases.map((alias, idx) => (
-              <span key={idx} className="alias-tag">{alias}</span>
-            ))}
-          </div>
-        </div>
+        <Card padding="md" withBorder>
+          <Stack gap="sm">
+            <Title order={4}>Known Aliases</Title>
+            <Group gap="xs">
+              {profile.aliases.map((alias, idx) => (
+                <Badge key={idx} variant="light" color="gray">
+                  {alias}
+                </Badge>
+              ))}
+            </Group>
+          </Stack>
+        </Card>
       )}
 
-      {/* Recent Events */}
+      {/* Recent Events Card */}
       {profile.recent_events && profile.recent_events.length > 0 && (
-        <div className="entity-profile-section">
-          <h3>Recent Events ({profile.recent_events.length})</h3>
-          <div className="recent-events-list">
-            {profile.recent_events.map((event) => (
-              <div key={event.id} className="recent-event-card">
-                <div className="recent-event-header">
-                  <h4 className="recent-event-title">{event.title}</h4>
-                  {event.risk_score !== null && event.risk_score !== undefined && (
-                    <span className={`badge badge-risk ${getRiskScoreClass(event.risk_score)}`}>
-                      {Math.round(event.risk_score)}
-                    </span>
-                  )}
-                </div>
-                <div className="recent-event-meta">
-                  <span className="badge badge-source">{event.source}</span>
-                  <span className="recent-event-time">{formatDate(event.timestamp)}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <Card padding="md" withBorder>
+          <Stack gap="sm">
+            <Title order={4}>Recent Events ({profile.recent_events.length})</Title>
+            <List spacing="md">
+              {profile.recent_events.map((event) => (
+                <List.Item key={event.id}>
+                  <Stack gap="xs">
+                    <Group justify="space-between">
+                      <Text size="sm" fw={500}>{event.title}</Text>
+                      {event.risk_score !== null && event.risk_score !== undefined && (
+                        <Badge size="sm" color={getRiskScoreColor(event.risk_score)}>
+                          {Math.round(event.risk_score)}
+                        </Badge>
+                      )}
+                    </Group>
+                    <Group gap="xs">
+                      <Badge size="xs" variant="light">{event.source}</Badge>
+                      <Text size="xs" c="dimmed">
+                        {format(new Date(event.timestamp), 'MMM d, yyyy')}
+                      </Text>
+                    </Group>
+                  </Stack>
+                </List.Item>
+              ))}
+            </List>
+          </Stack>
+        </Card>
       )}
-    </div>
+    </Stack>
   )
 }
