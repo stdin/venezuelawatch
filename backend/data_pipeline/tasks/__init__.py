@@ -14,6 +14,7 @@ from data_pipeline.tasks.intelligence_tasks import (
     update_risk_scores,
     update_entities,
     batch_recalculate_risk_scores,
+    batch_classify_severity,
 )
 from data_pipeline.tasks.sanctions_tasks import (
     refresh_sanctions_screening,
@@ -35,6 +36,7 @@ __all__ = [
     'update_risk_scores',
     'update_entities',
     'batch_recalculate_risk_scores',
+    'batch_classify_severity',
     'refresh_sanctions_screening',
     'screen_event_sanctions',
 ]

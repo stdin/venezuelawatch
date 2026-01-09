@@ -92,9 +92,14 @@ def analyze_event_intelligence(self, event_id: int, model: str = "fast") -> Dict
         comprehensive_risk = RiskScorer.calculate_comprehensive_risk(event)
         event.risk_score = comprehensive_risk
 
+        # Classify severity (impact assessment independent of risk score)
+        from data_pipeline.services.impact_classifier import ImpactClassifier
+        severity = ImpactClassifier.classify_severity(event)
+        event.severity = severity
+
         event.save(update_fields=[
             'sentiment', 'risk_score', 'entities', 'summary',
-            'relationships', 'themes', 'urgency', 'language', 'llm_analysis'
+            'relationships', 'themes', 'urgency', 'language', 'llm_analysis', 'severity'
         ])
 
         logger.info(
@@ -102,6 +107,7 @@ def analyze_event_intelligence(self, event_id: int, model: str = "fast") -> Dict
             f"sentiment={analysis['sentiment']['score']:.3f}, "
             f"llm_risk={analysis['risk']['score']:.3f}, "
             f"comprehensive_risk={comprehensive_risk:.2f}, "
+            f"severity={severity}, "
             f"entities={len(entities)}, "
             f"language={analysis['language']}, "
             f"urgency={analysis['urgency']}, "
@@ -113,6 +119,7 @@ def analyze_event_intelligence(self, event_id: int, model: str = "fast") -> Dict
             'sentiment': analysis['sentiment']['score'],
             'llm_risk': analysis['risk']['score'],
             'comprehensive_risk_score': comprehensive_risk,
+            'severity': severity,
             'entities': entities,
             'summary': analysis['summary']['short'],
             'themes': analysis['themes'],
@@ -283,9 +290,14 @@ def update_sentiment_scores(self, source: Optional[str] = None, model: str = "fa
             event.language = analysis['language']
             event.llm_analysis = analysis
 
+            # Classify severity
+            from data_pipeline.services.impact_classifier import ImpactClassifier
+            severity = ImpactClassifier.classify_severity(event)
+            event.severity = severity
+
             event.save(update_fields=[
                 'sentiment', 'risk_score', 'entities', 'summary',
-                'relationships', 'themes', 'urgency', 'language', 'llm_analysis'
+                'relationships', 'themes', 'urgency', 'language', 'llm_analysis', 'severity'
             ])
             updated_count += 1
 
@@ -413,5 +425,77 @@ def batch_recalculate_risk_scores(self, lookback_days: int = 30) -> Dict[str, An
         'total_events': total_events,
         'updated': updated_count,
         'errors': error_count,
+        'lookback_days': lookback_days,
+    }
+
+
+@shared_task(base=BaseIngestionTask, bind=True, name='batch_classify_severity')
+def batch_classify_severity(self, lookback_days: int = 30) -> Dict[str, Any]:
+    """
+    Classify severity for recent events using ImpactClassifier.
+
+    This task classifies severity (SEV1-5) for events based on NCISS-style
+    weighted multi-criteria scoring (scope, duration, reversibility, economic impact).
+
+    Useful after adding severity feature to classify existing events without
+    re-running full LLM intelligence analysis.
+
+    Args:
+        lookback_days: Classify events from last N days (default: 30)
+
+    Returns:
+        Dictionary with classification statistics:
+        {
+            'total_events': int,
+            'classified': int,
+            'errors': int,
+            'distribution': Dict[str, int],  # SEV level counts
+            'lookback_days': int,
+        }
+    """
+    from collections import defaultdict
+    from data_pipeline.services.impact_classifier import ImpactClassifier
+
+    logger.info(f"Batch classifying severity for events from last {lookback_days} days")
+
+    cutoff_date = timezone.now() - timedelta(days=lookback_days)
+    events = Event.objects.filter(
+        created_at__gte=cutoff_date,
+        severity__isnull=True  # Only events without severity
+    )
+
+    total_events = events.count()
+    classified_count = 0
+    error_count = 0
+    severity_counts = defaultdict(int)
+
+    logger.info(f"Found {total_events} events without severity classification")
+
+    for event in events.iterator(chunk_size=100):
+        try:
+            severity = ImpactClassifier.classify_severity(event)
+            event.severity = severity
+            event.save(update_fields=['severity'])
+
+            classified_count += 1
+            severity_counts[severity] += 1
+
+            if classified_count % 100 == 0:
+                logger.info(f"Classified {classified_count}/{total_events} events")
+
+        except Exception as e:
+            logger.error(f"Failed to classify severity for Event {event.id}: {e}")
+            error_count += 1
+
+    logger.info(
+        f"Severity classification complete: {classified_count} classified, {error_count} errors"
+    )
+    logger.info(f"Distribution: {dict(severity_counts)}")
+
+    return {
+        'total_events': total_events,
+        'classified': classified_count,
+        'errors': error_count,
+        'distribution': dict(severity_counts),
         'lookback_days': lookback_days,
     }
