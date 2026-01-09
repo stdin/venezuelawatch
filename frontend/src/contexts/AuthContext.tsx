@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { User, api } from '../lib/api'
+import type { User } from '../lib/api'
+import { api } from '../lib/api'
 
 interface AuthContextType {
   user: User | null
@@ -20,8 +21,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Check authentication status on mount
   useEffect(() => {
-    checkAuth()
+    initAuth()
   }, [])
+
+  async function initAuth() {
+    try {
+      // Initialize CSRF token first
+      await api.initCsrf()
+      // Then check authentication status
+      await checkAuth()
+    } catch (err) {
+      console.error('Failed to initialize auth:', err)
+      setLoading(false)
+    }
+  }
 
   async function checkAuth() {
     try {
@@ -54,7 +67,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true)
     setError(null)
     try {
-      await api.register({ email, password, password_confirm: passwordConfirm })
+      // Validate passwords match on frontend
+      if (password !== passwordConfirm) {
+        throw new Error('Passwords do not match')
+      }
+      await api.register({ email, password })
       await checkAuth()  // Fetch user details after registration
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed')

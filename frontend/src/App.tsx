@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { useAuth } from './contexts/AuthContext'
 import { LoginForm } from './components/LoginForm'
 import { RegisterForm } from './components/RegisterForm'
+import { Dashboard } from './pages/Dashboard'
 import './App.css'
 
 function App() {
-  const { user, loading, logout } = useAuth()
+  const { user, loading } = useAuth()
   const [showRegister, setShowRegister] = useState(false)
 
   if (loading) {
@@ -29,25 +30,7 @@ function App() {
     )
   }
 
-  return (
-    <div className="App">
-      <h1>VenezuelaWatch</h1>
-      <p>Welcome, {user.email}!</p>
-
-      <div style={{ marginTop: '2rem', padding: '1rem', border: '1px solid #ccc', maxWidth: '400px', margin: '2rem auto' }}>
-        <h2>User Profile</h2>
-        <p><strong>Email:</strong> {user.email}</p>
-        <p><strong>Role:</strong> {user.role}</p>
-        <p><strong>Subscription:</strong> {user.subscription_tier}</p>
-        <p><strong>Organization:</strong> {user.organization_name || 'None'}</p>
-        <p><strong>Joined:</strong> {new Date(user.date_joined).toLocaleDateString()}</p>
-      </div>
-
-      <button onClick={logout} style={{ padding: '0.5rem 1rem', marginTop: '1rem' }}>
-        Logout
-      </button>
-    </div>
-  )
+  return <Dashboard />
 }
 
 export default App

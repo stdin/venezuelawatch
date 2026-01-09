@@ -6,7 +6,7 @@ Provides HTTP endpoints for Cloud Scheduler to trigger Celery tasks.
 import logging
 from typing import Optional, Dict, Any, List
 from datetime import timedelta
-from ninja import Router, Schema
+from ninja import Router, Schema, Query
 from django.http import HttpRequest, JsonResponse
 from django.utils import timezone
 from django.db.models import Count
@@ -243,7 +243,7 @@ def health_check(request: HttpRequest):
 # ========================================================================
 
 @risk_router.get("/events", response=List[RiskIntelligenceEventSchema])
-def get_risk_intelligence_events(request: HttpRequest, filters: EventFilterParams = None):
+def get_risk_intelligence_events(request: HttpRequest, filters: EventFilterParams = Query(...)):
     """
     Get events with risk intelligence filtering and sorting.
 
@@ -256,8 +256,6 @@ def get_risk_intelligence_events(request: HttpRequest, filters: EventFilterParam
 
     Sorting: By risk_score DESC, timestamp DESC
     """
-    if filters is None:
-        filters = EventFilterParams()
 
     cutoff_date = timezone.now() - timedelta(days=filters.days_back)
     queryset = Event.objects.filter(timestamp__gte=cutoff_date)

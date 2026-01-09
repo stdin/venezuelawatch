@@ -116,6 +116,11 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_ALLOW_CREDENTIALS = True
 
+# CSRF Configuration
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",  # Vite dev server
+]
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
