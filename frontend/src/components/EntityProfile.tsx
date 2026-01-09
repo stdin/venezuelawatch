@@ -123,7 +123,7 @@ export function EntityProfile({ entityId }: EntityProfileProps) {
   }
 
   return (
-    <Stack gap="md" p="md">
+    <Stack gap={{ base: 'sm', md: 'md' }} p={{ base: 'sm', md: 'md' }}>
       {/* Header with entity name */}
       <Group justify="space-between">
         <Title order={3}>{profile.canonical_name}</Title>

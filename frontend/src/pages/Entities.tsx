@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Container, Grid, Stack, Title, SegmentedControl } from '@mantine/core'
+import { Container, Grid, Stack, Title, SegmentedControl, Modal, useMatches } from '@mantine/core'
 import { api } from '../lib/api'
 import { EntityLeaderboard } from '../components/EntityLeaderboard'
 import { EntityProfile } from '../components/EntityProfile'
@@ -16,6 +16,13 @@ export function Entities() {
   const [entities, setEntities] = useState<Entity[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [mobileModalOpen, setMobileModalOpen] = useState(false)
+
+  // Detect mobile view (< 48em = 768px)
+  const isMobile = useMatches({
+    base: true,
+    md: false,
+  })
 
   // Fetch trending entities when metric changes
   useEffect(() => {
@@ -51,6 +58,19 @@ export function Entities() {
     }
   }, [selectedMetric, selectedEntityId])
 
+  // Handle entity selection - on mobile, open modal
+  const handleEntitySelect = (id: string) => {
+    setSelectedEntityId(id)
+    if (isMobile) {
+      setMobileModalOpen(true)
+    }
+  }
+
+  // Close mobile modal
+  const handleCloseMobileModal = () => {
+    setMobileModalOpen(false)
+  }
+
   return (
     <Container fluid>
       <Grid>
@@ -69,6 +89,8 @@ export function Entities() {
                   { value: 'sanctions', label: 'Recently Sanctioned' },
                 ]}
                 fullWidth
+                size="md"
+                aria-label="Entity metric filters"
               />
             </Stack>
 
@@ -85,24 +107,37 @@ export function Entities() {
               <EntityLeaderboard
                 entities={entities}
                 selectedId={selectedEntityId}
-                onSelect={setSelectedEntityId}
+                onSelect={handleEntitySelect}
                 loading={loading && entities.length === 0}
               />
             )}
           </Stack>
         </Grid.Col>
 
-        {/* Right column: Entity profile */}
-        <Grid.Col span={{ base: 12, md: 7 }}>
-          {selectedEntityId ? (
-            <EntityProfile entityId={selectedEntityId} />
-          ) : (
-            <div className="entity-detail-placeholder">
-              <p>Select an entity to view profile</p>
-            </div>
-          )}
-        </Grid.Col>
+        {/* Right column: Entity profile - desktop split-view */}
+        {!isMobile && (
+          <Grid.Col span={{ base: 12, md: 7 }} aria-label="Entity profile">
+            {selectedEntityId ? (
+              <EntityProfile entityId={selectedEntityId} />
+            ) : (
+              <div className="entity-detail-placeholder">
+                <p>Select an entity to view profile</p>
+              </div>
+            )}
+          </Grid.Col>
+        )}
       </Grid>
+
+      {/* Mobile modal for entity profile */}
+      <Modal
+        opened={isMobile && mobileModalOpen}
+        onClose={handleCloseMobileModal}
+        title="Entity Profile"
+        size="lg"
+        fullScreen
+      >
+        {selectedEntityId && <EntityProfile entityId={selectedEntityId} />}
+      </Modal>
     </Container>
   )
 }
