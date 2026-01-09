@@ -10,6 +10,7 @@ from django.http import HttpRequest, JsonResponse
 
 from data_pipeline.tasks.gdelt_tasks import ingest_gdelt_events
 from data_pipeline.tasks.reliefweb_tasks import ingest_reliefweb_updates
+from data_pipeline.tasks.fred_tasks import ingest_fred_series
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,10 @@ class GDELTTriggerRequest(Schema):
 
 class ReliefWebTriggerRequest(Schema):
     lookback_days: int = 1
+
+
+class FREDTriggerRequest(Schema):
+    lookback_days: int = 7
 
 
 class TaskTriggerResponse(Schema):
@@ -94,6 +99,40 @@ def trigger_reliefweb_ingestion(request: HttpRequest, payload: ReliefWebTriggerR
 
     except Exception as e:
         logger.error(f"Failed to trigger ReliefWeb ingestion: {e}", exc_info=True)
+        return JsonResponse(
+            {"status": "error", "message": str(e)},
+            status=500
+        )
+
+
+@router.post("/trigger/fred", response=TaskTriggerResponse)
+def trigger_fred_ingestion(request: HttpRequest, payload: FREDTriggerRequest):
+    """
+    Trigger FRED economic series ingestion task.
+
+    Called by GCP Cloud Scheduler daily at 10 AM UTC.
+
+    Args:
+        payload: Request body with lookback_days parameter
+
+    Returns:
+        TaskTriggerResponse with task ID and status
+    """
+    logger.info(f"Triggering FRED ingestion (lookback: {payload.lookback_days} days)")
+
+    try:
+        # Dispatch Celery task asynchronously
+        result = ingest_fred_series.delay(lookback_days=payload.lookback_days)
+
+        return TaskTriggerResponse(
+            status="dispatched",
+            task_id=result.id,
+            task_name="fred",
+            message=f"FRED ingestion task dispatched with {payload.lookback_days} day lookback"
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to trigger FRED ingestion: {e}", exc_info=True)
         return JsonResponse(
             {"status": "error", "message": str(e)},
             status=500

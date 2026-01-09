@@ -84,6 +84,25 @@ gcloud scheduler jobs create http reliefweb-ingestion \
 **Schedule Format**: `0 9 * * *` = Daily at 9:00 AM
 **Timezone**: UTC
 
+### FRED Economic Data Ingestion (Daily at 10 AM UTC)
+
+```bash
+gcloud scheduler jobs create http fred-ingestion \
+  --location=us-central1 \
+  --schedule="0 10 * * *" \
+  --uri="https://venezuelawatch-api.run.app/api/tasks/trigger/fred" \
+  --http-method=POST \
+  --oidc-service-account-email=venezuelawatch-scheduler@venezuelawatch-staging.iam.gserviceaccount.com \
+  --headers="Content-Type=application/json" \
+  --message-body='{"lookback_days": 7}' \
+  --time-zone="UTC" \
+  --project=venezuelawatch-staging
+```
+
+**Schedule Format**: `0 10 * * *` = Daily at 10:00 AM
+**Timezone**: UTC
+**Lookback**: 7 days to catch late-arriving economic data
+
 ## 4. Verify Scheduler Jobs
 
 List all Cloud Scheduler jobs:
@@ -97,6 +116,7 @@ Expected output:
 ID                    LOCATION      SCHEDULE (TZ)              TARGET_TYPE  STATE
 gdelt-ingestion       us-central1   */15 * * * * (Etc/UTC)     HTTP         ENABLED
 reliefweb-ingestion   us-central1   0 9 * * * (Etc/UTC)        HTTP         ENABLED
+fred-ingestion        us-central1   0 10 * * * (Etc/UTC)       HTTP         ENABLED
 ```
 
 Describe a specific job:
@@ -276,8 +296,8 @@ gcloud logging read "resource.type=cloud_run_revision AND resource.labels.servic
 - Additional jobs: $0.10 per job per month
 
 **Estimated Cost**:
-- 2 jobs (GDELT + ReliefWeb): **Free**
-- Future jobs (FRED, Comtrade, World Bank): $0.30/month
+- 3 jobs (GDELT + ReliefWeb + FRED): **Free**
+- Future jobs (Comtrade, World Bank): $0.20/month
 
 **Tips**:
 - Use Cloud Scheduler for production cron
@@ -290,6 +310,7 @@ gcloud logging read "resource.type=cloud_run_revision AND resource.labels.servic
 - [ ] Service account created with `roles/run.invoker` permission
 - [ ] GDELT ingestion job created (every 15 minutes)
 - [ ] ReliefWeb ingestion job created (daily at 9 AM)
+- [ ] FRED ingestion job created (daily at 10 AM)
 - [ ] Jobs tested manually with `gcloud scheduler jobs run`
 - [ ] Task trigger API endpoint deployed and accessible
 - [ ] Cloud Run service allows service account invocations

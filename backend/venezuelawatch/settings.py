@@ -213,6 +213,11 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': 86400.0,  # 24 hours in seconds
         'args': (1,),  # lookback_days
     },
+    'ingest-fred-series': {
+        'task': 'data_pipeline.tasks.fred_tasks.ingest_fred_series',
+        'schedule': 86400.0,  # 24 hours in seconds
+        'args': (7,),  # lookback_days (7 days to catch late-arriving data)
+    },
 }
 
 # GCP Secret Manager Configuration
