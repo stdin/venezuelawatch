@@ -1,21 +1,40 @@
 import { useRef, useMemo } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
+import { Stack, Skeleton, Card } from '@mantine/core'
 import type { RiskEvent } from '../lib/types'
 import { EventCard } from './EventCard'
-import './EventList.css'
 
 interface EventListProps {
   events: RiskEvent[]
   selectedEventId: string | null
   onSelectEvent: (eventId: string) => void
+  loading?: boolean
 }
 
 /**
  * Virtualized event list component using TanStack Virtual
  * Renders only visible items for performance with large datasets
+ * Shows skeleton loading states during data fetch
  */
-export function EventList({ events, selectedEventId, onSelectEvent }: EventListProps) {
+export function EventList({ events, selectedEventId, onSelectEvent, loading = false }: EventListProps) {
   const parentRef = useRef<HTMLDivElement>(null)
+
+  // Show skeleton loading placeholders
+  if (loading) {
+    return (
+      <Stack gap="sm" p="md">
+        {[...Array(5)].map((_, i) => (
+          <Card key={i} padding="md" withBorder>
+            <Stack gap="xs">
+              <Skeleton height={20} width="80%" />
+              <Skeleton height={14} width="60%" />
+              <Skeleton height={14} width="40%" />
+            </Stack>
+          </Card>
+        ))}
+      </Stack>
+    )
+  }
 
   // Sort events by risk_score descending (highest risk at top)
   const sortedEvents = useMemo(() => {
@@ -33,9 +52,14 @@ export function EventList({ events, selectedEventId, onSelectEvent }: EventListP
   const virtualItems = virtualizer.getVirtualItems()
 
   return (
-    <div ref={parentRef} className="event-list-container">
+    <div
+      ref={parentRef}
+      style={{
+        height: '100%',
+        overflow: 'auto',
+      }}
+    >
       <div
-        className="event-list-inner"
         style={{
           height: `${virtualizer.getTotalSize()}px`,
           position: 'relative',
@@ -46,13 +70,13 @@ export function EventList({ events, selectedEventId, onSelectEvent }: EventListP
           return (
             <div
               key={event.id}
-              className="virtual-item"
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 width: '100%',
                 transform: `translateY(${virtualItem.start}px)`,
+                padding: '0.5rem',
               }}
             >
               <EventCard
