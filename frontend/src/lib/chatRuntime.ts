@@ -98,16 +98,29 @@ export function useChatRuntime() {
               // Accumulate text content
               textContent += chunk.text
 
-              // Update messages with streaming content (text only for now)
-              setMessages([...updatedMessages, { role: 'assistant', content: textContent }])
+              // Update messages with streaming content (text + any tool results collected so far)
+              const currentMessage: ChatMessage = {
+                role: 'assistant',
+                content: textContent,
+                toolResults: toolCalls.length > 0 ? toolCalls : undefined
+              }
+              setMessages([...updatedMessages, currentMessage])
             } else if (chunk.type === 'tool_result' && chunk.tool && chunk.result) {
-              // Tool execution result - collect for final message
+              // Tool execution result - add immediately and update message
               toolCalls.push({
                 toolName: chunk.tool,
                 toolCallId: chunk.tool_call_id || `tool-${Date.now()}`,
                 result: chunk.result
               })
-              console.log(`Tool executed: ${chunk.tool}`)
+              console.log(`Tool executed: ${chunk.tool}`, chunk.result)
+
+              // Update message with new tool result
+              const currentMessage: ChatMessage = {
+                role: 'assistant',
+                content: textContent,
+                toolResults: [...toolCalls]
+              }
+              setMessages([...updatedMessages, currentMessage])
             } else if (chunk.type === 'done') {
               // Stream complete
               break
