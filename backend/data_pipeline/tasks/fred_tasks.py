@@ -6,6 +6,7 @@ and threshold-based alert generation.
 """
 import logging
 from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
 from typing import Dict, Any, Optional
 from celery import shared_task, group
 from django.db import transaction
@@ -115,7 +116,7 @@ def ingest_single_series(
 
             # Make timezone aware
             if timezone.is_naive(obs_date):
-                obs_date = timezone.make_aware(obs_date, timezone.utc)
+                obs_date = timezone.make_aware(obs_date, dt_timezone.utc)
 
             # Check for duplicate
             existing = Event.objects.filter(

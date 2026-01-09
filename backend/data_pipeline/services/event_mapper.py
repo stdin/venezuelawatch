@@ -6,6 +6,7 @@ the unified Event model structure.
 """
 import logging
 from datetime import datetime
+from datetime import timezone as dt_timezone
 from typing import Dict, Any, Optional
 from django.utils import timezone
 from dateutil import parser as date_parser
@@ -41,7 +42,7 @@ def map_gdelt_to_event(gdelt_record: Dict[str, Any]) -> Event:
         if seendate_str:
             # GDELT uses ISO 8601 basic format: YYYYMMDDTHHmmssZ
             timestamp = datetime.strptime(seendate_str, '%Y%m%dT%H%M%SZ')
-            timestamp = timezone.make_aware(timestamp, timezone.utc)
+            timestamp = timezone.make_aware(timestamp, dt_timezone.utc)
         else:
             timestamp = timezone.now()
     except (ValueError, TypeError):
@@ -121,7 +122,7 @@ def map_reliefweb_to_event(report: Dict[str, Any]) -> Event:
         if created_str:
             timestamp = date_parser.parse(created_str)
             if timezone.is_naive(timestamp):
-                timestamp = timezone.make_aware(timestamp, timezone.utc)
+                timestamp = timezone.make_aware(timestamp, dt_timezone.utc)
         else:
             timestamp = timezone.now()
     except (ValueError, TypeError):
@@ -192,7 +193,7 @@ def map_fred_to_event(observation: Dict[str, Any], series_config: Dict[str, Any]
     if isinstance(obs_date, str):
         obs_date = date_parser.parse(obs_date)
     if timezone.is_naive(obs_date):
-        obs_date = timezone.make_aware(obs_date, timezone.utc)
+        obs_date = timezone.make_aware(obs_date, dt_timezone.utc)
 
     # Build title with series name and current value
     series_name = series_config.get('name', observation['series_id'])

@@ -7,6 +7,7 @@ cross configured thresholds (e.g., oil prices below $50/barrel, hyperinflation).
 import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime
+from datetime import timezone as dt_timezone
 from django.utils import timezone
 
 from core.models import Event
@@ -176,7 +177,7 @@ def _create_threshold_alert(
 
     # Make observation_date timezone aware if needed
     if timezone.is_naive(observation_date):
-        observation_date = timezone.make_aware(observation_date, timezone.utc)
+        observation_date = timezone.make_aware(observation_date, dt_timezone.utc)
 
     # Create alert Event
     # Use current time as timestamp (when alert was detected)
