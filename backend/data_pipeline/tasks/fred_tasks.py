@@ -142,9 +142,10 @@ def ingest_single_series(
                 previous_value = previous_events.first().content.get('value')
 
             # Create observation dict
+            # Convert datetime to ISO string for JSON serialization
             observation = {
                 'series_id': series_id,
-                'date': obs_date,
+                'date': obs_date.isoformat() if hasattr(obs_date, 'isoformat') else str(obs_date),
                 'value': float(value),
                 'previous_value': previous_value,
             }
