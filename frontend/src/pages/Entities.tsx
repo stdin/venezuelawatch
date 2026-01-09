@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Container, Grid, Stack, Title, SegmentedControl } from '@mantine/core'
 import { api } from '../lib/api'
 import { EntityLeaderboard } from '../components/EntityLeaderboard'
 import { EntityProfile } from '../components/EntityProfile'
@@ -52,77 +53,71 @@ export function Entities() {
   }, [selectedMetric, selectedEntityId])
 
   return (
-    <div className="entities-container">
-      {/* Left panel: Leaderboard */}
-      <div className="entities-panel">
-        {/* Top bar with title and metric toggles */}
-        <div className="entities-header">
-          <h1 className="entities-title">Entity Watch</h1>
-          <div className="metric-toggles">
-            <button
-              className={`metric-toggle ${selectedMetric === 'mentions' ? 'metric-toggle-active' : ''}`}
-              onClick={() => setSelectedMetric('mentions')}
-            >
-              Most Mentioned
-            </button>
-            <button
-              className={`metric-toggle ${selectedMetric === 'risk' ? 'metric-toggle-active' : ''}`}
-              onClick={() => setSelectedMetric('risk')}
-            >
-              Highest Risk
-            </button>
-            <button
-              className={`metric-toggle ${selectedMetric === 'sanctions' ? 'metric-toggle-active' : ''}`}
-              onClick={() => setSelectedMetric('sanctions')}
-            >
-              Recently Sanctioned
-            </button>
-          </div>
-        </div>
+    <Container fluid>
+      <Grid>
+        {/* Left column: Leaderboard */}
+        <Grid.Col span={{ base: 12, md: 5 }}>
+          <Stack gap="md">
+            {/* Header with title and metric toggles */}
+            <Stack gap="sm">
+              <Title order={2}>Entity Watch</Title>
+              <SegmentedControl
+                value={selectedMetric}
+                onChange={(value) => setSelectedMetric(value as EntityMetric)}
+                data={[
+                  { value: 'mentions', label: 'Most Mentioned' },
+                  { value: 'risk', label: 'Highest Risk' },
+                  { value: 'sanctions', label: 'Recently Sanctioned' },
+                ]}
+                fullWidth
+              />
+            </Stack>
 
-        {/* Loading state */}
-        {loading && !entities.length && (
-          <div className="loading-state">Loading entities...</div>
-        )}
+            {/* Loading state */}
+            {loading && !entities.length && (
+              <div className="loading-state">Loading entities...</div>
+            )}
 
-        {/* Error state */}
-        {error && (
-          <div className="error-state">
-            <h2>Error Loading Entities</h2>
-            <p>{error}</p>
-          </div>
-        )}
+            {/* Error state */}
+            {error && (
+              <div className="error-state">
+                <h2>Error Loading Entities</h2>
+                <p>{error}</p>
+              </div>
+            )}
 
-        {/* Empty state */}
-        {!loading && !error && entities.length === 0 && (
-          <div className="empty-state">No entities found for this metric</div>
-        )}
+            {/* Empty state */}
+            {!loading && !error && entities.length === 0 && (
+              <div className="empty-state">No entities found for this metric</div>
+            )}
 
-        {/* Entity list */}
-        {entities.length > 0 && (
-          <EntityLeaderboard
-            entities={entities}
-            selectedId={selectedEntityId}
-            onSelect={setSelectedEntityId}
-          />
-        )}
+            {/* Entity list */}
+            {entities.length > 0 && (
+              <EntityLeaderboard
+                entities={entities}
+                selectedId={selectedEntityId}
+                onSelect={setSelectedEntityId}
+              />
+            )}
 
-        {/* Loading overlay for updates */}
-        {loading && entities.length > 0 && (
-          <div className="loading-overlay">Updating...</div>
-        )}
-      </div>
+            {/* Loading overlay for updates */}
+            {loading && entities.length > 0 && (
+              <div className="loading-overlay">Updating...</div>
+            )}
+          </Stack>
+        </Grid.Col>
 
-      {/* Right panel: Entity profile */}
-      <div className="entity-detail-panel">
-        {selectedEntityId ? (
-          <EntityProfile entityId={selectedEntityId} />
-        ) : (
-          <div className="entity-detail-placeholder">
-            <p>Select an entity to view profile</p>
-          </div>
-        )}
-      </div>
-    </div>
+        {/* Right column: Entity profile */}
+        <Grid.Col span={{ base: 12, md: 7 }}>
+          {selectedEntityId ? (
+            <EntityProfile entityId={selectedEntityId} />
+          ) : (
+            <div className="entity-detail-placeholder">
+              <p>Select an entity to view profile</p>
+            </div>
+          )}
+        </Grid.Col>
+      </Grid>
+    </Container>
   )
 }
