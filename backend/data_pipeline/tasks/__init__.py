@@ -6,6 +6,7 @@ from data_pipeline.tasks.gdelt_tasks import ingest_gdelt_events
 from data_pipeline.tasks.reliefweb_tasks import ingest_reliefweb_updates
 from data_pipeline.tasks.fred_tasks import ingest_fred_series, ingest_single_series
 from data_pipeline.tasks.comtrade_tasks import ingest_comtrade_trade_data
+from data_pipeline.tasks.worldbank_tasks import ingest_worldbank_indicators
 
 __all__ = [
     'hello_world',
@@ -15,4 +16,5 @@ __all__ = [
     'ingest_fred_series',
     'ingest_single_series',
     'ingest_comtrade_trade_data',
+    'ingest_worldbank_indicators',
 ]

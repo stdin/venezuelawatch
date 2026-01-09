@@ -330,17 +330,76 @@ def map_comtrade_to_event(trade_record: Dict[str, Any], commodity_info: Dict[str
     return event
 
 
-def map_worldbank_to_event(indicator: Dict[str, Any]) -> Event:
+def map_worldbank_to_event(indicator_data: Dict[str, Any], indicator_info: Dict[str, Any]) -> Event:
     """
     Map World Bank indicator data to Event model.
 
-    Placeholder for Plan 03-04 (Monthly/Quarterly Ingestion).
-
     Args:
-        indicator: World Bank indicator dict
+        indicator_data: dict with {'year': int, 'value': float, 'indicator_id': str}
+        indicator_info: Indicator metadata from worldbank_config.py
 
     Returns:
         Event instance (not saved to database)
     """
-    # TODO: Implement in Plan 03-04
-    raise NotImplementedError("World Bank mapping will be implemented in Plan 03-04")
+    # Extract indicator details
+    indicator_id = indicator_data.get('indicator_id', '')
+    year = indicator_data.get('year')
+    value = indicator_data.get('value')
+
+    # Get indicator metadata
+    indicator_name = indicator_info.get('name', indicator_id)
+    category = indicator_info.get('category', 'development')
+    units = indicator_info.get('units', '')
+
+    # Create timestamp (end of year)
+    try:
+        timestamp = datetime(year, 12, 31)
+        timestamp = timezone.make_aware(timestamp, dt_timezone.utc)
+    except (ValueError, TypeError):
+        logger.warning(f"Could not parse year: {year}")
+        timestamp = timezone.now()
+
+    # Format value for title
+    if units == 'percent':
+        value_str = f"{value:.2f}%"
+    elif units == 'current USD':
+        if value >= 1_000_000_000:  # Billions
+            value_str = f"${value/1_000_000_000:.2f}B"
+        elif value >= 1_000_000:  # Millions
+            value_str = f"${value/1_000_000:.1f}M"
+        else:
+            value_str = f"${value:,.0f}"
+    elif units == 'people':
+        if value >= 1_000_000:  # Millions
+            value_str = f"{value/1_000_000:.2f}M"
+        else:
+            value_str = f"{value:,.0f}"
+    else:
+        value_str = f"{value:,.2f}"
+
+    title = f"{indicator_name}: {value_str} ({year})"
+
+    # Build content JSON
+    content = {
+        'indicator_id': indicator_id,
+        'indicator_name': indicator_name,
+        'category': category,
+        'year': year,
+        'value': value,
+        'units': units,
+        'description': indicator_info.get('description'),
+    }
+
+    # Create Event instance
+    event = Event(
+        source='WORLD_BANK',
+        event_type='DEVELOPMENT_INDICATOR',
+        timestamp=timestamp,
+        title=title[:500],
+        content=content,
+        sentiment=None,
+        risk_score=None,  # Computed in Phase 4
+        entities=[],
+    )
+
+    return event
