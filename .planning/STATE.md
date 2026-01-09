@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 6 of 7 (Entity Watch)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-09 — Completed 06-02-PLAN.md (Entity Extraction Celery Task)
+Last activity: 2026-01-09 — Completed 06-03-PLAN.md (Entity API & Trending Endpoints)
 
-Progress: █████████░ 86%
+Progress: █████████░ 90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: 15 min
-- Total execution time: 4.81 hours
+- Total execution time: 4.91 hours
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: █████████░ 86%
 | 2 | 4 | 24 min | 6 min |
 | 3 | 4 | 195 min | 49 min |
 | 4 | 4 | 26 min | 7 min |
-| 6 | 2 | 9 min | 5 min |
+| 6 | 3 | 15 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 5min, 7min, 4min, 5min
+- Last 5 plans: 7min, 4min, 5min, 6min
 - Trend: Very fast (mature infrastructure)
 
 ## Accumulated Context
@@ -105,6 +105,9 @@ Recent decisions affecting current work:
 - Phase 6: Three trending metrics: mentions (time-decay), risk (avg score), sanctions (count)
 - Phase 6: timezone.now() not datetime.utcnow() for timezone-aware datetime calculations
 - Phase 6: Bulk Entity fetch in trending queries to avoid N+1 problem
+- Phase 6: Metric toggle pattern for trending (mentions/risk/sanctions in single endpoint)
+- Phase 6: Profile aggregation on-the-fly (no denormalization for sanctions/risk)
+- Phase 6: OpenAPI automatic documentation for entity endpoints
 
 ### Deferred Issues
 
@@ -120,7 +123,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-09
-Stopped at: Completed 06-02-PLAN.md (Entity Extraction Celery Task)
+Stopped at: Completed 06-03-PLAN.md (Entity API & Trending Endpoints)
 Resume file: None
 
-Note: Phase 6 Entity Watch in progress - 2 of 4 plans complete (entity models, extraction pipeline)
+Note: Phase 6 Entity Watch in progress - 3 of 4 plans complete (entity models, extraction pipeline, API endpoints)

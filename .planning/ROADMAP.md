@@ -88,7 +88,7 @@ Plans:
 Plans:
 - [x] 06-01: Entity Models & Fuzzy Matching Service (Entity/EntityMention models, RapidFuzz JaroWinkler, EntityService)
 - [x] 06-02: Entity Extraction Celery Task (LLM entity extraction, linking to events, backfill, TrendingService)
-- [ ] 06-03: Entity Trending & Redis Leaderboard (Time-decay trending, Redis Sorted Sets, API endpoints)
+- [x] 06-03: Entity API & Trending Endpoints (REST API with trending, profiles, timelines, OpenAPI docs)
 - [ ] 06-04: Entity Detail View & Dashboard Integration (Entity profiles, mention timeline, relationship graph)
 
 ### Phase 7: AI Chat Interface
@@ -110,5 +110,5 @@ Plans:
 | 3. Data Pipeline Architecture | 4/4 | Complete | 2026-01-08 |
 | 4. Risk Intelligence Core | 4/4 | Complete | 2026-01-09 |
 | 5. Dashboard & Events Feed | 4/4 | Complete | 2026-01-09 |
-| 6. Entity Watch | 2/4 | In progress | - |
+| 6. Entity Watch | 3/4 | In progress | - |
 | 7. AI Chat Interface | 0/TBD | Not started | - |
