@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 6 of 7 (Entity Watch)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-09 — Completed 06-01-PLAN.md (Entity Models & Fuzzy Matching Service)
+Last activity: 2026-01-09 — Completed 06-02-PLAN.md (Entity Extraction Celery Task)
 
-Progress: █████████░ 81%
+Progress: █████████░ 86%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
-- Average duration: 16 min
-- Total execution time: 4.73 hours
+- Total plans completed: 18
+- Average duration: 15 min
+- Total execution time: 4.81 hours
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: █████████░ 81%
 | 2 | 4 | 24 min | 6 min |
 | 3 | 4 | 195 min | 49 min |
 | 4 | 4 | 26 min | 7 min |
-| 6 | 1 | 4 min | 4 min |
+| 6 | 2 | 9 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 5min, 5min, 7min, 4min
+- Last 5 plans: 5min, 7min, 4min, 5min
 - Trend: Very fast (mature infrastructure)
 
 ## Accumulated Context
@@ -100,6 +100,11 @@ Recent decisions affecting current work:
 - Phase 6: Jaro-Winkler threshold 0.85 for real-time entity deduplication (0.90 for batch)
 - Phase 6: Unicode NFC normalization to handle accent variations in entity names
 - Phase 6: Denormalized mentioned_at in EntityMention for efficient trending queries
+- Phase 6: Exponential time-decay trending with 7-day half-life (168 hours)
+- Phase 6: Redis Sorted Sets for O(log N) trending operations (not PostgreSQL materialized views)
+- Phase 6: Three trending metrics: mentions (time-decay), risk (avg score), sanctions (count)
+- Phase 6: timezone.now() not datetime.utcnow() for timezone-aware datetime calculations
+- Phase 6: Bulk Entity fetch in trending queries to avoid N+1 problem
 
 ### Deferred Issues
 
@@ -115,7 +120,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-09
-Stopped at: Completed 06-01-PLAN.md (Entity Models & Fuzzy Matching Service)
+Stopped at: Completed 06-02-PLAN.md (Entity Extraction Celery Task)
 Resume file: None
 
-Note: Phase 6 Entity Watch started - 1 of 4 plans complete (entity models, fuzzy matching)
+Note: Phase 6 Entity Watch in progress - 2 of 4 plans complete (entity models, extraction pipeline)
