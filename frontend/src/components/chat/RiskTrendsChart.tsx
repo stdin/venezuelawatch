@@ -1,4 +1,5 @@
 import { makeAssistantToolUI } from '@assistant-ui/react'
+import { Card, Text, Title, Group, Stack } from '@mantine/core'
 import {
   LineChart,
   Line,
@@ -8,7 +9,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import './RiskTrendsChart.css'
 
 /**
  * Types matching backend analyze_risk_trends tool
@@ -48,13 +48,12 @@ function formatTooltipDate(dateStr: string): string {
 }
 
 /**
- * Get risk level color based on score
+ * Get risk level color based on score (using design tokens)
  */
 function getRiskColor(score: number): string {
-  if (score >= 70) return '#dc2626'
-  if (score >= 50) return '#f59e0b'
-  if (score >= 30) return '#eab308'
-  return '#10b981'
+  if (score >= 75) return 'var(--color-risk-high)'
+  if (score >= 50) return 'var(--color-risk-medium)'
+  return 'var(--mantine-color-blue-filled)'
 }
 
 /**
@@ -63,9 +62,11 @@ function getRiskColor(score: number): string {
 const RiskTrendsChartContent = ({ result }: { result: RiskTrendsResult }) => {
   if (!result.trends || result.trends.length === 0) {
     return (
-      <div className="risk-trends-empty">
-        No risk trend data available for the specified period.
-      </div>
+      <Card size="sm" padding="md" withBorder>
+        <Text c="dimmed" ta="center">
+          No risk trend data available for the specified period.
+        </Text>
+      </Card>
     )
   }
 
@@ -74,15 +75,15 @@ const RiskTrendsChartContent = ({ result }: { result: RiskTrendsResult }) => {
     result.trends.reduce((sum, t) => sum + t.avg_risk_score, 0) / result.trends.length
 
   return (
-    <div className="risk-trends-card">
-      <div className="risk-trends-header">
-        <h3 className="risk-trends-title">Risk Score Trends</h3>
-        <span className="risk-trends-period">
-          {formatDate(result.date_range.from)} - {formatDate(result.date_range.to)}
-        </span>
-      </div>
+    <Card size="sm" padding="md" withBorder>
+      <Stack gap="xs">
+        <Group justify="space-between" align="center">
+          <Title order={4}>Risk Score Trends</Title>
+          <Text size="sm" c="dimmed">
+            {formatDate(result.date_range.from)} - {formatDate(result.date_range.to)}
+          </Text>
+        </Group>
 
-      <div className="risk-trends-chart-container">
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={result.trends} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -140,32 +141,29 @@ const RiskTrendsChartContent = ({ result }: { result: RiskTrendsResult }) => {
             />
           </LineChart>
         </ResponsiveContainer>
-      </div>
 
-      <div className="risk-trends-summary">
-        <div className="risk-trends-stat">
-          <span className="risk-trends-stat-label">Avg Risk:</span>
-          <span
-            className="risk-trends-stat-value"
-            style={{ color: getRiskColor(avgRisk) }}
-          >
-            {avgRisk.toFixed(1)}
-          </span>
-        </div>
-        <div className="risk-trends-stat">
-          <span className="risk-trends-stat-label">Data Points:</span>
-          <span className="risk-trends-stat-value">{result.count}</span>
-        </div>
-        {result.trends.length > 0 && (
-          <div className="risk-trends-stat">
-            <span className="risk-trends-stat-label">Total Events:</span>
-            <span className="risk-trends-stat-value">
-              {result.trends.reduce((sum, t) => sum + t.event_count, 0)}
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
+        <Group gap="md" justify="space-between">
+          <Group gap="xs">
+            <Text size="sm" c="dimmed">Avg Risk:</Text>
+            <Text size="sm" fw={600} style={{ color: getRiskColor(avgRisk) }}>
+              {avgRisk.toFixed(1)}
+            </Text>
+          </Group>
+          <Group gap="xs">
+            <Text size="sm" c="dimmed">Data Points:</Text>
+            <Text size="sm" fw={600}>{result.count}</Text>
+          </Group>
+          {result.trends.length > 0 && (
+            <Group gap="xs">
+              <Text size="sm" c="dimmed">Total Events:</Text>
+              <Text size="sm" fw={600}>
+                {result.trends.reduce((sum, t) => sum + t.event_count, 0)}
+              </Text>
+            </Group>
+          )}
+        </Group>
+      </Stack>
+    </Card>
   )
 }
 
