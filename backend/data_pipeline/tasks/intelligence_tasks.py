@@ -78,7 +78,6 @@ def analyze_event_intelligence(self, event_id: int, model: str = "fast") -> Dict
 
         # Update event with all intelligence fields
         event.sentiment = analysis['sentiment']['score']
-        event.risk_score = analysis['risk']['score']
         event.entities = entities[:20]  # Limit to top 20 for backward compat
         event.summary = analysis['summary']['short']
         event.relationships = analysis['relationships']
@@ -86,6 +85,12 @@ def analyze_event_intelligence(self, event_id: int, model: str = "fast") -> Dict
         event.urgency = analysis['urgency']
         event.language = analysis['language']
         event.llm_analysis = analysis  # Store complete analysis
+
+        # Calculate comprehensive multi-dimensional risk score
+        # (combines LLM risk + sanctions + sentiment + urgency + supply chain)
+        from data_pipeline.services.risk_scorer import RiskScorer
+        comprehensive_risk = RiskScorer.calculate_comprehensive_risk(event)
+        event.risk_score = comprehensive_risk
 
         event.save(update_fields=[
             'sentiment', 'risk_score', 'entities', 'summary',
@@ -95,7 +100,8 @@ def analyze_event_intelligence(self, event_id: int, model: str = "fast") -> Dict
         logger.info(
             f"Event {event_id} intelligence updated: "
             f"sentiment={analysis['sentiment']['score']:.3f}, "
-            f"risk={analysis['risk']['score']:.3f}, "
+            f"llm_risk={analysis['risk']['score']:.3f}, "
+            f"comprehensive_risk={comprehensive_risk:.2f}, "
             f"entities={len(entities)}, "
             f"language={analysis['language']}, "
             f"urgency={analysis['urgency']}, "
@@ -105,7 +111,8 @@ def analyze_event_intelligence(self, event_id: int, model: str = "fast") -> Dict
         return {
             'event_id': event_id,
             'sentiment': analysis['sentiment']['score'],
-            'risk_score': analysis['risk']['score'],
+            'llm_risk': analysis['risk']['score'],
+            'comprehensive_risk_score': comprehensive_risk,
             'entities': entities,
             'summary': analysis['summary']['short'],
             'themes': analysis['themes'],
@@ -338,3 +345,73 @@ def update_entities(self, source: Optional[str] = None, model: str = "fast") -> 
     """
     logger.info(f"Updating entities (comprehensive LLM analysis) for source={source}")
     return update_sentiment_scores(source=source, model=model)
+
+
+@shared_task(base=BaseIngestionTask, bind=True, name='batch_recalculate_risk_scores')
+def batch_recalculate_risk_scores(self, lookback_days: int = 30) -> Dict[str, Any]:
+    """
+    Recalculate risk scores for recent events using new multi-dimensional model.
+
+    This task updates risk_score field for events that already have LLM analysis,
+    applying the new RiskAggregator composite scoring (LLM risk + sanctions +
+    sentiment + urgency + supply chain).
+
+    Useful after upgrading risk scoring logic to apply new methodology to
+    existing events without re-running full LLM analysis.
+
+    Args:
+        lookback_days: Recalculate for events from last N days (default: 30)
+
+    Returns:
+        Dictionary with recalculation statistics:
+        {
+            'total_events': int,
+            'updated': int,
+            'errors': int,
+            'lookback_days': int,
+        }
+    """
+    from data_pipeline.services.risk_scorer import RiskScorer
+
+    logger.info(f"Batch recalculating risk scores for events from last {lookback_days} days")
+
+    cutoff_date = timezone.now() - timedelta(days=lookback_days)
+    events = Event.objects.filter(
+        created_at__gte=cutoff_date,
+        llm_analysis__isnull=False
+    )
+
+    total_events = events.count()
+    updated_count = 0
+    error_count = 0
+
+    logger.info(f"Found {total_events} events with LLM analysis to recalculate")
+
+    for event in events.iterator(chunk_size=100):
+        try:
+            old_score = event.risk_score
+            new_score = RiskScorer.calculate_comprehensive_risk(event)
+            event.risk_score = new_score
+            event.save(update_fields=['risk_score'])
+            updated_count += 1
+
+            if updated_count % 100 == 0:
+                logger.info(
+                    f"Recalculated {updated_count}/{total_events} events "
+                    f"(avg change: {abs(new_score - old_score) if old_score else 0:.2f})"
+                )
+
+        except Exception as e:
+            logger.error(f"Failed to recalculate risk for Event {event.id}: {e}")
+            error_count += 1
+
+    logger.info(
+        f"Risk score recalculation complete: {updated_count} updated, {error_count} errors"
+    )
+
+    return {
+        'total_events': total_events,
+        'updated': updated_count,
+        'errors': error_count,
+        'lookback_days': lookback_days,
+    }
