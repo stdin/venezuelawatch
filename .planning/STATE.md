@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 ## Current Position
 
 Phase: 4 of 7 (Risk Intelligence Core)
-Plan: 2 of TBD in current phase
+Plan: 3 of TBD in current phase
 Status: In progress
-Last activity: 2026-01-08 — Completed 04-02-PLAN.md (Multi-Dimensional Risk Aggregation)
+Last activity: 2026-01-08 — Completed 04-03-PLAN.md (Event Severity Classification)
 
-Progress: ███████░░░ 65%
+Progress: ███████░░░ 68%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
-- Average duration: 19 min
-- Total execution time: 4.46 hours
+- Total plans completed: 15
+- Average duration: 18 min
+- Total execution time: 4.54 hours
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: ███████░░░ 65%
 | 1 | 4 | 56 min | 14 min |
 | 2 | 4 | 24 min | 6 min |
 | 3 | 4 | 195 min | 49 min |
-| 4 | 2 | 14 min | 7 min |
+| 4 | 3 | 19 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 40min, 50min, 9min, 5min
+- Last 5 plans: 50min, 9min, 5min, 5min
 - Trend: Very fast (leveraging Phase 3/4 infrastructure)
 
 ## Accumulated Context
@@ -90,6 +90,11 @@ Recent decisions affecting current work:
 - Phase 4: Sanctions dimension highest weight (0.30-0.40) as binary flag
 - Phase 4: Risk score scale changed from 0-1 to 0-100 for dashboard
 - Phase 4: Supply chain risk detection from LLM theme keywords
+- Phase 4: NCISS-style severity classification with weighted criteria (scope, duration, reversibility, economic_impact)
+- Phase 4: Severity independent of risk score (severity=impact, risk=probability×impact)
+- Phase 4: LLM for context-aware severity criteria extraction (not keyword matching)
+- Phase 4: SEV1-5 string choices for self-documenting severity levels
+- Phase 4: Fallback to medium severity (0.5) on LLM errors for resilience
 
 ### Deferred Issues
 
@@ -105,7 +110,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-08
-Stopped at: Completed 04-02-PLAN.md (Multi-Dimensional Risk Aggregation)
+Stopped at: Completed 04-03-PLAN.md (Event Severity Classification)
 Resume file: None
 
-Note: Phase 4 leveraging LLM and sanctions infrastructure from Phase 3 and 04-01
+Note: Phase 4 intelligence core nearly complete - severity classification complements risk scoring

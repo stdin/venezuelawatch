@@ -63,6 +63,7 @@ Plans:
 Plans:
 - [x] 04-01: Sanctions Screening Integration (OpenSanctions/OFAC API, SanctionsMatch model, daily refresh task)
 - [x] 04-02: Multi-Dimensional Risk Aggregation (RiskAggregator service, event-type-specific weights, comprehensive scoring)
+- [x] 04-03: Event Severity Classification (ImpactClassifier, NCISS-style weighted criteria, SEV1-5 levels)
 - [ ] TBD during phase planning
 
 ### Phase 5: Dashboard & Events Feed
@@ -101,7 +102,7 @@ Plans:
 | 1. Foundation & Infrastructure | 4/4 | Complete | 2026-01-08 |
 | 2. Authentication & User Management | 4/4 | Complete | 2026-01-09 |
 | 3. Data Pipeline Architecture | 4/4 | Complete | 2026-01-08 |
-| 4. Risk Intelligence Core | 1/TBD | In progress | - |
+| 4. Risk Intelligence Core | 3/TBD | In progress | - |
 | 5. Dashboard & Events Feed | 0/TBD | Not started | - |
 | 6. Entity Watch | 0/TBD | Not started | - |
 | 7. AI Chat Interface | 0/TBD | Not started | - |
