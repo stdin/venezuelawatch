@@ -5,33 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-01-08)
 
 **Core value:** Accurate risk intelligence that identifies sanctions changes, political disruptions, and trade opportunities before they impact investment decisions.
-**Current focus:** Phase 1 — Foundation & Infrastructure
+**Current focus:** Phase 2 — Authentication & User Management
 
 ## Current Position
 
-Phase: 1 of 7 (Foundation & Infrastructure)
-Plan: 4 of 4 complete
-Status: Phase complete
-Last activity: 2026-01-08 — Completed 01-04-PLAN.md (GCP infrastructure)
+Phase: 2 of 7 (Authentication & User Management)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-01-09 — Completed 02-01-PLAN.md (django-allauth setup & User model)
 
-Progress: ████░░░░░░ 40%
+Progress: █████░░░░░ 45%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 14 min
-- Total execution time: 0.93 hours
+- Total plans completed: 5
+- Average duration: 13 min
+- Total execution time: 1.07 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 | 4 | 56 min | 14 min |
+| 2 | 1 | 8 min | 8 min |
 
 **Recent Trend:**
-- Last 5 plans: 15min, 11min, 10min, 20min
-- Trend: Stable
+- Last 5 plans: 11min, 10min, 20min, 8min
+- Trend: Improving
 
 ## Accumulated Context
 
@@ -50,6 +51,12 @@ Recent decisions affecting current work:
 - Phase 1: GCP Cloud SQL for production database (db-custom-1-3840)
 - Phase 1: Cloud Storage for static files with public read access
 - Phase 1: Secret Manager for secure credential storage
+- Phase 2: django-allauth headless for SPA authentication (not dj-rest-auth)
+- Phase 2: Custom User model NOW to avoid migration pain for future teams
+- Phase 2: JWT in httpOnly cookies via djangorestframework-simplejwt
+- Phase 2: CORS_ALLOW_CREDENTIALS=True for cross-origin cookie authentication
+- Phase 2: Email verification set to optional for Phase 2 (can be enabled later)
+- Phase 2: PostgreSQL with TimescaleDB required for ArrayField in Event model
 
 ### Deferred Issues
 
@@ -64,6 +71,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-08 17:30
-Stopped at: Phase 1 complete (all 4 plans), ready for Phase 2 planning
+Last session: 2026-01-09 00:02
+Stopped at: Completed 02-01-PLAN.md (django-allauth setup & User model)
 Resume file: None
