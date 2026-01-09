@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-08)
 
 ## Current Position
 
-Phase: 6 of 7 (Entity Watch)
-Plan: 4 of 4 in current phase
-Status: Phase complete
-Last activity: 2026-01-09 — Completed 06-04-PLAN.md (Frontend Entity Leaderboard & Profiles)
+Phase: 7 of 7 (AI Chat Interface)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-01-08 — Completed 07-01-PLAN.md (Backend Chat API with Claude Streaming)
 
-Progress: █████████░ 95%
+Progress: █████████░ 96%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
-- Average duration: 15 min
-- Total execution time: 5.04 hours
+- Total plans completed: 21
+- Average duration: 14 min
+- Total execution time: 5.17 hours
 
 **By Phase:**
 
@@ -32,9 +32,10 @@ Progress: █████████░ 95%
 | 3 | 4 | 195 min | 49 min |
 | 4 | 4 | 26 min | 7 min |
 | 6 | 4 | 23 min | 6 min |
+| 7 | 1 | 8 min | 8 min |
 
 **Recent Trend:**
-- Last 5 plans: 4min, 5min, 6min, 8min
+- Last 5 plans: 5min, 6min, 8min, 8min
 - Trend: Very fast (mature infrastructure)
 
 ## Accumulated Context
@@ -113,6 +114,13 @@ Recent decisions affecting current work:
 - Phase 6: Entity type badge colors (Person=blue, Organization=purple, Government=red, Location=green)
 - Phase 6: React Router for SPA navigation with tab-style UI
 - Phase 6: Virtualized leaderboard using @tanstack/react-virtual for performance
+- Phase 7: Anthropic Claude (claude-3-5-sonnet-20241022) for LLM provider
+- Phase 7: Server-Sent Events (SSE) for streaming responses (not WebSockets)
+- Phase 7: Tool calling loop: stream text → detect tool_use → execute → add results → re-stream
+- Phase 7: Four tools for data access: search_events, get_entity_profile, get_trending_entities, analyze_risk_trends
+- Phase 7: Fuzzy entity matching in get_entity_profile using RapidFuzz (threshold 0.75)
+- Phase 7: Tool results passed back to Claude as JSON in conversation context
+- Phase 7: SSE format: 'data: {json}\n\n' for each chunk with type field (content, tool_use, done, error)
 
 ### Deferred Issues
 
@@ -127,8 +135,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-09
-Stopped at: Completed 06-04-PLAN.md (Frontend Entity Leaderboard & Profiles)
+Last session: 2026-01-08
+Stopped at: Completed 07-01-PLAN.md (Backend Chat API with Claude Streaming)
 Resume file: None
 
-Note: Phase 6 Entity Watch complete - all 4 plans delivered (entity models, extraction pipeline, API endpoints, dashboard UI)
+Note: Phase 7 AI Chat Interface started - Plan 1 of 4 complete (backend API with tool calling)

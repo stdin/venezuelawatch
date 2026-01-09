@@ -96,10 +96,10 @@ Plans:
 **Depends on**: Phase 6
 **Research**: Likely (assistant-ui integration, LLM provider choice)
 **Research topics**: assistant-ui with React 18, Claude/OpenAI API integration, RAG patterns for querying aggregated data
-**Plans**: TBD
+**Plans**: 4 plans (backend API, frontend UI, report generation, polish)
 
 Plans:
-- [ ] TBD during phase planning
+- [x] 07-01: Backend Chat API with Claude Streaming (POST /api/chat, SSE streaming, 4 tools for data access)
 
 ## Progress
 
@@ -111,4 +111,4 @@ Plans:
 | 4. Risk Intelligence Core | 4/4 | Complete | 2026-01-09 |
 | 5. Dashboard & Events Feed | 4/4 | Complete | 2026-01-09 |
 | 6. Entity Watch | 4/4 | Complete | 2026-01-09 |
-| 7. AI Chat Interface | 0/TBD | Not started | - |
+| 7. AI Chat Interface | 1/4 | In progress | - |
