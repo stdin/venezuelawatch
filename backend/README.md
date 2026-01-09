@@ -173,6 +173,110 @@ Interactive API documentation is automatically generated and available at:
 ### Health Check
 - **GET** `/api/health/health` - Returns service health status
 
+## Celery Task Queue
+
+VenezuelaWatch uses Celery with Redis for asynchronous data ingestion tasks.
+
+### Local Development
+
+1. **Install Redis** (if not already installed)
+   ```bash
+   # macOS
+   brew install redis
+
+   # Linux (Ubuntu/Debian)
+   sudo apt-get install redis-server
+
+   # Or use Docker
+   docker run -d --name redis -p 6379:6379 redis:7.0
+   ```
+
+2. **Start Redis server**
+   ```bash
+   # macOS (with Homebrew)
+   brew services start redis
+
+   # Linux
+   sudo systemctl start redis
+
+   # Or check if already running
+   redis-cli ping  # Should return "PONG"
+   ```
+
+3. **Start Celery worker** (in a separate terminal)
+   ```bash
+   cd backend
+   celery -A config.celery worker --loglevel=info
+   ```
+
+4. **Start Celery Beat** (for scheduled tasks, in another terminal)
+   ```bash
+   cd backend
+   celery -A config.celery beat --loglevel=info
+   ```
+
+### Testing Celery
+
+Test the task queue with simple tasks:
+
+```bash
+python manage.py shell
+>>> from data_pipeline.tasks.test_tasks import hello_world, add
+>>> result = hello_world.delay()
+>>> result.get(timeout=10)
+'Hello World'
+>>> result = add.delay(4, 6)
+>>> result.get(timeout=10)
+10
+```
+
+### Monitoring Tasks
+
+Monitor Celery workers and tasks:
+
+```bash
+# View active workers
+celery -A config.celery inspect active
+
+# View registered tasks
+celery -A config.celery inspect registered
+
+# Monitor events in real-time
+celery -A config.celery events
+
+# View task results in Django admin
+# Navigate to http://localhost:8000/admin/django_celery_results/
+```
+
+### API Credentials with Secret Manager
+
+For production, API credentials are stored in GCP Secret Manager. For local development, use environment variables:
+
+```bash
+# In .env or export directly
+export API_FRED_KEY="your-fred-api-key"
+export API_GDELT_KEY="your-gdelt-key"
+export API_RELIEFWEB_KEY="your-reliefweb-key"
+
+# Or for production, provision secrets:
+python manage.py set_secret fred-key "your-fred-api-key"
+```
+
+Retrieve credentials in tasks:
+
+```python
+from data_pipeline.tasks.base import BaseIngestionTask
+
+class MyTask(BaseIngestionTask):
+    def run(self):
+        api_key = self.get_api_credential('fred-key')
+        # Use api_key...
+```
+
+### Deployment
+
+See [docs/deployment/celery-setup.md](docs/deployment/celery-setup.md) for production deployment instructions.
+
 ## Development
 
 ### Running Tests
