@@ -180,12 +180,19 @@ export function useChatRuntime() {
         }
       }
 
-      return {
+      const message = {
         id: `msg-${idx}`,
         role: msg.role,
         content: contentParts,
         createdAt: new Date()
       }
+
+      // Debug: Log messages with tool results
+      if (msg.toolResults && msg.toolResults.length > 0) {
+        console.log('Message with tool results:', message)
+      }
+
+      return message
     }),
     isRunning: isLoading,
     convertMessage: (message) => message,

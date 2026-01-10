@@ -3,29 +3,36 @@ import { Container, Grid, Card, Title, Text, MultiSelect, Select, NumberInput, B
 import { useQuery } from '@tanstack/react-query';
 import { CorrelationGraph } from '../components/CorrelationGraph';
 
-interface Variable {
-  value: string;
-  label: string;
-  group: 'Entity Risk' | 'Economic Indicators' | 'Event Counts';
-}
-
-// Available variables for correlation analysis
-const AVAILABLE_VARIABLES: Variable[] = [
-  // Entity risk scores (dynamic - fetch from backend or hardcode top entities)
-  { value: 'entity_pdvsa_risk', label: 'PDVSA Risk Score', group: 'Entity Risk' },
-  { value: 'entity_maduro_risk', label: 'Maduro Risk Score', group: 'Entity Risk' },
-
-  // Economic indicators from FRED
-  { value: 'oil_price', label: 'WTI Oil Price', group: 'Economic Indicators' },
-  { value: 'inflation', label: 'Venezuela Inflation Rate', group: 'Economic Indicators' },
-  { value: 'gdp', label: 'Venezuela GDP', group: 'Economic Indicators' },
-  { value: 'exchange_rate', label: 'VEF/USD Exchange Rate', group: 'Economic Indicators' },
-
-  // Event count aggregates
-  { value: 'sanctions_count', label: 'Sanctions Events/Day', group: 'Event Counts' },
-  { value: 'political_count', label: 'Political Events/Day', group: 'Event Counts' },
-  { value: 'humanitarian_count', label: 'Humanitarian Events/Day', group: 'Event Counts' },
+// Available variables for correlation analysis - using Mantine's grouped format
+const AVAILABLE_VARIABLES = [
+  {
+    group: 'Entity Risk',
+    items: [
+      { value: 'entity_pdvsa_risk', label: 'PDVSA Risk Score' },
+      { value: 'entity_maduro_risk', label: 'Maduro Risk Score' },
+    ]
+  },
+  {
+    group: 'Economic Indicators',
+    items: [
+      { value: 'oil_price', label: 'WTI Oil Price' },
+      { value: 'inflation', label: 'Venezuela Inflation Rate' },
+      { value: 'gdp', label: 'Venezuela GDP' },
+      { value: 'exchange_rate', label: 'VEF/USD Exchange Rate' },
+    ]
+  },
+  {
+    group: 'Event Counts',
+    items: [
+      { value: 'sanctions_count', label: 'Sanctions Events/Day' },
+      { value: 'political_count', label: 'Political Events/Day' },
+      { value: 'humanitarian_count', label: 'Humanitarian Events/Day' },
+    ]
+  }
 ];
+
+// Flat list for label mapping
+const ALL_VARIABLES = AVAILABLE_VARIABLES.flatMap(g => g.items);
 
 export const CorrelationAnalysis: React.FC = () => {
   const [selectedVariables, setSelectedVariables] = useState<string[]>([]);
@@ -56,7 +63,7 @@ export const CorrelationAnalysis: React.FC = () => {
 
   // Create variable label map for graph
   const variableLabels = new Map(
-    AVAILABLE_VARIABLES.map(v => [v.value, v.label])
+    ALL_VARIABLES.map(v => [v.value, v.label])
   );
 
   return (

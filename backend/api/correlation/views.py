@@ -88,8 +88,8 @@ def compute_correlations(request, payload: CorrelationRequest):
                 FROM `{bq_service.project_id}.{bq_service.dataset_id}.entity_mentions` em
                 JOIN `{bq_service.project_id}.{bq_service.dataset_id}.events` e ON em.event_id = e.id
                 WHERE em.entity_id = @entity_id
-                  AND em.mentioned_at >= @start_date
-                  AND em.mentioned_at <= @end_date
+                  AND DATE(em.mentioned_at) >= @start_date
+                  AND DATE(em.mentioned_at) <= @end_date
                 GROUP BY date
                 ORDER BY date
                 """
@@ -116,12 +116,12 @@ def compute_correlations(request, payload: CorrelationRequest):
 
             query = f"""
             SELECT
-                observation_date as date,
+                date,
                 value
             FROM `{bq_service.project_id}.{bq_service.dataset_id}.fred_indicators`
             WHERE series_id = @series_id
-              AND observation_date >= @start_date
-              AND observation_date <= @end_date
+              AND date >= @start_date
+              AND date <= @end_date
             ORDER BY date
             """
             job_config = bigquery.QueryJobConfig(
@@ -145,9 +145,9 @@ def compute_correlations(request, payload: CorrelationRequest):
                 DATE(mentioned_at) as date,
                 COUNT(*) as count
             FROM `{bq_service.project_id}.{bq_service.dataset_id}.events`
-            WHERE type = @event_type
-              AND mentioned_at >= @start_date
-              AND mentioned_at <= @end_date
+            WHERE event_type = @event_type
+              AND DATE(mentioned_at) >= @start_date
+              AND DATE(mentioned_at) <= @end_date
             GROUP BY date
             ORDER BY date
             """
