@@ -14,6 +14,7 @@ import pytz
 
 from data_pipeline.tasks.base import BaseIngestionTask
 from api.services.gdelt_bigquery_service import gdelt_bigquery_service
+from api.services.gdelt_gkg_service import gdelt_gkg_service
 from api.bigquery_models import Event as BigQueryEvent
 from api.services.bigquery_service import bigquery_service
 
@@ -58,6 +59,38 @@ def sync_gdelt_events(self, lookback_minutes: int = 15) -> Dict[str, Any]:
         )
 
         logger.info(f"Fetched {len(gdelt_events)} events from GDELT BigQuery")
+
+        # Enrich events with GKG data (themes, entities, sentiment)
+        events_with_gkg = 0
+        events_without_gkg = 0
+
+        for gdelt_event in gdelt_events:
+            source_url = gdelt_event.get('SOURCEURL')
+            if source_url:
+                try:
+                    # Parse event date for partition filtering
+                    date_str = str(gdelt_event['DATEADDED'])
+                    event_date = timezone.datetime.strptime(date_str[:8], '%Y%m%d').replace(tzinfo=pytz.UTC)
+
+                    # Fetch GKG record by DocumentIdentifier (= SOURCEURL)
+                    gkg_record = gdelt_gkg_service.get_gkg_by_document_id(
+                        document_id=source_url,
+                        partition_date=event_date
+                    )
+
+                    if gkg_record:
+                        gdelt_event['gkg_raw'] = gkg_record
+                        events_with_gkg += 1
+                    else:
+                        events_without_gkg += 1
+
+                except Exception as e:
+                    logger.warning(f"Failed to fetch GKG for {source_url[:50]}: {e}")
+                    events_without_gkg += 1
+            else:
+                events_without_gkg += 1
+
+        logger.info(f"GKG enrichment: {events_with_gkg} with GKG data, {events_without_gkg} without")
 
         events_created = 0
         events_skipped = 0
@@ -159,6 +192,9 @@ def sync_gdelt_events(self, lookback_minutes: int = 15) -> Dict[str, Any]:
                         'action_geo_adm1': gdelt_event.get('ActionGeo_ADM1Code'),
                         'action_geo_adm2': gdelt_event.get('ActionGeo_ADM2Code'),
                         'action_geo_feature_id': gdelt_event.get('ActionGeo_FeatureID'),
+
+                        # GKG enrichment data (raw strings, will parse in next plan)
+                        'gkg_data': gdelt_event.get('gkg_raw') if 'gkg_raw' in gdelt_event else None,
                     }
                 )
 
