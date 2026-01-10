@@ -13,7 +13,6 @@ None
 - ✅ **v1.0 MVP** - Phases 1-7 (shipped 2026-01-09)
 - ✅ **v1.1 UI/UX Overhaul** - Phases 8-13 (shipped 2026-01-10)
 - ✅ **v1.2 Advanced Analytics** - Phases 14-18 (shipped 2026-01-10, partial)
-- 🚧 **v1.3 Data Enrichment & Intelligence** - Phases 19-24 (in progress)
 
 ## Completed Milestones
 
@@ -153,75 +152,6 @@ See [milestones/v1.1-UI-UX-Overhaul-ROADMAP.md](milestones/v1.1-UI-UX-Overhaul-R
 
 </details>
 
-### 🚧 v1.3 Data Enrichment & Intelligence (In Progress)
-
-**Milestone Goal:** Leverage BigQuery public datasets to build multi-dimensional risk intelligence with climate, health, infrastructure, and sentiment data integrated into predictive models and automated insights.
-
-#### Phase 19: NOAA Climate & Weather Integration
-
-**Goal**: Integrate NOAA climate and weather data for Venezuela region (hurricanes, storms, temperature, precipitation) to enable climate risk analysis and weather-event correlation
-**Depends on**: Phase 18 (GCP-native pipeline complete)
-**Research**: Likely (BigQuery public datasets, NOAA schema exploration)
-**Research topics**: `bigquery-public-data.noaa_*` dataset structure, weather event APIs, geographic filtering for Venezuela region, time-series weather data patterns
-**Plans**: TBD
-
-Plans:
-- [ ] 19-01: TBD (run /gsd:plan-phase 19 to break down)
-
-#### Phase 20: Health & COVID-19 Data Integration
-
-**Goal**: Integrate public health datasets for humanitarian crisis tracking (COVID-19 and related health indicators) to measure health crisis risk dimension
-**Depends on**: Phase 19
-**Research**: Likely (BigQuery COVID-19 datasets, health data schemas)
-**Research topics**: `bigquery-public-data.covid19_*` datasets, health indicator APIs, correlation with economic impact, time-series health data patterns
-**Plans**: TBD
-
-Plans:
-- [ ] 20-01: TBD
-
-#### Phase 21: OpenStreetMap & Infrastructure
-
-**Goal**: Integrate OpenStreetMap geographic data for infrastructure mapping (ports, facilities, roads) to track infrastructure degradation and trade route disruptions
-**Depends on**: Phase 20
-**Research**: Likely (BigQuery OpenStreetMap dataset, geographic queries)
-**Research topics**: `bigquery-public-data.geo_openstreetmap` schema, infrastructure feature extraction, port location mapping, facility tracking patterns
-**Plans**: TBD
-
-Plans:
-- [ ] 21-01: TBD
-
-#### Phase 22: Google Trends & Sentiment
-
-**Goal**: Integrate Google Trends search interest data for Venezuela-related topics as early warning signals for political events and sentiment indicators
-**Depends on**: Phase 21
-**Research**: Likely (BigQuery Google Trends dataset, sentiment analysis)
-**Research topics**: `bigquery-public-data.google_trends` schema, Venezuela-related search terms, sentiment correlation with political events, trending topic detection
-**Plans**: TBD
-
-Plans:
-- [ ] 22-01: TBD
-
-#### Phase 23: Multi-Dimensional Risk Scoring
-
-**Goal**: Extend existing risk scoring framework with new dimensions (climate risk, health crisis risk, infrastructure risk) integrated into unified risk engine
-**Depends on**: Phase 22
-**Research**: Unlikely (extending existing risk framework with new dimensions)
-**Plans**: TBD
-
-Plans:
-- [ ] 23-01: TBD
-
-#### Phase 24: Automated Insights & Enhanced Visualization
-
-**Goal**: Build pattern detection engine for automated insight generation (weather→oil production, health→economic impact, infrastructure→trade disruption) with enhanced dashboard visualization
-**Depends on**: Phase 23
-**Research**: Likely (ML pattern detection, insight generation algorithms)
-**Research topics**: Vertex AI anomaly detection, multi-variate pattern recognition, automated alert generation, dashboard visualization for new dimensions
-**Plans**: TBD
-
-Plans:
-- [ ] 24-01: TBD
-
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -246,9 +176,3 @@ Plans:
 | 15. Correlation & Pattern Analysis | v1.2 | 1/2 | Partial | - |
 | 16. Enhanced Data Visualization | v1.2 | 1/1 | Complete | 2026-01-09 |
 | 18. GCP-Native Pipeline Migration | v1.2 | 3/3 | Complete | 2026-01-10 |
-| 19. NOAA Climate & Weather Integration | v1.3 | 0/? | Not started | - |
-| 20. Health & COVID-19 Data Integration | v1.3 | 0/? | Not started | - |
-| 21. OpenStreetMap & Infrastructure | v1.3 | 0/? | Not started | - |
-| 22. Google Trends & Sentiment | v1.3 | 0/? | Not started | - |
-| 23. Multi-Dimensional Risk Scoring | v1.3 | 0/? | Not started | - |
-| 24. Automated Insights & Enhanced Visualization | v1.3 | 0/? | Not started | - |
