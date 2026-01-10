@@ -1,13 +1,14 @@
 """
-Celery tasks for intelligence processing using LLM (Claude) for comprehensive analysis.
+DEPRECATED - DO NOT USE
 
-**MIGRATION STATUS: Phase 18.2 - Tasks replaced by Cloud Run handlers**
+**MIGRATION COMPLETE: Phase 18-03 - Celery tasks fully replaced**
 
-These Celery tasks are DEPRECATED and will be removed in Phase 18-03.
-They have been replaced by event-driven Cloud Run handlers in api/views/internal.py:
+These Celery tasks are DEPRECATED and scheduled for removal.
+All functionality has been migrated to event-driven Cloud Run handlers in api/views/internal.py:
 - analyze_event_intelligence → /api/internal/analyze-intelligence (Cloud Tasks handler)
 - batch_analyze_events → Pub/Sub publishing pattern
 
+Celery has been removed from the project. Use Cloud Run handlers instead.
 The core LLM analysis logic is unchanged and reused by the new handlers.
 
 These tasks analyze events from BigQuery to populate intelligence fields:

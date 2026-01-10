@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.headless",
     "corsheaders",
-    "django_celery_results",
     "core",
     "data_pipeline",
     "chat",
@@ -203,16 +202,12 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 # Email backend for development
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# Celery Configuration
-CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_CACHE_BACKEND = 'default'
-
-# CELERY_BEAT_SCHEDULE disabled - migrated to Cloud Scheduler (Phase 18-01)
-# All periodic tasks now run via Cloud Scheduler → Cloud Functions/Cloud Run
-# For rollback: restore schedule entries from git history (commit cb29c09)
-# Migration completed: Phase 18-03
-CELERY_BEAT_SCHEDULE = {}
+# Celery Configuration - REMOVED in Phase 18-03
+# Task execution migrated to GCP-native services:
+# - Periodic tasks: Cloud Scheduler → Cloud Functions
+# - Event-driven tasks: Pub/Sub → Cloud Run
+# - Background tasks: Cloud Tasks
+# Redis retained for trending cache and Django caching only
 
 # GCP Secret Manager Configuration
 GCP_PROJECT_ID = os.environ.get('GCP_PROJECT_ID', 'venezuelawatch-staging')

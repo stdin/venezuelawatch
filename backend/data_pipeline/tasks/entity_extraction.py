@@ -1,13 +1,14 @@
 """
-Celery tasks for entity extraction and trending updates.
+DEPRECATED - DO NOT USE
 
-**MIGRATION STATUS: Phase 18.2 - Tasks replaced by Cloud Run handlers**
+**MIGRATION COMPLETE: Phase 18-03 - Celery tasks fully replaced**
 
-These Celery tasks are DEPRECATED and will be removed in Phase 18-03.
-They have been replaced by event-driven Cloud Run handlers in api/views/internal.py:
+These Celery tasks are DEPRECATED and scheduled for removal.
+All functionality has been migrated to event-driven Cloud Run handlers in api/views/internal.py:
 - extract_entities_from_event → /api/internal/extract-entities (Pub/Sub handler)
 - backfill_entities → Batch processing via Pub/Sub publishing
 
+Celery has been removed from the project. Use Cloud Run handlers instead.
 The core entity extraction logic is unchanged and reused by the new handlers.
 
 Extracts entities from BigQuery event data, normalizes using EntityService,
