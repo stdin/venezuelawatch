@@ -210,24 +210,14 @@ Plans:
 - [x] 15-01: Correlation Backend API (scipy/statsmodels, Bonferroni correction) - 4 min
 - [ ] 15-02: TBD
 
-#### Phase 16: Custom Reports & Export
-**Goal**: User-defined report templates, PDF generation, CSV/Excel export, scheduled reports
-**Depends on**: Phase 15
-**Research**: Likely (PDF generation libraries, scheduling)
-**Research topics**: Python PDF libraries (ReportLab, WeasyPrint), Excel generation (openpyxl, xlsxwriter), report scheduling patterns
-**Plans**: TBD
-
-Plans:
-- [ ] 16-01: TBD
-
-#### Phase 17: Enhanced Data Visualization
+#### Phase 16: Enhanced Data Visualization
 **Goal**: Interactive charts, heatmaps, network graphs, custom dashboards, visualization library expansion
-**Depends on**: Phase 16
+**Depends on**: Phase 15
 **Research**: Unlikely (extending existing Recharts patterns)
 **Plans**: TBD
 
 Plans:
-- [ ] 17-01: TBD
+- [ ] 16-01: TBD
 
 #### Phase 18: GCP-Native Pipeline Migration
 **Goal**: Migrate data pipeline from Celery to fully GCP-native orchestration (Cloud Scheduler, Cloud Run, Pub/Sub, Cloud Tasks) for serverless scalability and observability
@@ -271,6 +261,5 @@ Comprehensive migration from Celery-based orchestration to GCP-native serverless
 | 14.2. GDELT Native BigQuery (INSERTED) | v1.2 | 1/1 | Complete | 2026-01-10 |
 | 14.3. Complete Event Migration to BigQuery (INSERTED) | v1.2 | 0/? | Not started | - |
 | 15. Correlation & Pattern Analysis | v1.2 | 0/? | Not started | - |
-| 16. Custom Reports & Export | v1.2 | 0/? | Not started | - |
-| 17. Enhanced Data Visualization | v1.2 | 0/? | Not started | - |
+| 16. Enhanced Data Visualization | v1.2 | 0/? | Not started | - |
 | 18. GCP-Native Pipeline Migration | v1.2 | 0/4 | Not started | - |
