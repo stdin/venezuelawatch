@@ -204,10 +204,11 @@ Plans:
 **Depends on**: Phase 14.3
 **Research**: Completed (15-RESEARCH.md)
 **Research topics**: Correlation analysis methods for mixed data types, pattern detection algorithms, network analysis for entity relationships
-**Plans**: TBD
+**Status**: In progress (1/2 plans complete)
 
 Plans:
-- [ ] 15-01: TBD
+- [x] 15-01: Correlation Backend API (scipy/statsmodels, Bonferroni correction) - 4 min
+- [ ] 15-02: TBD
 
 #### Phase 16: Custom Reports & Export
 **Goal**: User-defined report templates, PDF generation, CSV/Excel export, scheduled reports

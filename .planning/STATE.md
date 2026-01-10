@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 
 ## Current Position
 
-Phase: 14.3 of 17 (Complete Event Migration to BigQuery)
-Plan: 1 of 1 in current phase
-Status: Complete
-Last activity: 2026-01-10 - Completed 14.3-01-PLAN.md
+Phase: 15 of 17 (Correlation & Pattern Analysis)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-10 - Completed 15-01-PLAN.md
 
-Progress: ██████████████████████████ 100%
+Progress: ████████████████████████████ 98%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 51
-- Average duration: 11 min
-- Total execution time: 9.8 hours
+- Total plans completed: 52
+- Average duration: 10 min
+- Total execution time: 9.9 hours
 
 **By Phase:**
 
@@ -43,10 +43,11 @@ Progress: ███████████████████████�
 | 14.1 | 4 | 39 min | 10 min |
 | 14.2 | 1 | 10 min | 10 min |
 | 14.3 | 1 | 9 min | 9 min |
+| 15 | 1 | 4 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 7min, 25min, 2min, 10min, 9min
-- Trend: Fast (infrastructure/migration)
+- Last 5 plans: 25min, 2min, 10min, 9min, 4min
+- Trend: Fast (backend API development)
 
 ## Accumulated Context
 
@@ -229,6 +230,11 @@ Recent decisions affecting current work:
 - Phase 14.3: SimpleNamespace mock objects for service compatibility without full Event model instances
 - Phase 14.3: Legacy batch tasks deprecated but kept for backward compatibility with warnings
 - Phase 14.3: Processing logic preserved exactly (only data source changed, algorithms unchanged)
+- Phase 15: scipy.stats.pearsonr/spearmanr for correlation (not custom formulas)
+- Phase 15: Bonferroni correction (not FDR) for conservative multiple comparison control
+- Phase 15: Default correlation thresholds: alpha=0.05, min_effect_size=0.7 for strong correlations
+- Phase 15: ADF stationarity test with automatic differencing for time-series correlation
+- Phase 15: Inner join for time-series alignment (drops dates missing from any variable)
 
 ### Deferred Issues
 
@@ -256,5 +262,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-10
-Stopped at: Completed Phase 14.3 (Complete Event Migration to BigQuery) - 1 plan finished
+Stopped at: Completed 15-01-PLAN.md (Correlation Backend API)
 Resume file: None
