@@ -1,6 +1,15 @@
 """
 Celery tasks for intelligence processing using LLM (Claude) for comprehensive analysis.
 
+**MIGRATION STATUS: Phase 18.2 - Tasks replaced by Cloud Run handlers**
+
+These Celery tasks are DEPRECATED and will be removed in Phase 18-03.
+They have been replaced by event-driven Cloud Run handlers in api/views/internal.py:
+- analyze_event_intelligence → /api/internal/analyze-intelligence (Cloud Tasks handler)
+- batch_analyze_events → Pub/Sub publishing pattern
+
+The core LLM analysis logic is unchanged and reused by the new handlers.
+
 These tasks analyze events from BigQuery to populate intelligence fields:
 - sentiment: Sentiment score from -1 (negative) to +1 (positive)
 - risk_score: Risk assessment from 0 (low) to 1 (high)
