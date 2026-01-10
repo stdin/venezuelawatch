@@ -158,18 +158,50 @@ Plans:
 
 Plans:
 - [x] 14.1-01: BigQuery Schema & Service Setup
-- [ ] 14.1-02: Celery Ingestion Migration
-- [ ] 14.1-03: API Views Migration
-- [ ] 14.1-04: Data Migration & Validation
+- [x] 14.1-02: Celery Ingestion Migration
+- [x] 14.1-03: API Views Migration
+- [x] 14.1-04: Data Migration & Validation
 
 **Details:**
 **URGENT:** TimescaleDB extension not available on Cloud SQL PostgreSQL - blocking production deployment. Migration to polyglot persistence (PostgreSQL for transactional data, BigQuery for time-series analytics) consolidates infrastructure with Phase 14 forecasting and provides better scalability.
 
 **Reference:** See `.planning/TIMESCALEDB-MIGRATION.md` for complete research and migration strategy.
 
+#### Phase 14.2: GDELT Native BigQuery (INSERTED)
+**Goal**: Migrate from custom GDELT DOC API polling to GDELT's native BigQuery dataset (gdelt-bq.gdeltv2) for richer data and simpler architecture
+**Depends on**: Phase 14.1
+**Research**: Not required (native dataset, direct query migration)
+**Plans**: 1 plan
+
+Plans:
+- [x] 14.2-01: GDELT BigQuery Federation & Sync Task
+
+**Details:**
+Replace custom GDELT DOC API polling (250 event limit, 3-4 fields) with direct queries to GDELT's native BigQuery dataset (1000 event limit, 61 rich fields). Unlocks 2,300+ themes/emotions, 65 languages, historical access beyond 15-minute windows, and actor network analysis. Eliminates custom ingestion infrastructure while providing richer event data (GoldsteinScale, AvgTone, NumMentions, actor codes/names, QuadClass, geographic coordinates).
+
+**Benefits:** 4x event capacity, 15x more data fields, historical query capability, simpler architecture, future-proof for GDELT themes/emotions analysis.
+
+**Reference:** See Phase 14.2 plan and summary documents for implementation details.
+
+#### Phase 14.3: Complete Event Migration to BigQuery (INSERTED)
+**Goal**: Migrate all remaining event ingestion sources (ReliefWeb, FRED, UN Comtrade, World Bank) and API views from PostgreSQL to BigQuery for unified time-series analytics
+**Depends on**: Phase 14.2
+**Research**: Not required (extends BigQuery migration pattern established in 14.1/14.2)
+**Plans**: 1 plan
+
+Plans:
+- [ ] 14.3-01: Migrate Processing Tasks to BigQuery
+
+**Details:**
+**URGENT:** Complete the polyglot persistence migration by moving all remaining event data sources to BigQuery. Phase 14.1 established infrastructure and migrated entity risk time-series. Phase 14.2 migrated GDELT to native BigQuery dataset. Phase 14.3 completes the migration by moving ReliefWeb, FRED, UN Comtrade, and World Bank ingestion tasks to write to BigQuery, updating all remaining API views to query BigQuery instead of PostgreSQL Event model, and deprecating PostgreSQL Event model (keep for Django metadata only, not time-series data).
+
+**Benefits:** Unified time-series analytics platform, eliminates cross-database queries, enables Phase 15 correlation analysis across all data sources, consistent query performance, simplified architecture.
+
+**Reference:** Phase 14.3 completes the architectural shift from hybrid (PostgreSQL + BigQuery) to fully polyglot (PostgreSQL for transactional, BigQuery for all time-series).
+
 #### Phase 15: Correlation & Pattern Analysis
 **Goal**: Discover relationships between events, entities, and economic data with visual correlation matrices
-**Depends on**: Phase 14.1
+**Depends on**: Phase 14.3
 **Research**: Completed (15-RESEARCH.md)
 **Research topics**: Correlation analysis methods for mixed data types, pattern detection algorithms, network analysis for entity relationships
 **Plans**: TBD
@@ -196,6 +228,26 @@ Plans:
 Plans:
 - [ ] 17-01: TBD
 
+#### Phase 18: GCP-Native Pipeline Migration
+**Goal**: Migrate data pipeline from Celery to fully GCP-native orchestration (Cloud Scheduler, Cloud Run, Pub/Sub, Cloud Tasks) for serverless scalability and observability
+**Depends on**: Phase 14.2 (GDELT Native BigQuery complete)
+**Research**: Completed (GCP-NATIVE-ORCHESTRATION-RESEARCH.md)
+**Research topics**: Cloud Composer vs Cloud Scheduler, Cloud Run vs Cloud Functions, Pub/Sub event-driven patterns, Cloud Tasks queue management, Django containerization, Eventarc triggers, cost optimization
+**Plans**: TBD
+
+Plans:
+- [ ] 18-01: Ingestion Layer Migration (Cloud Scheduler + Cloud Functions)
+- [ ] 18-02: Processing Layer Migration (Pub/Sub + Cloud Run + Cloud Tasks)
+- [ ] 18-03: Observability & Monitoring Setup
+- [ ] 18-04: Cutover & Decommission Celery
+
+**Details:**
+Comprehensive migration from Celery-based orchestration to GCP-native serverless architecture. Ingestion layer (GDELT, ReliefWeb, FRED, Comtrade, World Bank, sanctions) migrates to Cloud Scheduler + Cloud Functions for near-zero cost ($1-2/month within free tier). Processing layer (LLM analysis, entity extraction) migrates to Pub/Sub + Cloud Run + Cloud Tasks for auto-scaling (0→100 concurrent instances) and 34% cost reduction ($115/month vs $175/month). Chat API remains on Cloud Run (no change). Total migration: 3 weeks with phased rollout and rollback capability.
+
+**Benefits:** Auto-scaling, GCP-native observability (Cloud Logging, Error Reporting, Trace), built-in retries, serverless operational simplicity, future-proof for Vertex AI integration.
+
+**Reference:** See `.planning/GCP-NATIVE-ORCHESTRATION-RESEARCH.md` for complete architecture, migration strategy, code examples, and cost analysis.
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -214,7 +266,10 @@ Plans:
 | 12. Chat Interface Polish | v1.1 | 2/2 | Complete | 2026-01-09 |
 | 13. Responsive & Accessibility | v1.1 | 4/4 | Complete | 2026-01-10 |
 | 14. Time-Series Forecasting | v1.2 | 4/4 | Complete | 2026-01-10 |
-| 14.1. BigQuery Migration (INSERTED) | v1.2 | 1/4 | In progress | - |
+| 14.1. BigQuery Migration (INSERTED) | v1.2 | 4/4 | Complete | 2026-01-10 |
+| 14.2. GDELT Native BigQuery (INSERTED) | v1.2 | 1/1 | Complete | 2026-01-10 |
+| 14.3. Complete Event Migration to BigQuery (INSERTED) | v1.2 | 0/? | Not started | - |
 | 15. Correlation & Pattern Analysis | v1.2 | 0/? | Not started | - |
 | 16. Custom Reports & Export | v1.2 | 0/? | Not started | - |
 | 17. Enhanced Data Visualization | v1.2 | 0/? | Not started | - |
+| 18. GCP-Native Pipeline Migration | v1.2 | 0/4 | Not started | - |
