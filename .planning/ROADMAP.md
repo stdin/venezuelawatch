@@ -13,7 +13,7 @@ None
 - ✅ **v1.0 MVP** - Phases 1-7 (shipped 2026-01-09)
 - ✅ **v1.1 UI/UX Overhaul** - Phases 8-13 (shipped 2026-01-10)
 - ✅ **v1.2 Advanced Analytics** - Phases 14-18 (shipped 2026-01-10, partial)
-- 🚧 **v1.3 GDELT Intelligence** - Phases 19-24 (in progress)
+- ✅ **v1.3 GDELT Intelligence** - Phases 19-27 (complete)
 
 ## Completed Milestones
 
@@ -259,26 +259,14 @@ Plans:
 **Details:**
 Backend graph service with Louvain community detection and co-occurrence edge weighting (Plan 01 complete). Interactive WebGL graph visualization with Reagraph showing risk-based node colors, directional weighted edges, and click navigation (Plan 02 complete). Camera auto-focus to largest high-risk cluster with LLM-generated edge narratives explaining entity connections through causal chains (Plan 03 complete). GKG theme filtering for activity-specific networks (sanctions, trade, political, energy, adversarial) with temporal event lineage visualization showing cascade effects and escalation detection (Plan 04 complete). **Phase complete** - full pattern discovery system operational.
 
-#### Phase 27: Rolling Window Statistics, Persistence Spike Detection, Multi-Source Corroboration
+#### Phase 27: Small-Scale End-to-End Pipeline Test in GCP
 
-**Goal**: Rolling window statistics, persistence spike detection, multi-source corroboration
+**Goal**: Small-scale end-to-end pipeline test in GCP
 **Depends on**: Phase 26
 **Plans**: 0 plans
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 27 to break down)
-
-**Details:**
-[To be added during planning]
-
-#### Phase 28: Small-Scale End-to-End Pipeline Test in GCP
-
-**Goal**: Small-scale end-to-end pipeline test in GCP
-**Depends on**: Phase 27
-**Plans**: 0 plans
-
-Plans:
-- [ ] TBD (run /gsd:plan-phase 28 to break down)
 
 **Details:**
 [To be added during planning]
@@ -314,6 +302,5 @@ Plans:
 | 23. Intelligence Pipeline Rebuild | v1.3 | 2/2 | Complete | 2026-01-10 |
 | 24. BigQuery Public Datasets | v1.3 | 3/3 | Complete | 2026-01-10 |
 | 25. Update System to Follow Platform Design | v1.3 | 2/2 | Complete | 2026-01-10 |
-| 26. GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking | v1.3 | 2/? | In progress | - |
-| 27. Rolling Window Statistics, Persistence Spike Detection, Multi-Source Corroboration | v1.3 | 0/? | Not started | - |
-| 28. Small-Scale End-to-End Pipeline Test in GCP | v1.3 | 0/? | Not started | - |
+| 26. GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking | v1.3 | 4/4 | Complete | 2026-01-10 |
+| 27. Small-Scale End-to-End Pipeline Test in GCP | v1.3 | 0/? | Not started | - |
