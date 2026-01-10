@@ -6,6 +6,7 @@ import { RegisterForm } from './components/RegisterForm'
 import { Dashboard } from './pages/Dashboard'
 import { Entities } from './pages/Entities'
 import { Chat } from './pages/Chat'
+import { CorrelationAnalysis } from './pages/CorrelationAnalysis'
 import './App.css'
 
 function AuthenticatedApp() {
@@ -38,6 +39,12 @@ function AuthenticatedApp() {
           >
             Chat
           </Link>
+          <Link
+            to="/correlation"
+            className={`app-nav-link ${location.pathname === '/correlation' ? 'app-nav-link-active' : ''}`}
+          >
+            Correlation
+          </Link>
         </div>
       </nav>
 
@@ -47,6 +54,7 @@ function AuthenticatedApp() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/entities" element={<Entities />} />
           <Route path="/chat" element={<Chat />} />
+          <Route path="/correlation" element={<CorrelationAnalysis />} />
         </Routes>
       </div>
     </div>
