@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 ## Current Position
 
 Milestone: v1.3 GDELT Intelligence
-Phase: 23 of 23 (Intelligence Pipeline Rebuild)
-Plan: 2 of 2 in current phase
-Status: Complete
-Last activity: 2026-01-10 - Completed 23-02-PLAN.md
+Phase: 24 of 25 (BigQuery Public Datasets)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-10 - Completed 24-01-PLAN.md
 
-Progress: ████████░░ 96%
+Progress: █████████░ 96%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 63
+- Total plans completed: 64
 - Average duration: 9 min
-- Total execution time: 10.9 hours
+- Total execution time: 11.0 hours
 
 **By Phase:**
 
@@ -50,11 +50,12 @@ Progress: ████████░░ 96%
 | 20 | 2 | 13 min | 6 min |
 | 21 | 3 | 10 min | 3 min |
 | 22 | 1 | 2 min | 2 min |
-| 23 | 1 | 7 min | 7 min |
+| 23 | 2 | 11 min | 6 min |
+| 24 | 1 | 4 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 1min, 1min, 3min, 2min, 7min
-- Trend: Fast (intelligence pipeline)
+- Last 5 plans: 1min, 3min, 2min, 7min, 4min
+- Trend: Fast (entity resolution)
 
 ## Accumulated Context
 
@@ -277,6 +278,10 @@ Recent decisions affecting current work:
 - Phase 23: Theme presence scored categorically (1=60, 2=80, 3+=100) not proportionally
 - Phase 23: Theme intensity scored by frequency (0=20, 1-2=50, 3-5=75, 6+=100)
 - Phase 23: Add `or 0` / `or {}` fallback for None values to prevent TypeError
+- Phase 24: Tier 1 exact match threshold 0.95 confidence for high-confidence-only matches
+- Phase 24: Tier 2 Splink threshold 0.85 match_probability (per research)
+- Phase 24: Blocking rules first 3 chars + country_code + entity_type for O(n) performance
+- Phase 24: Lazy linker initialization pattern for Splink 4.x API compatibility
 
 ### Deferred Issues
 
@@ -300,12 +305,13 @@ None yet.
 - Phase 14.2 inserted after Phase 14.1 (2026-01-10): GDELT Native BigQuery - 4x event capacity, 15x richer data fields
 - Phase 14.3 inserted after Phase 14.2 (2026-01-10): Complete Event Migration to BigQuery - unified time-series analytics platform
 - Phase 18 added to v1.2 (2026-01-10): GCP-Native Pipeline Migration - serverless orchestration replacing Celery
-- **Milestone v1.3 GDELT Intelligence created:** Maximize value from free BigQuery GDELT data (61 fields), rebuild intelligence pipeline around GDELT signals, 5 phases (Phase 19-23)
-- Phase 24 removed (2026-01-10): LLM Optimization & UI deferred, Phase 25 renumbered to Phase 24
+- **Milestone v1.3 GDELT Intelligence created:** Maximize value from free BigQuery GDELT data (61 fields), rebuild intelligence pipeline around GDELT signals, 7 phases (Phase 19-25)
+- Phase 24 removed (2026-01-10): LLM Optimization & UI deferred, old Phase 25 renumbered to Phase 24
 - Phase 24 added (2026-01-10): Add more BigQuery data sources
+- Phase 25 added (2026-01-10): Update scoring and ranking system - consider both positive and negative events equally important, SEV based on impact magnitude
 
 ## Session Continuity
 
 Last session: 2026-01-10
-Stopped at: Completed Phase 23 (23-02-PLAN.md), removed Phase 24 from roadmap
+Stopped at: Completed Phase 24 Plan 01 (24-01-PLAN.md)
 Resume file: None

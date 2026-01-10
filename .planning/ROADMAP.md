@@ -155,7 +155,7 @@ See [milestones/v1.1-UI-UX-Overhaul-ROADMAP.md](milestones/v1.1-UI-UX-Overhaul-R
 
 ### 🚧 v1.3 GDELT Intelligence (In Progress)
 
-**Milestone Goal:** Maximize value from free BigQuery GDELT data (61 fields vs current 4) - rebuild intelligence pipeline around rich GDELT signals to reduce LLM costs and improve risk scoring accuracy.
+**Milestone Goal:** Maximize value from free BigQuery GDELT data (61 fields vs current 4) - rebuild intelligence pipeline around rich GDELT signals to reduce LLM costs and improve risk scoring accuracy. Includes scoring system refinements to properly handle both positive and negative event impacts.
 
 #### Phase 19: GDELT Events Enrichment
 
@@ -213,14 +213,28 @@ Plans:
 Plans:
 - [ ] 23-01: TBD
 
-#### Phase 24: Add More BigQuery Data Sources
+#### Phase 24: BigQuery Public Datasets
 
-**Goal**: [To be planned]
+**Goal**: Integrate Google Trends, SEC EDGAR, and World Bank data via BigQuery public datasets for multi-source intelligence correlation
 **Depends on**: Phase 23
+**Plans**: 3 plans (1 of 3 complete)
+
+Plans:
+- [x] 24-01: Entity Resolution Foundation (Splink + canonical entity registry)
+- [ ] 24-02: BigQuery Adapters (Google Trends, SEC EDGAR, World Bank)
+- [ ] 24-03: Cross-Dataset Correlation Engine
+
+**Details:**
+Enable cross-dataset entity linking and multi-source intelligence correlation using BigQuery public datasets.
+
+#### Phase 25: Update Scoring and Ranking System
+
+**Goal**: Update scoring and ranking system - consider that both positive and negative events are equally important and can have significant impact. SEV should be calculated on impact - both positive or negative.
+**Depends on**: Phase 24
 **Plans**: 0 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 24 to break down)
+- [ ] TBD (run /gsd:plan-phase 25 to break down)
 
 **Details:**
 [To be added during planning]
@@ -255,3 +269,4 @@ Plans:
 | 22. Data Source Architecture | v1.3 | 1/? | In progress | 2026-01-10 |
 | 23. Intelligence Pipeline Rebuild | v1.3 | 2/2 | Complete | 2026-01-10 |
 | 24. Add More BigQuery Data Sources | v1.3 | 0/? | Not started | - |
+| 25. Update Scoring and Ranking System | v1.3 | 0/? | Not started | - |
