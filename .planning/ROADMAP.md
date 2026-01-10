@@ -140,12 +140,15 @@ See [milestones/v1.1-UI-UX-Overhaul-ROADMAP.md](milestones/v1.1-UI-UX-Overhaul-R
 #### Phase 14: Time-Series Forecasting
 **Goal**: Predict risk trends, economic indicators, and event patterns using statistical models
 **Depends on**: Phase 13 (previous milestone complete)
-**Research**: Likely (forecasting libraries, model selection)
+**Research**: Completed (14-RESEARCH.md)
 **Research topics**: Python forecasting libraries (Prophet, statsmodels, scikit-learn), model selection for time-series data, integration with existing TimescaleDB data
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 14-01: TBD (run /gsd:plan-phase 14 to break down)
+- [x] 14-01: BigQuery ETL Setup
+- [ ] 14-02: Vertex AI Training Infrastructure
+- [ ] 14-03: Forecast API Integration
+- [ ] 14-04: Frontend Forecast Visualization
 
 #### Phase 15: Correlation & Pattern Analysis
 **Goal**: Discover relationships between events, entities, and economic data with visual correlation matrices
@@ -193,7 +196,7 @@ Plans:
 | 11. Entity Pages Redesign | v1.1 | 3/3 | Complete | 2026-01-09 |
 | 12. Chat Interface Polish | v1.1 | 2/2 | Complete | 2026-01-09 |
 | 13. Responsive & Accessibility | v1.1 | 4/4 | Complete | 2026-01-10 |
-| 14. Time-Series Forecasting | v1.2 | 0/? | Not started | - |
+| 14. Time-Series Forecasting | v1.2 | 1/4 | In progress | - |
 | 15. Correlation & Pattern Analysis | v1.2 | 0/? | Not started | - |
 | 16. Custom Reports & Export | v1.2 | 0/? | Not started | - |
 | 17. Enhanced Data Visualization | v1.2 | 0/? | Not started | - |
