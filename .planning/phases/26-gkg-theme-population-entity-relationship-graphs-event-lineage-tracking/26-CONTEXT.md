@@ -1,82 +1,139 @@
 # Phase 26: GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking - Context
 
-**Gathered:** 2026-01-10
-**Status:** Ready for planning
+**Gathered:** 2026-01-10 (Updated after Plans 26-01, 26-02)
+**Status:** In progress - 2/4 plans complete
 
 <vision>
 ## How This Should Work
 
 This phase builds an **interactive entity relationship graph** that surfaces non-obvious intelligence patterns - indirect connections, sanctioned entity clusters, hidden networks. Users see a visual web of connections between people, companies, and governments with high-risk areas automatically highlighted.
 
-When you open the graph, it **automatically focuses on high-risk clusters** - no manual searching needed. The system identifies the most interesting networks and puts them front and center.
+**✅ COMPLETE (Plans 26-01, 26-02):**
+- Interactive WebGL graph visualization with Reagraph
+- Co-occurrence based relationships (3+ mentions threshold)
+- Risk-based node colors (sanctions red, risk gradient)
+- Directional weighted edges showing relationship strength
+- Click-to-navigate entity profiles
+- Louvain community detection clustering
 
-**Event lineage tracking** creates the story behind the connections. Click on any relationship edge in the graph and you see an **LLM-generated narrative** explaining how these entities are connected through specific events - "After US sanctions on Person A were announced, this led to Company B's bankruptcy, which triggered supply chain disruptions in Country C."
+**REMAINING WORK (Plans 26-03, 26-04):**
 
-**GKG themes** enrich this intelligence by providing categorical context (ECON_TRADE, SANCTIONS, CIVIL_UNREST) and identifying entity clusters based on thematic patterns. Themes help you understand not just WHO is connected, but WHAT types of activities connect them.
+When you open the graph, it **automatically zooms to the largest high-risk cluster** - balancing both risk level AND cluster size to find the most important network. No manual searching needed - the system immediately frames the most critical intelligence.
 
-All three capabilities work together: themes provide context, graphs show networks, narratives explain the connections.
+**Progressive disclosure for pattern discovery:**
+- Overview: See thematic clusters and main relationship patterns at a glance
+- Click edges: LLM-generated narratives explain HOW entities connect through events
+- Expand details: Full causal chains and comprehensive theme analysis for deep investigation
+- Filter by themes: Focus on specific activity types (sanctions, trade, unrest)
+
+**Event lineage tracking** reveals how events cascade over time - "Sanctions announcement → Port closure → Food shortage → Protests" - surfacing non-obvious cause-and-effect patterns.
+
+**GKG themes** enable pattern discovery through categorical clustering - see which entities are connected by OIL_EXPORT events, SANCTIONS activities, or CIVIL_UNREST themes.
+
+All capabilities work together for intelligence discovery: auto-focus surfaces critical networks, themes reveal activity patterns, narratives explain the connections, lineage shows causal chains.
 
 </vision>
 
 <essential>
 ## What Must Be Nailed
 
-- **Insight discovery** - The graph must surface patterns that aren't obvious from individual events alone. Non-obvious connections, hidden networks, indirect relationships.
+**PRIMARY: Pattern discovery** - Surface non-obvious intelligence through thematic clustering and causal event chains that aren't visible in individual events.
 
-- **Relationship quality** - Connections must be real and meaningful, based on:
-  - **Repeated co-occurrence** across multiple events over time (not one-off mentions)
-  - **Directional and weighted** relationships with strength indicators
-  - **Verifiable from sources** - every edge traces back to specific events/articles
+**Supporting capabilities:**
+- **Auto-focus on largest high-risk cluster** - Balance risk level AND cluster size to immediately show the most important network
+- **Progressive disclosure** - Start with scannable overview, expand to rich details when users dig deeper
+- **Theme-based clustering** - Reveal activity patterns (which entities connect through sanctions, trade, unrest)
+- **Event lineage** - Show temporal causal chains (A→B→C) to surface cascade effects
 
-- **Narratives as edge annotations** - When users click relationships, they get LLM-generated stories explaining HOW and WHY entities are connected through event sequences
-
-- **Auto-surface high-risk clusters** - Graph immediately shows the most critical intelligence without requiring manual search
+**Already nailed (26-01, 26-02):**
+- ✅ Relationship quality - co-occurrence based, directional, weighted
+- ✅ Interactive visualization - WebGL performance, click navigation
+- ✅ Community detection - Louvain clustering operational
 
 </essential>
 
 <boundaries>
 ## What's Out of Scope
 
-**Nothing explicitly excluded** - all three capabilities (GKG themes, relationship graphs, event lineage) are in scope for Phase 26 as named.
+**Explicitly deferred to future phases:**
+- **Time-based playback** - Animated graph showing network evolution over time (defer until core features mature)
+- **Custom graph layouts** - User-configurable positioning, manual node placement (keep force-directed auto-layout)
+- **Export capabilities** - Download graph as image/data files (defer until graph features stabilize)
+- **Real-time updates** - Live graph updates as new events stream in (static snapshot for Phase 26)
 
-However, defer complexity where possible:
-- Start with core relationship types (sanctions, employment, trade, adversarial)
-- Basic graph interactivity first, advanced features (filtering, time ranges) can evolve
-- Focus on getting insight discovery working, then refine performance
+**In scope for Phase 26:**
+- Auto-focus camera on high-risk clusters
+- Edge narratives (LLM-generated relationship stories)
+- Theme filtering and clustering
+- Event lineage view (causal chains)
 
 </boundaries>
 
 <specifics>
 ## Specific Ideas
 
-**Graph entry point:** Auto-focus on high-risk clusters when opening the visualization - put the most important intelligence front and center immediately.
+**Auto-focus behavior (Plan 26-03):**
+- Balance risk level AND cluster size to find "largest high-risk cluster"
+- Camera automatically frames this network when graph loads
+- Immediate intelligence delivery - no manual search required
 
-**Relationship criteria:**
-- Repeated co-occurrence signals persistent relationships
-- Directional edges (A sanctioned B, not just "A and B are related")
-- Weighted by strength of evidence
-- Verifiable - click through to source events
+**Progressive disclosure pattern:**
+- **Overview:** Scannable theme clusters and main relationship patterns
+- **Click edge:** Modal/panel with LLM narrative explaining connection
+- **Expand details:** Full causal chain, comprehensive theme breakdown
+- **Filter themes:** Show only entities connected by specific activity types
 
-**Event lineage:** LLM-generated narratives that explain causal chains - "Sanctions announcement → Port closure → Food shortage → Protests"
+**Edge narratives (Plan 26-03):**
+- LLM-generated stories: "Entity A sanctioned by US (Event 1) → Entity B lost financing (Event 2) → Project canceled (Event 3)"
+- Click edge to see narrative modal
+- List source events with links to verify
 
-**Theme roles:**
-- Enrich event context in narratives (categorize what happened)
-- Clustering signal to identify thematic entity groups (all entities in OIL_EXPORT events)
+**Theme filtering (Plan 26-04):**
+- Filter by GKG theme categories (SANCTIONS, ECON_TRADE, CIVIL_UNREST, etc.)
+- Shows entities connected through that theme type
+- Reveals activity-specific networks
 
-**Interactive graph:** Click on entities to explore, click on edges to see narratives, visual indicators for risk levels and relationship types
+**Event lineage view (Plan 26-04):**
+- Temporal causal chains showing A→B→C progression
+- Surface cascade effects and indirect impacts
+- Timeline visualization of how events connect
+
+**Already implemented (26-01, 26-02):**
+- ✅ Reagraph WebGL visualization
+- ✅ Risk-based node colors (sanctions red, risk gradient)
+- ✅ Directional weighted edges (log-scale thickness)
+- ✅ Click entities → navigate to profiles
+- ✅ Community clustering (Louvain detection)
 
 </specifics>
 
 <notes>
 ## Additional Context
 
-The emphasis on **insight discovery** means the graph should reveal patterns invisible in individual events - this is the core value proposition.
+**Updated after Plans 26-01, 26-02 completion:**
 
-**Relationship quality** was a key concern - not just co-mentions, but evidence-based connections users can verify and trust.
+The emphasis on **pattern discovery** emerged as the primary value - revealing non-obvious intelligence through thematic clustering and causal chains. This is more specific than generic "insight discovery" and guides remaining implementation.
 
-Integration vision: Themes and lineage both support the graph - themes cluster and contextualize, lineage narratives explain the connections.
+**Relationship quality foundation is complete** (26-01):
+- Co-occurrence threshold (3+ mentions) filters noise
+- Louvain community detection groups related entities
+- Weighted edges show relationship strength
+- Backend returns high_risk_cluster for auto-focus
 
-All three capabilities (themes, graphs, lineage) should ship together in Phase 26 to deliver the complete intelligence experience.
+**Interactive visualization foundation is complete** (26-02):
+- Reagraph WebGL handles 1K-5K nodes efficiently
+- Risk-based colors, directional edges working
+- Click handlers ready for narrative integration
+
+**Remaining work (26-03, 26-04):**
+1. Auto-focus camera on largest high-risk cluster
+2. Edge click → LLM narrative modal explaining connections
+3. Theme filters to show activity-specific networks
+4. Event lineage view for temporal causal chains
+
+**Progressive disclosure** is the UI pattern - overview first, rich details on demand - to balance scannability with deep investigation capability.
+
+**Scope clarity:** Explicitly defer time-based playback, custom layouts, exports, and real-time updates. Keep Phase 26 focused on core pattern discovery features.
 
 </notes>
 
