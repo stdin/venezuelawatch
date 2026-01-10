@@ -7,6 +7,7 @@ import { Dashboard } from './pages/Dashboard'
 import { Entities } from './pages/Entities'
 import { Chat } from './pages/Chat'
 import { CorrelationAnalysis } from './pages/CorrelationAnalysis'
+import { GraphPage } from './pages/GraphPage'
 import './App.css'
 
 function AuthenticatedApp() {
@@ -34,6 +35,12 @@ function AuthenticatedApp() {
             Entities
           </Link>
           <Link
+            to="/graph"
+            className={`app-nav-link ${location.pathname === '/graph' ? 'app-nav-link-active' : ''}`}
+          >
+            Graph
+          </Link>
+          <Link
             to="/chat"
             className={`app-nav-link ${location.pathname === '/chat' ? 'app-nav-link-active' : ''}`}
           >
@@ -53,6 +60,7 @@ function AuthenticatedApp() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/entities" element={<Entities />} />
+          <Route path="/graph" element={<GraphPage />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/correlation" element={<CorrelationAnalysis />} />
         </Routes>
