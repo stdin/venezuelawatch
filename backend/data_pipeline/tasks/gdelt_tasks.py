@@ -9,10 +9,15 @@ import requests
 from typing import Dict, Any
 from celery import shared_task
 from django.db import transaction
+from django.conf import settings
+from django.utils import timezone
+from google.cloud import bigquery
 
 from data_pipeline.tasks.base import BaseIngestionTask
 from data_pipeline.services.event_mapper import map_gdelt_to_event
 from core.models import Event
+from api.bigquery_models import Event as BigQueryEvent
+from api.services.bigquery_service import bigquery_service
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +96,7 @@ def ingest_gdelt_events(self, lookback_minutes: int = 15) -> Dict[str, Any]:
         events_skipped = 0
 
         # Process each article
+        bigquery_events = []
         for article in articles:
             url = article.get('url')
             if not url:
@@ -98,36 +104,73 @@ def ingest_gdelt_events(self, lookback_minutes: int = 15) -> Dict[str, Any]:
                 events_skipped += 1
                 continue
 
-            # Check for duplicates by URL in content field
-            # Using JSONField query to check if content->>url equals the URL
-            existing = Event.objects.filter(
-                source='GDELT',
-                content__url=url
-            ).exists()
-
-            if existing:
-                logger.debug(f"Skipping duplicate GDELT article: {url}")
-                events_skipped += 1
-                continue
-
-            # Map GDELT article to Event
+            # Check for duplicates in BigQuery (last 7 days)
             try:
-                event = map_gdelt_to_event(article)
+                query = f"""
+                    SELECT COUNT(*) as count
+                    FROM `{settings.GCP_PROJECT_ID}.{settings.BIGQUERY_DATASET}.events`
+                    WHERE source_url = @url
+                    AND mentioned_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
+                """
+                job_config = bigquery.QueryJobConfig(
+                    query_parameters=[
+                        bigquery.ScalarQueryParameter('url', 'STRING', url)
+                    ]
+                )
+                results = bigquery_service.client.query(query, job_config=job_config).result()
+                row = list(results)[0]
+                if row.count > 0:
+                    logger.debug(f"Skipping duplicate GDELT article: {url}")
+                    events_skipped += 1
+                    continue
+            except Exception as e:
+                logger.error(f"Failed to check for duplicate in BigQuery: {e}")
+                # Continue with insert - better to have duplicate than skip valid event
+                pass
 
-                # Save to database
-                with transaction.atomic():
-                    event.save()
-                    events_created += 1
-                    logger.debug(f"Created GDELT event: {event.title[:50]}")
+            # Map GDELT article to BigQueryEvent
+            try:
+                # Get Django event for mapping convenience
+                django_event = map_gdelt_to_event(article)
 
-                # Dispatch LLM intelligence analysis (async background task)
-                analyze_task = get_intelligence_task()
-                analyze_task.delay(event.id, model='fast')
-                logger.debug(f"Dispatched LLM analysis for GDELT event {event.id}")
+                # Create BigQueryEvent from mapped data
+                bq_event = BigQueryEvent(
+                    source_url=article.get('url'),
+                    mentioned_at=django_event.timestamp,
+                    created_at=timezone.now(),
+                    title=django_event.title,
+                    content=article.get('title', ''),  # Use article title as content
+                    source_name='GDELT',
+                    event_type=django_event.event_type.lower() if django_event.event_type else None,
+                    location='Venezuela',  # All GDELT queries are Venezuela-specific
+                    risk_score=None,  # Computed in Phase 4
+                    severity=None,  # Computed in Phase 4
+                    metadata=django_event.content  # Store full GDELT data in metadata
+                )
+
+                bigquery_events.append(bq_event)
+                events_created += 1
+                logger.debug(f"Prepared GDELT event for BigQuery: {bq_event.title[:50]}")
 
             except Exception as e:
-                logger.error(f"Failed to create event from GDELT article: {e}", exc_info=True)
+                logger.error(f"Failed to create BigQuery event from GDELT article: {e}", exc_info=True)
                 events_skipped += 1
+
+        # Batch insert to BigQuery
+        if bigquery_events:
+            try:
+                bigquery_service.insert_events(bigquery_events)
+                logger.info(f"Inserted {len(bigquery_events)} events to BigQuery")
+
+                # Dispatch LLM intelligence analysis for each event (async background task)
+                analyze_task = get_intelligence_task()
+                for event in bigquery_events:
+                    analyze_task.delay(event.id, model='fast')
+                    logger.debug(f"Dispatched LLM analysis for GDELT event {event.id}")
+
+            except Exception as e:
+                logger.error(f"Failed to insert events to BigQuery: {e}", exc_info=True)
+                raise
 
         result = {
             'events_created': events_created,

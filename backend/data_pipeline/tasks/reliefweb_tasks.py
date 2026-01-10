@@ -11,11 +11,15 @@ from typing import Dict, Any
 from celery import shared_task
 from django.db import transaction
 from django.utils import timezone
+from django.conf import settings
+from google.cloud import bigquery
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from data_pipeline.tasks.base import BaseIngestionTask
 from data_pipeline.services.event_mapper import map_reliefweb_to_event
 from core.models import Event
+from api.bigquery_models import Event as BigQueryEvent
+from api.services.bigquery_service import bigquery_service
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +100,7 @@ def ingest_reliefweb_updates(self, lookback_days: int = 1) -> Dict[str, Any]:
         events_skipped = 0
 
         # Process each report
+        bigquery_events = []
         for report_wrapper in reports:
             # ReliefWeb wraps each record: {'id': ..., 'fields': {...}}
             report_id = report_wrapper.get('id')
@@ -107,30 +112,66 @@ def ingest_reliefweb_updates(self, lookback_days: int = 1) -> Dict[str, Any]:
                 events_skipped += 1
                 continue
 
-            # Check for duplicates by URL in content field
-            existing = Event.objects.filter(
-                source='RELIEFWEB',
-                content__url=url
-            ).exists()
-
-            if existing:
-                logger.debug(f"Skipping duplicate ReliefWeb report: {url}")
-                events_skipped += 1
-                continue
-
-            # Map ReliefWeb report to Event
+            # Check for duplicates in BigQuery (last 30 days for humanitarian reports)
             try:
-                event = map_reliefweb_to_event(report_wrapper)
+                query = f"""
+                    SELECT COUNT(*) as count
+                    FROM `{settings.GCP_PROJECT_ID}.{settings.BIGQUERY_DATASET}.events`
+                    WHERE source_url = @url
+                    AND mentioned_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
+                """
+                job_config = bigquery.QueryJobConfig(
+                    query_parameters=[
+                        bigquery.ScalarQueryParameter('url', 'STRING', url)
+                    ]
+                )
+                results = bigquery_service.client.query(query, job_config=job_config).result()
+                row = list(results)[0]
+                if row.count > 0:
+                    logger.debug(f"Skipping duplicate ReliefWeb report: {url}")
+                    events_skipped += 1
+                    continue
+            except Exception as e:
+                logger.error(f"Failed to check for duplicate in BigQuery: {e}")
+                # Continue with insert - better to have duplicate than skip valid event
+                pass
 
-                # Save to database
-                with transaction.atomic():
-                    event.save()
-                    events_created += 1
-                    logger.debug(f"Created ReliefWeb event: {event.title[:50]}")
+            # Map ReliefWeb report to BigQueryEvent
+            try:
+                # Get Django event for mapping convenience
+                django_event = map_reliefweb_to_event(report_wrapper)
+
+                # Create BigQueryEvent from mapped data
+                bq_event = BigQueryEvent(
+                    source_url=url,
+                    mentioned_at=django_event.timestamp,
+                    created_at=timezone.now(),
+                    title=django_event.title,
+                    content=fields.get('body', '')[:1000],  # Truncate body to reasonable length
+                    source_name='ReliefWeb',
+                    event_type=django_event.event_type.lower() if django_event.event_type else 'humanitarian',
+                    location='Venezuela',
+                    risk_score=None,  # Computed in Phase 4
+                    severity=None,  # Computed in Phase 4
+                    metadata=django_event.content  # Store full ReliefWeb data in metadata
+                )
+
+                bigquery_events.append(bq_event)
+                events_created += 1
+                logger.debug(f"Prepared ReliefWeb event for BigQuery: {bq_event.title[:50]}")
 
             except Exception as e:
-                logger.error(f"Failed to create event from ReliefWeb report: {e}", exc_info=True)
+                logger.error(f"Failed to create BigQuery event from ReliefWeb report: {e}", exc_info=True)
                 events_skipped += 1
+
+        # Batch insert to BigQuery
+        if bigquery_events:
+            try:
+                bigquery_service.insert_events(bigquery_events)
+                logger.info(f"Inserted {len(bigquery_events)} ReliefWeb events to BigQuery")
+            except Exception as e:
+                logger.error(f"Failed to insert events to BigQuery: {e}", exc_info=True)
+                raise
 
         result = {
             'events_created': events_created,
