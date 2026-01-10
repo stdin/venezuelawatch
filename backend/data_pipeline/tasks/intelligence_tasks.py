@@ -266,6 +266,11 @@ def batch_analyze_events(
 @shared_task(base=BaseIngestionTask, bind=True)
 def update_sentiment_scores(self, source: Optional[str] = None, model: str = "fast") -> Dict[str, Any]:
     """
+    **DEPRECATED:** Use batch_analyze_events instead (now queries BigQuery).
+
+    This legacy function still queries PostgreSQL Event model.
+    It will be removed in a future phase once PostgreSQL Event table is fully deprecated.
+
     Update intelligence (including sentiment) for all events using LLM.
 
     Note: This now performs comprehensive LLM analysis, not just sentiment.
@@ -282,7 +287,13 @@ def update_sentiment_scores(self, source: Optional[str] = None, model: str = "fa
     Returns:
         Dictionary with update statistics
     """
+    logger.warning(
+        "update_sentiment_scores is DEPRECATED. Use batch_analyze_events for BigQuery events."
+    )
     logger.info(f"Updating intelligence (LLM) for source={source}, model={model}")
+
+    # Import here to avoid issues if Event model is removed
+    from core.models import Event
 
     # Build query
     queryset = Event.objects.all()
@@ -354,6 +365,8 @@ def update_sentiment_scores(self, source: Optional[str] = None, model: str = "fa
 @shared_task(base=BaseIngestionTask, bind=True)
 def update_risk_scores(self, source: Optional[str] = None, model: str = "fast") -> Dict[str, Any]:
     """
+    **DEPRECATED:** Use batch_analyze_events instead (now queries BigQuery).
+
     Update risk scores (and all intelligence) for all events using LLM.
 
     Note: This now performs comprehensive LLM analysis, not just risk scoring.
@@ -366,6 +379,9 @@ def update_risk_scores(self, source: Optional[str] = None, model: str = "fast") 
     Returns:
         Dictionary with update statistics
     """
+    logger.warning(
+        "update_risk_scores is DEPRECATED. Use batch_analyze_events for BigQuery events."
+    )
     logger.info(f"Updating risk scores (comprehensive LLM analysis) for source={source}")
     return update_sentiment_scores(source=source, model=model)
 
@@ -373,6 +389,8 @@ def update_risk_scores(self, source: Optional[str] = None, model: str = "fast") 
 @shared_task(base=BaseIngestionTask, bind=True)
 def update_entities(self, source: Optional[str] = None, model: str = "fast") -> Dict[str, Any]:
     """
+    **DEPRECATED:** Use batch_analyze_events instead (now queries BigQuery).
+
     Update entity extraction (and all intelligence) for all events using LLM.
 
     Note: This now performs comprehensive LLM analysis, not just entity extraction.
@@ -385,6 +403,9 @@ def update_entities(self, source: Optional[str] = None, model: str = "fast") -> 
     Returns:
         Dictionary with update statistics
     """
+    logger.warning(
+        "update_entities is DEPRECATED. Use batch_analyze_events for BigQuery events."
+    )
     logger.info(f"Updating entities (comprehensive LLM analysis) for source={source}")
     return update_sentiment_scores(source=source, model=model)
 
@@ -392,6 +413,11 @@ def update_entities(self, source: Optional[str] = None, model: str = "fast") -> 
 @shared_task(base=BaseIngestionTask, bind=True, name='batch_recalculate_risk_scores')
 def batch_recalculate_risk_scores(self, lookback_days: int = 30) -> Dict[str, Any]:
     """
+    **DEPRECATED:** PostgreSQL Event queries no longer supported.
+
+    This task queries PostgreSQL Event model which is deprecated.
+    Risk scores are now calculated during intelligence analysis and stored in BigQuery metadata.
+
     Recalculate risk scores for recent events using new multi-dimensional model.
 
     This task updates risk_score field for events that already have LLM analysis,
@@ -413,7 +439,12 @@ def batch_recalculate_risk_scores(self, lookback_days: int = 30) -> Dict[str, An
             'lookback_days': int,
         }
     """
+    logger.warning(
+        "batch_recalculate_risk_scores is DEPRECATED. "
+        "Risk scores are calculated during intelligence analysis in BigQuery."
+    )
     from data_pipeline.services.risk_scorer import RiskScorer
+    from core.models import Event
 
     logger.info(f"Batch recalculating risk scores for events from last {lookback_days} days")
 
@@ -462,6 +493,11 @@ def batch_recalculate_risk_scores(self, lookback_days: int = 30) -> Dict[str, An
 @shared_task(base=BaseIngestionTask, bind=True, name='batch_classify_severity')
 def batch_classify_severity(self, lookback_days: int = 30) -> Dict[str, Any]:
     """
+    **DEPRECATED:** PostgreSQL Event queries no longer supported.
+
+    This task queries PostgreSQL Event model which is deprecated.
+    Severity is now calculated during intelligence analysis and stored in BigQuery metadata.
+
     Classify severity for recent events using ImpactClassifier.
 
     This task classifies severity (SEV1-5) for events based on NCISS-style
@@ -483,8 +519,13 @@ def batch_classify_severity(self, lookback_days: int = 30) -> Dict[str, Any]:
             'lookback_days': int,
         }
     """
+    logger.warning(
+        "batch_classify_severity is DEPRECATED. "
+        "Severity is calculated during intelligence analysis in BigQuery."
+    )
     from collections import defaultdict
     from data_pipeline.services.impact_classifier import ImpactClassifier
+    from core.models import Event
 
     logger.info(f"Batch classifying severity for events from last {lookback_days} days")
 

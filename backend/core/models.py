@@ -53,8 +53,23 @@ class User(AbstractUser):
 
 class Event(models.Model):
     """
+    **DEPRECATED:** Event data now stored in BigQuery for time-series analytics.
+
+    This Django model is retained for:
+    - Django migrations compatibility
+    - Historical reference
+    - Potential future metadata needs
+
+    **Do NOT use Event.objects for queries.** Use BigQueryService instead:
+    - backend/api/services/bigquery_service.py
+
+    Migration history:
+    - Phase 14.1: Ingestion migrated to BigQuery
+    - Phase 14.2: GDELT native BigQuery dataset
+    - Phase 14.3: Processing tasks migrated to BigQuery (COMPLETE)
+
     Time-series event data from multiple sources.
-    Will be converted to TimescaleDB hypertable partitioned by timestamp.
+    Originally designed for TimescaleDB hypertables, now in BigQuery.
     """
     # Primary key
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
