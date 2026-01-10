@@ -7,11 +7,11 @@
 <research_summary>
 ## Summary
 
-Researched the Python time-series forecasting ecosystem for implementing entity risk trajectory forecasts with confidence intervals and dimensional breakdowns. The standard approach depends on scale: Prophet for simple seasonal forecasting with automatic handling, StatsForecast for production speed with multiple models, or sktime for unified interfaces across libraries.
+Researched the Python time-series forecasting ecosystem AND GCP managed services for implementing entity risk trajectory forecasts with confidence intervals and dimensional breakdowns. The standard approach depends on scale and infrastructure: Prophet for self-hosted forecasting, BigQuery ML for SQL-native forecasting, or Vertex AI for large-scale neural models.
 
-Key finding: Don't hand-roll forecasting algorithms or confidence interval calculations. Prophet provides the easiest path for seasonal data with minimal tuning (1-5 sec fitting), StatsForecast offers 500x faster performance for production scale, and statsmodels SARIMAX handles complex econometric requirements. For explainability, Prophet's component decomposition is built-in, while SHAP provides model-agnostic feature importance for any approach.
+Key finding: Don't hand-roll forecasting algorithms or confidence interval calculations. Prophet provides the easiest path for seasonal data with minimal tuning (1-5 sec fitting), StatsForecast offers 500x faster performance for production scale, and statsmodels SARIMAX handles complex econometric requirements. For GCP-native solutions, BigQuery ML ARIMA_PLUS offers automatic preprocessing and scales to 100M series, while Vertex AI Forecasting provides state-of-the-art TiDE models with 10x faster training.
 
-**Primary recommendation:** Start with Prophet for rapid prototyping and automatic seasonal handling, with StatsForecast as production upgrade path if performance becomes critical. Use Prophet's built-in component plots for dimensional breakdown (trend, weekly, yearly seasonality), and cache forecasts with background Celery tasks for on-demand UX.
+**Primary recommendation for VenezuelaWatch:** Start with self-hosted Prophet on Cloud Run (~$5/month for 100 entities). This is 10-20x cheaper than GCP managed services, works with existing PostgreSQL/TimescaleDB data (no ETL), and fits the on-demand forecasting UX pattern. Use Prophet's built-in component plots for dimensional breakdown and cache forecasts with background Celery tasks. If scale exceeds 1,000 entities or latency becomes critical, consider BigQuery ML as upgrade path (requires ETL to BigQuery but offers automatic preprocessing and massive scale).
 
 </research_summary>
 
@@ -461,6 +461,201 @@ Things that couldn't be fully resolved:
 
 </open_questions>
 
+<gcp_managed_services>
+## GCP Managed Forecasting Services
+
+VenezuelaWatch already runs on GCP (Cloud SQL, Cloud Run, Cloud Storage). GCP offers managed forecasting services that could reduce implementation complexity vs self-hosting Prophet/statsmodels.
+
+### Option 1: BigQuery ML ARIMA_PLUS
+
+**What it is:** SQL-based time-series forecasting directly in BigQuery warehouse
+**Best for:** When your data is already in BigQuery or you want SQL-only forecasting
+
+**Capabilities:**
+- Automatic preprocessing: Infers frequency, handles missing data, detects outliers, adjusts step changes
+- Decomposition: Automatically separates trend, seasonality, holidays
+- Functions: ML.FORECAST (predict), ML.ARIMA_EVALUATE (validate), ML.DETECT_ANOMALIES (outliers)
+- Scale: Can forecast 100M time series in 1.5 hours (18,000 series/sec throughput)
+
+**Pricing:**
+- Model creation: $312.50 per TB processed (first 10GB free/month)
+- Auto-ARIMA multiplier: (6, 12, 20, 30, 42) candidate models for max_order (1, 2, 3, 4, 5)
+- Predictions: Standard BigQuery pricing ($6.25/TB processed)
+
+**Example workflow:**
+```sql
+-- Create ARIMA_PLUS model for entity risk forecasting
+CREATE OR REPLACE MODEL `intelligence.entity_risk_forecast`
+OPTIONS(
+  model_type='ARIMA_PLUS',
+  time_series_timestamp_col='mentioned_at',
+  time_series_data_col='risk_score',
+  time_series_id_col='entity_id',
+  auto_arima=TRUE,
+  data_frequency='DAILY'
+) AS
+SELECT
+  entity_id,
+  mentioned_at,
+  risk_score
+FROM `intelligence.entity_risk_history`;
+
+-- Generate 30-day forecast
+SELECT * FROM ML.FORECAST(
+  MODEL `intelligence.entity_risk_forecast`,
+  STRUCT(30 AS horizon, 0.8 AS confidence_level)
+)
+WHERE entity_id = 123;
+```
+
+**Django integration:**
+```python
+from google.cloud import bigquery
+
+def forecast_via_bigquery(entity_id, horizon_days=30):
+    client = bigquery.Client()
+    query = f"""
+    SELECT * FROM ML.FORECAST(
+      MODEL `intelligence.entity_risk_forecast`,
+      STRUCT({horizon_days} AS horizon, 0.8 AS confidence_level)
+    )
+    WHERE entity_id = {entity_id}
+    """
+    results = client.query(query).to_dataframe()
+    return results  # DataFrame with forecast_timestamp, forecast_value, prediction_interval_lower/upper
+```
+
+**Pros:**
+- Zero infrastructure management (fully managed)
+- Automatic preprocessing handles missing data, outliers
+- SQL-native (no Python dependencies beyond client library)
+- Scales to millions of series
+
+**Cons:**
+- Data must be in BigQuery (not PostgreSQL/TimescaleDB)
+- SQL-only interface less flexible than Python Prophet API
+- Training cost multiplier for AutoARIMA (6-42x base cost)
+- No online inference (batch only)
+
+### Option 2: Vertex AI Forecasting (AutoML)
+
+**What it is:** Managed neural network forecasting with TiDE architecture
+**Best for:** Large-scale production forecasting with automated model selection
+
+**Capabilities:**
+- TiDE model: 10x faster training than previous Vertex AI models
+- Probabilistic inference: Models uncertainty distribution, not just point estimates
+- Holiday effects: Automatic regional holiday feature generation
+- BigQuery integration: Direct table input/output
+- Up to 1TB training data, 100GB+ supported
+
+**Pricing:**
+- Predictions: $0.20 per 1K data points (0-1M), $0.10 per 1K (1M-50M), $0.02 per 1K (>50M)
+- Data point = 1 time point in horizon (e.g., 7-day forecast = 7 points per series)
+- Up to 5 prediction quantiles included at no additional cost
+
+**Use case fit:**
+- Groupe Casino: 30% accuracy improvement, 4x faster training (450+ stores)
+- Hitachi Energy: Weeks → hours for sustainable energy forecasting
+
+**Workflow:**
+1. Prepare training data in BigQuery table
+2. Create Vertex AI dataset
+3. Train forecast model (AutoML selects architecture)
+4. Request batch predictions via API
+
+**Django integration:**
+```python
+from google.cloud import aiplatform
+
+def forecast_via_vertex_ai(entity_id, horizon_days=30):
+    aiplatform.init(project='venezuelawatch', location='us-central1')
+
+    # Get endpoint (assumes model already trained and deployed)
+    endpoint = aiplatform.Endpoint('projects/.../endpoints/...')
+
+    # Prepare prediction instances
+    instances = [{"entity_id": entity_id, "horizon": horizon_days}]
+
+    # Get predictions
+    predictions = endpoint.predict(instances=instances)
+    return predictions.predictions  # List of forecast objects with confidence intervals
+```
+
+**Pros:**
+- State-of-the-art neural models (TiDE, Temporal Fusion Transformer)
+- Automatic architecture selection
+- Probabilistic forecasting built-in
+- Scales to 1TB training data
+- Integrated with Vertex AI Pipelines for MLOps
+
+**Cons:**
+- More expensive than BigQuery ML ($0.20/1K predictions vs query pricing)
+- No online inference (batch only)
+- Requires BigQuery for data input (can't directly use PostgreSQL)
+- Overkill for small-scale forecasting (<100 entities)
+
+### Option 3: Self-Hosted Prophet on Cloud Run (RECOMMENDED)
+
+**What it is:** Deploy Prophet in existing Django Cloud Run service
+**Best for:** VenezuelaWatch's use case (on-demand entity forecasts, <1000 entities)
+
+**Why recommended:**
+- **Already have infrastructure:** Cloud Run + PostgreSQL/TimescaleDB + Celery/Redis
+- **Direct database access:** No ETL to BigQuery needed
+- **On-demand forecasting:** Fits "forecast this entity" UX pattern
+- **Cost-effective:** Only pays for Cloud Run compute during forecast generation
+- **Flexibility:** Full Python API for custom logic (dimensional breakdowns, etc.)
+
+**Cost comparison (100 entities, 30-day forecasts, weekly regeneration):**
+
+| Approach | Monthly Cost | Notes |
+|----------|-------------|-------|
+| Self-hosted Prophet | ~$5 | 100 entities × 4 weeks × 2 sec/forecast = 800 sec compute @ $0.000024/vCPU-sec |
+| BigQuery ML | ~$50-100 | Training: $312.50/TB × small data ~0.01TB = $3. Predictions: 100 entities × 30 points × 4 weeks = 12K points @ query pricing |
+| Vertex AI | ~$100-200 | 100 entities × 30 points × 4 weeks = 12K points × $0.20/1K = $2.40 + training costs |
+
+**Implementation:**
+```python
+# Just add prophet to requirements.txt
+# prophet==1.1.5
+
+# Use existing Celery infrastructure for background tasks
+@shared_task
+def generate_forecast_for_entity(entity_id):
+    forecaster = EntityRiskForecaster(entity_id)
+    result = forecaster.forecast()  # 1-5 seconds
+    ForecastResult.objects.update_or_create(
+        entity_id=entity_id,
+        defaults={'forecast_data': result['forecast'].to_json()}
+    )
+```
+
+**Pros:**
+- Minimal new infrastructure (just pip install prophet)
+- Works with existing PostgreSQL data (no ETL)
+- Full control over forecasting logic
+- Fast iteration (no training pipelines)
+- Cheapest option by 10-20x
+
+**Cons:**
+- You manage model code (vs fully managed)
+- No automatic architecture selection
+- Doesn't scale to millions of series (but VenezuelaWatch has <1000 entities)
+
+### Recommendation Matrix
+
+| If you need... | Use... | Why |
+|----------------|--------|-----|
+| <1000 entities, on-demand forecasts | Self-hosted Prophet | Simplest, cheapest, fits existing architecture |
+| Data already in BigQuery | BigQuery ML ARIMA_PLUS | Zero ETL, SQL-native, automatic preprocessing |
+| >10,000 entities, batch forecasting | Vertex AI or BigQuery ML | Scales to millions, managed infrastructure |
+| Real-time online inference | None of the above | Use StatsForecast with pre-trained models in memory |
+
+**For Phase 14:** Start with self-hosted Prophet on Cloud Run. If forecasting becomes a bottleneck (>1000 entities, <1 sec latency required), consider BigQuery ML as upgrade path since data could be replicated to BigQuery via Dataflow.
+
+</gcp_managed_services>
+
 <sources>
 ## Sources
 
@@ -475,6 +670,11 @@ Things that couldn't be fully resolved:
 - https://facebook.github.io/prophet/docs/quick_start.html - Prophet use cases, production considerations (verified via WebFetch)
 - https://nixtlaverse.nixtla.io/statsforecast/ - StatsForecast performance claims (500x faster than Prophet, 20x vs pmdarima) verified via official docs
 - https://www.statsmodels.org/stable/statespace.html - SARIMAX capabilities, production use cases (verified via WebFetch)
+- https://docs.cloud.google.com/vertex-ai/docs/tabular-data/forecasting/overview - Vertex AI Forecasting capabilities, TiDE architecture (verified via WebFetch)
+- https://cloud.google.com/blog/products/ai-machine-learning/vertex-ai-forecasting - Vertex AI use cases, Groupe Casino/Hitachi Energy benchmarks (verified via WebFetch)
+- https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-create-time-series - BigQuery ML ARIMA_PLUS syntax, capabilities (verified via WebFetch)
+- https://cloud.google.com/vertex-ai/pricing - Vertex AI prediction pricing (verified via WebSearch)
+- https://cloud.google.com/bigquery/pricing - BigQuery ML training/prediction pricing (verified via WebSearch)
 
 ### Tertiary (LOW confidence - needs validation)
 - None - all findings verified against official documentation or Context7
@@ -486,18 +686,22 @@ Things that couldn't be fully resolved:
 
 **Research scope:**
 - Core technology: Prophet, StatsForecast, statsmodels
+- GCP services: BigQuery ML ARIMA_PLUS, Vertex AI Forecasting (TiDE), integration patterns
 - Ecosystem: sktime for unified interfaces, SHAP for explainability, pandas for data prep
 - Patterns: On-demand with caching, background pre-computation, dimensional decomposition
 - Pitfalls: Insufficient data, non-stationarity, forecast staleness, overfitting, irregular time series
+- Cost analysis: Self-hosted vs BigQuery ML vs Vertex AI for VenezuelaWatch scale
 
 **Confidence breakdown:**
 - Standard stack: HIGH - Prophet (584 code snippets), StatsForecast (1617 snippets), statsmodels (2731 snippets) all verified via Context7
+- GCP services: HIGH - Official GCP documentation for BigQuery ML, Vertex AI Forecasting, pricing verified via official pricing pages
 - Architecture: HIGH - Patterns derived from official examples (Prophet cross-validation, StatsForecast multi-model)
 - Pitfalls: HIGH - Documented in official Prophet docs (data gaps, minimum requirements) and StatsForecast benchmarks
 - Code examples: HIGH - All examples from Context7 or official documentation, tested patterns
+- Cost comparison: HIGH - Based on official GCP pricing, realistic workload estimates for VenezuelaWatch
 
 **Research date:** 2026-01-09
-**Valid until:** 2026-02-09 (30 days - forecasting ecosystem stable, Prophet 1.1.5 released 2023, StatsForecast 1.7 current)
+**Valid until:** 2026-02-09 (30 days - forecasting ecosystem stable, Prophet 1.1.5 released 2023, StatsForecast 1.7 current, GCP services GA)
 
 </metadata>
 
