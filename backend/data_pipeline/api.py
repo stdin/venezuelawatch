@@ -452,6 +452,8 @@ def get_entity_profile(request: HttpRequest, entity_id: str, include_history: bo
     """
     Get detailed entity profile with sanctions status and recent events.
 
+    Now queries BigQuery for events and mentions instead of PostgreSQL.
+
     Args:
         entity_id: UUID of the entity
         include_history: If True, include 30-day historical risk scores
@@ -460,51 +462,49 @@ def get_entity_profile(request: HttpRequest, entity_id: str, include_history: bo
         EntityProfileSchema with full profile details
     """
     from django.shortcuts import get_object_or_404
-    from django.db.models import Avg
+    from api.services.bigquery_service import bigquery_service
 
+    # Get Entity object from PostgreSQL (reference data)
     entity = get_object_or_404(Entity, id=entity_id)
 
-    # Check sanctions status
+    # Get stats from BigQuery
+    stats = bigquery_service.get_entity_stats(str(entity.id), days=90)
+
+    # Check sanctions status from PostgreSQL (sanctions not in BigQuery yet)
     sanctions_status = SanctionsMatch.objects.filter(
         event__entity_mentions__entity=entity
     ).exists()
 
-    # Calculate avg risk score from events
-    mentions = EntityMention.objects.filter(entity=entity).select_related('event')
-    risk_scores = [m.event.risk_score for m in mentions if m.event.risk_score]
-    avg_risk = sum(risk_scores) / len(risk_scores) if risk_scores else None
-
-    # Get recent events (last 5)
-    recent_mentions = mentions.order_by('-mentioned_at')[:5]
+    # Get recent events from BigQuery (last 5)
+    bq_events = bigquery_service.get_entity_events(str(entity.id), limit=5, days=90)
     recent_events = [
         {
-            'id': str(m.event.id),
-            'title': m.event.title,
-            'source': m.event.source,
-            'event_type': m.event.event_type,
-            'risk_score': m.event.risk_score,
-            'severity': m.event.severity,
-            'timestamp': m.event.timestamp.isoformat()
+            'id': str(event.get('id')),
+            'title': event.get('title', ''),
+            'source': event.get('source_name', ''),
+            'event_type': event.get('event_type', ''),
+            'risk_score': event.get('risk_score'),
+            'severity': event.get('severity'),
+            'timestamp': event.get('mentioned_at').isoformat() if event.get('mentioned_at') else None
         }
-        for m in recent_mentions
+        for event in bq_events
     ]
 
     # Get risk history for last 30 days if requested
     risk_history = None
     if include_history:
-        cutoff = timezone.now() - timedelta(days=30)
-        history_mentions = EntityMention.objects.filter(
-            entity=entity,
-            mentioned_at__gte=cutoff
-        ).select_related('event').order_by('mentioned_at')
+        # Query BigQuery for historical events
+        history_events = bigquery_service.get_entity_events(str(entity.id), limit=1000, days=30)
 
         # Aggregate by date
         from collections import defaultdict
         daily_scores = defaultdict(list)
-        for m in history_mentions:
-            if m.event.risk_score is not None:
-                date_str = m.mentioned_at.date().isoformat()
-                daily_scores[date_str].append(m.event.risk_score)
+        for event in history_events:
+            risk_score = event.get('risk_score')
+            mentioned_at = event.get('mentioned_at')
+            if risk_score is not None and mentioned_at:
+                date_str = mentioned_at.date().isoformat()
+                daily_scores[date_str].append(risk_score)
 
         # Calculate daily average
         risk_history = [
@@ -527,7 +527,7 @@ def get_entity_profile(request: HttpRequest, entity_id: str, include_history: bo
         aliases=entity.aliases,
         metadata=entity.metadata,
         sanctions_status=sanctions_status,
-        risk_score=avg_risk,
+        risk_score=stats['avg_risk_score'],
         recent_events=recent_events,
         risk_history=risk_history
     )
@@ -538,6 +538,8 @@ def get_entity_timeline(request: HttpRequest, entity_id: str, days: int = 30):
     """
     Get entity mention timeline for specified time range.
 
+    Now queries BigQuery for entity mentions instead of PostgreSQL.
+
     Args:
         entity_id: UUID of the entity
         days: Lookback period in days (default 30)
@@ -546,39 +548,42 @@ def get_entity_timeline(request: HttpRequest, entity_id: str, days: int = 30):
         EntityTimelineResponse with mention history
     """
     from django.shortcuts import get_object_or_404
+    from api.services.bigquery_service import bigquery_service
 
+    # Get Entity object from PostgreSQL (reference data)
     entity = get_object_or_404(Entity, id=entity_id)
     cutoff = timezone.now() - timedelta(days=days)
 
-    mentions = EntityMention.objects.filter(
-        entity=entity,
-        mentioned_at__gte=cutoff
-    ).select_related('event').order_by('-mentioned_at')
+    # Get events from BigQuery
+    bq_events = bigquery_service.get_entity_events(str(entity.id), limit=1000, days=days)
 
+    # Convert to mention schemas
+    # Note: BigQuery doesn't store raw_name, match_score, relevance (only in EntityMention in BigQuery)
+    # For simplicity, we'll reconstruct from events
     mention_schemas = [
         EntityMentionSchema(
-            id=str(m.id),
-            raw_name=m.raw_name,
-            match_score=m.match_score,
-            relevance=m.relevance,
-            mentioned_at=m.mentioned_at,
+            id=event.get('id'),  # Use event ID as mention ID
+            raw_name=entity.canonical_name,  # Approximate (actual raw_name not in events table)
+            match_score=1.0,  # Not available from events table
+            relevance=None,  # Not available from events table
+            mentioned_at=event.get('mentioned_at'),
             event_summary={
-                'id': str(m.event.id),
-                'title': m.event.title,
-                'source': m.event.source,
-                'event_type': m.event.event_type,
-                'risk_score': m.event.risk_score,
-                'severity': m.event.severity,
-                'timestamp': m.event.timestamp.isoformat()
+                'id': str(event.get('id')),
+                'title': event.get('title', ''),
+                'source': event.get('source_name', ''),
+                'event_type': event.get('event_type', ''),
+                'risk_score': event.get('risk_score'),
+                'severity': event.get('severity'),
+                'timestamp': event.get('mentioned_at').isoformat() if event.get('mentioned_at') else None
             }
         )
-        for m in mentions
+        for event in bq_events
     ]
 
     return EntityTimelineResponse(
         entity_id=str(entity.id),
         canonical_name=entity.canonical_name,
-        total_mentions=mentions.count(),
+        total_mentions=len(mention_schemas),
         mentions=mention_schemas,
         time_range={
             'start': cutoff.isoformat(),

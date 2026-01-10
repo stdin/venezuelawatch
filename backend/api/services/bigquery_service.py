@@ -281,6 +281,86 @@ class BigQueryService:
         results = self.client.query(query, job_config=job_config).result()
         return [dict(row) for row in results]
 
+    def get_entity_events(
+        self,
+        entity_id: str,
+        limit: int = 50,
+        days: int = 90
+    ) -> List[dict]:
+        """
+        Get recent events mentioning an entity.
+
+        Args:
+            entity_id: Entity ID (UUID string)
+            limit: Maximum number of events to return
+            days: Lookback period in days
+
+        Returns:
+            List of event dicts
+        """
+        query = f"""
+            SELECT e.*
+            FROM `{self.project_id}.{self.dataset_id}.events` e
+            JOIN `{self.project_id}.{self.dataset_id}.entity_mentions` em ON e.id = em.event_id
+            WHERE em.entity_id = @entity_id
+            AND em.mentioned_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL @days DAY)
+            ORDER BY e.mentioned_at DESC
+            LIMIT @limit
+        """
+
+        job_config = bigquery.QueryJobConfig(
+            query_parameters=[
+                bigquery.ScalarQueryParameter('entity_id', 'STRING', entity_id),
+                bigquery.ScalarQueryParameter('days', 'INT64', days),
+                bigquery.ScalarQueryParameter('limit', 'INT64', limit)
+            ]
+        )
+
+        results = self.client.query(query, job_config=job_config).result()
+        return [dict(row) for row in results]
+
+    def get_entity_stats(self, entity_id: str, days: int = 90) -> dict:
+        """
+        Get aggregated stats for entity profile.
+
+        Args:
+            entity_id: Entity ID (UUID string)
+            days: Lookback period in days
+
+        Returns:
+            Dict with aggregated statistics
+        """
+        query = f"""
+            SELECT
+                COUNT(DISTINCT em.event_id) as total_mentions,
+                COUNT(DISTINCT CASE WHEN e.event_type = 'sanctions' THEN e.id END) as sanctions_count,
+                AVG(e.risk_score) as avg_risk_score,
+                MAX(e.risk_score) as max_risk_score
+            FROM `{self.project_id}.{self.dataset_id}.entity_mentions` em
+            JOIN `{self.project_id}.{self.dataset_id}.events` e ON em.event_id = e.id
+            WHERE em.entity_id = @entity_id
+            AND em.mentioned_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL @days DAY)
+        """
+
+        job_config = bigquery.QueryJobConfig(
+            query_parameters=[
+                bigquery.ScalarQueryParameter('entity_id', 'STRING', entity_id),
+                bigquery.ScalarQueryParameter('days', 'INT64', days)
+            ]
+        )
+
+        results = self.client.query(query, job_config=job_config).result()
+        row = next(results, None)
+
+        if row:
+            return {
+                'total_mentions': row.total_mentions or 0,
+                'sanctions_count': row.sanctions_count or 0,
+                'avg_risk_score': float(row.avg_risk_score) if row.avg_risk_score else 0.0,
+                'max_risk_score': float(row.max_risk_score) if row.max_risk_score else 0.0
+            }
+        return {'total_mentions': 0, 'sanctions_count': 0, 'avg_risk_score': 0.0, 'max_risk_score': 0.0}
+
 
 # Singleton instance for convenient importing
 bigquery_service = BigQueryService()
