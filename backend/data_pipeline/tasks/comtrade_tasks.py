@@ -5,11 +5,13 @@ Fetches Venezuela import/export data with pagination and filtering
 for significant trade flows.
 """
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import Dict, Any, Optional
 from celery import shared_task
 from django.db import transaction
 from django.utils import timezone
+from django.conf import settings
+from google.cloud import bigquery
 
 from data_pipeline.tasks.base import BaseIngestionTask
 from data_pipeline.services.comtrade_client import ComtradeClient
@@ -20,6 +22,8 @@ from data_pipeline.config.comtrade_config import (
     MIN_TRADE_VALUE_USD,
 )
 from core.models import Event
+from api.bigquery_models import UNComtrade
+from api.services.bigquery_service import bigquery_service
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +76,9 @@ def ingest_comtrade_trade_data(
     trade_flows_skipped = 0
     total_trade_value = 0.0
 
+    # Batch collection for BigQuery
+    comtrade_records = []
+
     # Process each commodity
     for commodity_code in commodity_codes:
         commodity_config = get_commodity_config(commodity_code)
@@ -104,38 +111,66 @@ def ingest_comtrade_trade_data(
                             trade_flows_skipped += 1
                             continue
 
-                        # Check for duplicate
+                        # Parse period to date
                         period_str = str(row.get('period', ''))
-                        partner = row.get('partnerCode', '')
-                        flow_code = row.get('flowCode', 'M')
-
-                        existing = Event.objects.filter(
-                            source='COMTRADE',
-                            content__period=period_str,
-                            content__commodity_code=commodity_code,
-                            content__partner_country=partner,
-                            content__flow_type='imports' if flow_code == 'M' else 'exports'
-                        ).exists()
-
-                        if existing:
-                            logger.debug(f"Skipping duplicate trade flow: {commodity_code} {period_str} {partner}")
+                        try:
+                            # YYYYMM format -> first day of month
+                            period_date = datetime.strptime(period_str, '%Y%m').date()
+                        except ValueError:
+                            logger.warning(f"Invalid period format: {period_str}")
                             trade_flows_skipped += 1
                             continue
 
-                        # Map to Event
-                        try:
-                            trade_record = row.to_dict()
-                            event = map_comtrade_to_event(trade_record, commodity_config)
+                        partner = row.get('partnerCode', '')
+                        reporter = row.get('reporterCode', 'VEN')
+                        flow_code = row.get('flowCode', 'M')
+                        trade_flow_type = 'imports' if flow_code == 'M' else 'exports'
 
-                            # Save to database
-                            with transaction.atomic():
-                                event.save()
-                                trade_flows_created += 1
-                                total_trade_value += trade_value
-                                logger.debug(f"Created trade flow event: {event.title}")
+                        # Check for duplicate in BigQuery
+                        try:
+                            query = f"""
+                                SELECT COUNT(*) as count
+                                FROM `{settings.GCP_PROJECT_ID}.{settings.BIGQUERY_DATASET}.un_comtrade`
+                                WHERE period = @period
+                                AND reporter_code = @reporter_code
+                                AND commodity_code = @commodity_code
+                                AND trade_flow = @trade_flow
+                            """
+                            job_config = bigquery.QueryJobConfig(
+                                query_parameters=[
+                                    bigquery.ScalarQueryParameter('period', 'DATE', period_date),
+                                    bigquery.ScalarQueryParameter('reporter_code', 'STRING', reporter),
+                                    bigquery.ScalarQueryParameter('commodity_code', 'STRING', commodity_code),
+                                    bigquery.ScalarQueryParameter('trade_flow', 'STRING', trade_flow_type)
+                                ]
+                            )
+                            results = bigquery_service.client.query(query, job_config=job_config).result()
+                            row_result = list(results)[0]
+                            if row_result.count > 0:
+                                logger.debug(f"Skipping duplicate trade flow: {commodity_code} {period_str} {trade_flow_type}")
+                                trade_flows_skipped += 1
+                                continue
+                        except Exception as e:
+                            logger.error(f"Failed to check for duplicate in BigQuery: {e}")
+                            # Continue with insert - better to have duplicate than skip valid record
+                            pass
+
+                        # Create UNComtrade record for BigQuery
+                        try:
+                            comtrade_record = UNComtrade(
+                                period=period_date,
+                                reporter_code=reporter,
+                                commodity_code=commodity_code,
+                                trade_flow=trade_flow_type,
+                                value_usd=trade_value
+                            )
+                            comtrade_records.append(comtrade_record)
+                            trade_flows_created += 1
+                            total_trade_value += trade_value
+                            logger.debug(f"Prepared Comtrade record: {commodity_code} {trade_flow_type} ${trade_value:,.0f}")
 
                         except Exception as e:
-                            logger.error(f"Failed to create event for trade flow: {e}", exc_info=True)
+                            logger.error(f"Failed to prepare Comtrade record: {e}", exc_info=True)
                             trade_flows_skipped += 1
 
                 except Exception as e:
@@ -147,6 +182,15 @@ def ingest_comtrade_trade_data(
         except Exception as e:
             logger.error(f"Failed to process commodity {commodity_code}: {e}", exc_info=True)
             continue
+
+    # Batch insert to BigQuery
+    if comtrade_records:
+        try:
+            bigquery_service.insert_un_comtrade(comtrade_records)
+            logger.info(f"Inserted {len(comtrade_records)} Comtrade records to BigQuery")
+        except Exception as e:
+            logger.error(f"Failed to insert Comtrade records to BigQuery: {e}", exc_info=True)
+            raise
 
     result = {
         'commodities_processed': commodities_processed,

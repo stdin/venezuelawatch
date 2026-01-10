@@ -5,10 +5,13 @@ Fetches Venezuela development indicators (GDP, inflation, poverty, etc.)
 for annual/quarterly reporting.
 """
 import logging
+from datetime import date
 from typing import Dict, Any, Optional
 from celery import shared_task
 from django.db import transaction
 from django.utils import timezone
+from django.conf import settings
+from google.cloud import bigquery
 
 from data_pipeline.tasks.base import BaseIngestionTask
 from data_pipeline.services.worldbank_client import WorldBankClient
@@ -18,6 +21,8 @@ from data_pipeline.config.worldbank_config import (
     get_indicator_config,
 )
 from core.models import Event
+from api.bigquery_models import WorldBank
+from api.services.bigquery_service import bigquery_service
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +75,9 @@ def ingest_worldbank_indicators(
     observations_skipped = 0
     indicators_failed = 0
 
+    # Batch collection for BigQuery
+    worldbank_indicators = []
+
     # Calculate year range
     current_year = timezone.now().year
     start_year = current_year - lookback_years
@@ -102,35 +110,48 @@ def ingest_worldbank_indicators(
                 year = data_point['year']
                 value = data_point['value']
 
-                # Check for duplicate
-                existing = Event.objects.filter(
-                    source='WORLD_BANK',
-                    content__indicator_id=indicator_id,
-                    content__year=year,
-                ).exists()
+                # Convert year to date (January 1st of that year)
+                indicator_date = date(year=year, month=1, day=1)
 
-                if existing:
-                    logger.debug(f"Skipping duplicate observation: {indicator_id} {year}")
-                    observations_skipped += 1
-                    continue
-
-                # Map to Event
+                # Check for duplicate in BigQuery
                 try:
-                    indicator_data = {
-                        'indicator_id': indicator_id,
-                        'year': year,
-                        'value': value,
-                    }
-                    event = map_worldbank_to_event(indicator_data, indicator_config)
+                    query = f"""
+                        SELECT COUNT(*) as count
+                        FROM `{settings.GCP_PROJECT_ID}.{settings.BIGQUERY_DATASET}.world_bank`
+                        WHERE indicator_id = @indicator_id
+                        AND date = @date
+                    """
+                    job_config = bigquery.QueryJobConfig(
+                        query_parameters=[
+                            bigquery.ScalarQueryParameter('indicator_id', 'STRING', indicator_id),
+                            bigquery.ScalarQueryParameter('date', 'DATE', indicator_date)
+                        ]
+                    )
+                    results = bigquery_service.client.query(query, job_config=job_config).result()
+                    row_result = list(results)[0]
+                    if row_result.count > 0:
+                        logger.debug(f"Skipping duplicate observation: {indicator_id} {year}")
+                        observations_skipped += 1
+                        continue
+                except Exception as e:
+                    logger.error(f"Failed to check for duplicate in BigQuery: {e}")
+                    # Continue with insert - better to have duplicate than skip valid observation
+                    pass
 
-                    # Save to database
-                    with transaction.atomic():
-                        event.save()
-                        observations_created += 1
-                        logger.debug(f"Created indicator event: {event.title}")
+                # Create WorldBank record for BigQuery
+                try:
+                    wb_indicator = WorldBank(
+                        indicator_id=indicator_id,
+                        date=indicator_date,
+                        value=float(value) if value is not None else None,
+                        country_code='VE'
+                    )
+                    worldbank_indicators.append(wb_indicator)
+                    observations_created += 1
+                    logger.debug(f"Prepared World Bank indicator: {indicator_id} {year} = {value}")
 
                 except Exception as e:
-                    logger.error(f"Failed to create event for {indicator_id} {year}: {e}", exc_info=True)
+                    logger.error(f"Failed to prepare World Bank indicator for {indicator_id} {year}: {e}", exc_info=True)
                     observations_skipped += 1
 
             indicators_processed += 1
@@ -139,6 +160,15 @@ def ingest_worldbank_indicators(
             logger.error(f"Failed to process indicator {indicator_id}: {e}", exc_info=True)
             indicators_failed += 1
             continue
+
+    # Batch insert to BigQuery
+    if worldbank_indicators:
+        try:
+            bigquery_service.insert_world_bank(worldbank_indicators)
+            logger.info(f"Inserted {len(worldbank_indicators)} World Bank indicators to BigQuery")
+        except Exception as e:
+            logger.error(f"Failed to insert World Bank indicators to BigQuery: {e}", exc_info=True)
+            raise
 
     result = {
         'indicators_processed': indicators_processed,
