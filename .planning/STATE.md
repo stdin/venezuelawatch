@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 ## Current Position
 
 Phase: 14 of 17 (Time-Series Forecasting)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-10 - Completed 14-01-PLAN.md
+Last activity: 2026-01-10 - Completed 14-02-PLAN.md
 
-Progress: ██████████████████████░ 93%
+Progress: ███████████████████████ 95%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 42
+- Total plans completed: 43
 - Average duration: 12 min
-- Total execution time: 8.5 hours
+- Total execution time: 8.7 hours
 
 **By Phase:**
 
@@ -39,10 +39,10 @@ Progress: ██████████████████████░ 
 | 11 | 3 | 5 min | 2 min |
 | 12 | 2 | 47 min | 24 min |
 | 13 | 4 | 26 min | 7 min |
-| 14 | 1 | 1 min | 1 min |
+| 14 | 2 | 11 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 10min, 10min, 4min, 10min, 1min
+- Last 5 plans: 10min, 4min, 10min, 1min, 10min
 - Trend: Fast (infrastructure setup)
 
 ## Accumulated Context
@@ -206,6 +206,12 @@ Recent decisions affecting current work:
 - Phase 14: 90-day rolling window for sufficient training history without excessive storage costs
 - Phase 14: Daily aggregation (vs hourly) aligns with Vertex AI recommended granularity
 - Phase 14: DAY partitioning on mentioned_at for query performance and cost optimization
+- Phase 14: TiDE model auto-selected by Vertex AI AutoML (10x faster training than previous models)
+- Phase 14: 30-day forecast horizon for entity risk trajectory prediction
+- Phase 14: n1-standard-4 machine type for TiDE inference (no GPU needed, cost-efficient)
+- Phase 14: Autoscaling 1-10 replicas balances availability with cost (~$100/month minimum)
+- Phase 14: 80/10/10 train/val/test split for robust forecasting model evaluation
+- Phase 14: Training deferred until 60+ days historical data available in PostgreSQL
 
 ### Deferred Issues
 
@@ -227,5 +233,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-10
-Stopped at: Completed 14-01-PLAN.md
+Stopped at: Completed 14-02-PLAN.md
 Resume file: None
