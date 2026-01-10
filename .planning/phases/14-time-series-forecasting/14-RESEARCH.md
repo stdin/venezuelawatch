@@ -11,7 +11,7 @@ Researched the Python time-series forecasting ecosystem AND GCP managed services
 
 Key finding: Don't hand-roll forecasting algorithms or confidence interval calculations. Prophet provides the easiest path for seasonal data with minimal tuning (1-5 sec fitting), StatsForecast offers 500x faster performance for production scale, and statsmodels SARIMAX handles complex econometric requirements. For GCP-native solutions, BigQuery ML ARIMA_PLUS offers automatic preprocessing and scales to 100M series, while Vertex AI Forecasting provides state-of-the-art TiDE models with 10x faster training.
 
-**Primary recommendation for VenezuelaWatch:** Start with self-hosted Prophet on Cloud Run (~$5/month for 100 entities). This is 10-20x cheaper than GCP managed services, works with existing PostgreSQL/TimescaleDB data (no ETL), and fits the on-demand forecasting UX pattern. Use Prophet's built-in component plots for dimensional breakdown and cache forecasts with background Celery tasks. If scale exceeds 1,000 entities or latency becomes critical, consider BigQuery ML as upgrade path (requires ETL to BigQuery but offers automatic preprocessing and massive scale).
+**Primary recommendation for VenezuelaWatch:** Use Vertex AI Forecasting with TiDE models for fully managed, state-of-the-art forecasting. This provides automatic model selection, probabilistic confidence intervals, and scales easily as entity count grows. Requires ETL pipeline from PostgreSQL/TimescaleDB to BigQuery for training data, but eliminates model management complexity and provides MLOps integration via Vertex AI Pipelines. Cost is ~$100-200/month for 100 entities with weekly forecasts, which is acceptable for managed infrastructure with SOTA models. Implementation pattern: Dataflow for PostgreSQL → BigQuery ETL, Vertex AI Python SDK for on-demand predictions via Django API.
 
 </research_summary>
 
@@ -537,10 +537,10 @@ def forecast_via_bigquery(entity_id, horizon_days=30):
 - Training cost multiplier for AutoARIMA (6-42x base cost)
 - No online inference (batch only)
 
-### Option 2: Vertex AI Forecasting (AutoML)
+### Option 2: Vertex AI Forecasting (AutoML) - CHOSEN APPROACH
 
 **What it is:** Managed neural network forecasting with TiDE architecture
-**Best for:** Large-scale production forecasting with automated model selection
+**Best for:** Production forecasting with fully managed infrastructure and SOTA models
 
 **Capabilities:**
 - TiDE model: 10x faster training than previous Vertex AI models
@@ -652,7 +652,247 @@ def generate_forecast_for_entity(entity_id):
 | >10,000 entities, batch forecasting | Vertex AI or BigQuery ML | Scales to millions, managed infrastructure |
 | Real-time online inference | None of the above | Use StatsForecast with pre-trained models in memory |
 
-**For Phase 14:** Start with self-hosted Prophet on Cloud Run. If forecasting becomes a bottleneck (>1000 entities, <1 sec latency required), consider BigQuery ML as upgrade path since data could be replicated to BigQuery via Dataflow.
+**For Phase 14:** Use Vertex AI Forecasting (chosen approach). This requires ETL pipeline from PostgreSQL to BigQuery, Vertex AI model training/deployment, and Django integration via Python SDK.
+
+### Vertex AI Implementation Details
+
+**Data Schema Requirements:**
+
+Vertex AI Forecasting requires narrow (long) format in BigQuery with these columns:
+
+```sql
+CREATE TABLE `intelligence.entity_risk_training_data` (
+  entity_id STRING NOT NULL,           -- Time series identifier
+  mentioned_at TIMESTAMP NOT NULL,     -- Time column
+  risk_score FLOAT64 NOT NULL,         -- Target column
+  -- Optional features:
+  sanctions_risk FLOAT64,
+  political_risk FLOAT64,
+  economic_risk FLOAT64,
+  supply_chain_risk FLOAT64
+);
+```
+
+**Requirements:**
+- Target column (risk_score): Numeric, no nulls
+- Time column (mentioned_at): Consistent interval (daily aggregation recommended)
+- Series identifier (entity_id): Groups observations by entity
+- Max 100 columns, 1K-100M rows, 100GB dataset size
+- Max 3,000 time steps per entity
+
+**ETL Pipeline Architecture:**
+
+```
+PostgreSQL/TimescaleDB
+  ↓ (Dataflow or scheduled query)
+BigQuery `intelligence.entity_risk_training_data`
+  ↓ (Vertex AI Python SDK)
+Vertex AI Dataset
+  ↓ (AutoML training)
+Vertex AI Model (TiDE)
+  ↓ (Batch predictions)
+Django API → Frontend
+```
+
+**Implementation Options:**
+
+**Option A: Dataflow Template (Recommended for real-time)**
+```python
+# Use official PostgreSQL to BigQuery Dataflow template
+# Run via Cloud Scheduler hourly to keep BigQuery synced
+from google.cloud import dataflow_v1beta3
+
+# Template: gs://dataflow-templates/latest/Jdbc_to_BigQuery
+# Parameters:
+#   - driverJars: PostgreSQL JDBC driver
+#   - connectionURL: jdbc:postgresql://CLOUD_SQL_IP:5432/venezuelawatch
+#   - query: SELECT entity_id, DATE(mentioned_at) as date, AVG(risk_score) as risk_score
+#            FROM intelligence_entitymention GROUP BY 1, 2
+#   - outputTable: intelligence.entity_risk_training_data
+```
+
+**Option B: Scheduled BigQuery Query (Simpler for batch)**
+```sql
+-- Create materialized view in BigQuery that pulls from PostgreSQL via Federated Query
+-- Run daily via Cloud Scheduler
+
+CREATE OR REPLACE TABLE `intelligence.entity_risk_training_data` AS
+SELECT
+  entity_id,
+  TIMESTAMP(DATE(mentioned_at)) as mentioned_at,
+  AVG(risk_score) as risk_score,
+  AVG(sanctions_risk) as sanctions_risk,
+  AVG(political_risk) as political_risk,
+  AVG(economic_risk) as economic_risk,
+  AVG(supply_chain_risk) as supply_chain_risk
+FROM EXTERNAL_QUERY(
+  'projects/PROJECT_ID/locations/us-central1/connections/CONNECTION_ID',
+  '''SELECT entity_id, mentioned_at, risk_score, ...
+     FROM intelligence_entitymention
+     WHERE mentioned_at >= CURRENT_DATE - INTERVAL '90 days' '''
+)
+GROUP BY entity_id, DATE(mentioned_at)
+ORDER BY entity_id, mentioned_at;
+```
+
+**Vertex AI Training Workflow:**
+
+```python
+# backend/intelligence/forecasting/vertex_ai_training.py
+from google.cloud import aiplatform
+from google.cloud.aiplatform import forecasting
+
+def train_entity_risk_model():
+    """Train Vertex AI forecasting model (run manually or via Cloud Scheduler)."""
+
+    aiplatform.init(project='venezuelawatch', location='us-central1')
+
+    # Create dataset from BigQuery table
+    dataset = aiplatform.TimeSeriesDataset.create(
+        display_name='entity-risk-forecasting',
+        bq_source='bq://venezuelawatch.intelligence.entity_risk_training_data',
+        time_column='mentioned_at',
+        time_series_identifier_column='entity_id',
+        target_column='risk_score'
+    )
+
+    # Train AutoML forecasting model (TiDE)
+    model = aiplatform.AutoMLForecastingTrainingJob(
+        display_name='entity-risk-tide-model',
+        optimization_objective='minimize-rmse',
+        column_specs={
+            'sanctions_risk': 'numeric',
+            'political_risk': 'numeric',
+            'economic_risk': 'numeric',
+            'supply_chain_risk': 'numeric'
+        }
+    )
+
+    # Train (can take 1-4 hours depending on data size)
+    model.run(
+        dataset=dataset,
+        target_column='risk_score',
+        time_column='mentioned_at',
+        time_series_identifier_column='entity_id',
+        forecast_horizon=30,  # 30 days
+        data_granularity_unit='day',
+        data_granularity_count=1,
+        training_fraction_split=0.8,
+        validation_fraction_split=0.1,
+        test_fraction_split=0.1,
+        budget_milli_node_hours=1000,  # Auto-scales training time
+    )
+
+    # Deploy model for predictions
+    endpoint = model.deploy(
+        machine_type='n1-standard-4',
+        min_replica_count=1,
+        max_replica_count=10
+    )
+
+    return endpoint
+
+# Train once, store endpoint name in Django settings or database
+```
+
+**Django API Integration:**
+
+```python
+# backend/intelligence/forecasting/vertex_ai_engine.py
+from google.cloud import aiplatform
+from google.protobuf.json_format import MessageToDict
+import pandas as pd
+
+class VertexAIForecaster:
+    def __init__(self, endpoint_id):
+        self.endpoint_id = endpoint_id
+        aiplatform.init(project='venezuelawatch', location='us-central1')
+        self.endpoint = aiplatform.Endpoint(endpoint_id)
+
+    def forecast(self, entity_id, horizon_days=30):
+        """Get forecast for specific entity."""
+
+        # Prepare prediction instance
+        # Vertex AI needs recent historical data for context
+        instances = [{
+            'entity_id': entity_id,
+        }]
+
+        # Get prediction (batch predictions, not real-time)
+        predictions = self.endpoint.predict(instances=instances)
+
+        # Parse predictions
+        forecast_data = []
+        for pred in predictions.predictions:
+            forecast_data.append({
+                'ds': pred['timestamp'],
+                'yhat': pred['value'],
+                'yhat_lower': pred['prediction_interval_lower_bound'],
+                'yhat_upper': pred['prediction_interval_upper_bound']
+            })
+
+        return pd.DataFrame(forecast_data)
+
+# backend/intelligence/forecasting/api.py
+from ninja import Router
+from django.conf import settings
+
+router = Router()
+
+@router.post('/entities/{entity_id}/forecast')
+def get_entity_forecast(request, entity_id: int, horizon_days: int = 30):
+    """Get Vertex AI forecast for entity."""
+
+    # Check cache first
+    cached = ForecastResult.objects.filter(
+        entity_id=entity_id,
+        generated_at__gte=timezone.now() - timedelta(hours=24)
+    ).first()
+
+    if cached:
+        return {
+            'forecast': json.loads(cached.forecast_data),
+            'generated_at': cached.generated_at,
+            'status': 'ready'
+        }
+
+    # Generate new forecast via Vertex AI
+    forecaster = VertexAIForecaster(settings.VERTEX_AI_ENDPOINT_ID)
+    forecast_df = forecaster.forecast(entity_id, horizon_days)
+
+    # Cache result
+    ForecastResult.objects.create(
+        entity_id=entity_id,
+        forecast_data=forecast_df.to_json(),
+        generated_at=timezone.now()
+    )
+
+    return {
+        'forecast': json.loads(forecast_df.to_json()),
+        'status': 'ready'
+    }
+```
+
+**Cost Breakdown (100 entities, 30-day forecasts, weekly updates):**
+
+- Training: $50-100/month (retraining weekly with 90 days history)
+- Endpoint hosting: $50/month (n1-standard-4 with autoscaling)
+- Predictions: 100 entities × 30 points × 4 weeks = 12K points × $0.20/1K = $2.40/month
+- BigQuery ETL: $5-10/month (query processing for daily aggregation)
+- **Total: ~$107-162/month**
+
+**Advantages of Vertex AI:**
+- Fully managed (no Prophet code maintenance)
+- TiDE models automatically selected (SOTA accuracy)
+- Scales to 100M rows without code changes
+- MLOps integration (versioning, monitoring, retraining pipelines)
+- Probabilistic forecasts built-in
+
+**Trade-offs:**
+- Requires BigQuery ETL pipeline (additional complexity)
+- Higher cost than self-hosted (~20x more expensive)
+- Batch predictions only (not real-time, but acceptable for caching pattern)
+- Model training takes 1-4 hours (vs 1-5 seconds for Prophet)
 
 </gcp_managed_services>
 
