@@ -88,9 +88,26 @@ class BigQueryService:
         start_date: datetime,
         end_date: datetime,
         event_type: Optional[str] = None,
+        severity: Optional[str] = None,
+        min_risk_score: Optional[float] = None,
+        max_risk_score: Optional[float] = None,
         limit: int = 100
     ) -> List[dict]:
-        """Get recent events with optional filtering by event type."""
+        """
+        Get recent events with optional filtering.
+
+        Args:
+            start_date: Start of time range
+            end_date: End of time range
+            event_type: Filter by event type (optional)
+            severity: Filter by severity level (SEV1-SEV5, optional)
+            min_risk_score: Minimum risk score (0-100, optional)
+            max_risk_score: Maximum risk score (0-100, optional)
+            limit: Maximum number of results
+
+        Returns:
+            List of event dicts
+        """
         query = f"""
             SELECT *
             FROM `{self.project_id}.{self.dataset_id}.events`
@@ -106,6 +123,18 @@ class BigQueryService:
             query += " AND event_type = @event_type"
             params.append(bigquery.ScalarQueryParameter('event_type', 'STRING', event_type))
 
+        if severity:
+            query += " AND severity = @severity"
+            params.append(bigquery.ScalarQueryParameter('severity', 'STRING', severity))
+
+        if min_risk_score is not None:
+            query += " AND risk_score >= @min_risk_score"
+            params.append(bigquery.ScalarQueryParameter('min_risk_score', 'FLOAT64', min_risk_score))
+
+        if max_risk_score is not None:
+            query += " AND risk_score <= @max_risk_score"
+            params.append(bigquery.ScalarQueryParameter('max_risk_score', 'FLOAT64', max_risk_score))
+
         query += " ORDER BY mentioned_at DESC LIMIT @limit"
         params.append(bigquery.ScalarQueryParameter('limit', 'INT64', limit))
 
@@ -113,6 +142,34 @@ class BigQueryService:
         results = self.client.query(query, job_config=job_config).result()
 
         return [dict(row) for row in results]
+
+    def get_event_by_id(self, event_id: str) -> Optional[dict]:
+        """
+        Get single event by ID.
+
+        Args:
+            event_id: Event ID (UUID string)
+
+        Returns:
+            Event dict or None if not found
+        """
+        query = f"""
+            SELECT *
+            FROM `{self.project_id}.{self.dataset_id}.events`
+            WHERE id = @event_id
+            LIMIT 1
+        """
+
+        job_config = bigquery.QueryJobConfig(
+            query_parameters=[
+                bigquery.ScalarQueryParameter('event_id', 'STRING', event_id)
+            ]
+        )
+
+        results = self.client.query(query, job_config=job_config).result()
+        row = next(results, None)
+
+        return dict(row) if row else None
 
     def get_entity_trending(
         self,

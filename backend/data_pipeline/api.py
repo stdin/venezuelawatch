@@ -251,6 +251,8 @@ def get_risk_intelligence_events(request: HttpRequest, filters: EventFilterParam
     """
     Get events with risk intelligence filtering and sorting.
 
+    Now queries BigQuery for time-series event data instead of PostgreSQL.
+
     Filters:
     - severity: Comma-separated SEV levels (e.g., "SEV1_CRITICAL,SEV2_HIGH")
     - min_risk_score, max_risk_score: Risk score range (0-100)
@@ -260,70 +262,84 @@ def get_risk_intelligence_events(request: HttpRequest, filters: EventFilterParam
 
     Sorting: By risk_score DESC, timestamp DESC
     """
+    from api.services.bigquery_service import bigquery_service
 
-    cutoff_date = timezone.now() - timedelta(days=filters.days_back)
-    queryset = Event.objects.filter(timestamp__gte=cutoff_date)
+    # Calculate date range
+    end_date = timezone.now()
+    start_date = end_date - timedelta(days=filters.days_back)
 
-    # Apply filters
-    if filters.severity:
-        severity_levels = filters.severity.split(',')
-        queryset = queryset.filter(severity__in=severity_levels)
+    # Query BigQuery for events
+    # Note: BigQuery filters handle severity, risk_score, event_type
+    # has_sanctions filter requires separate PostgreSQL query (sanctions not in BigQuery yet)
+    bq_events = bigquery_service.get_recent_events(
+        start_date=start_date,
+        end_date=end_date,
+        event_type=filters.event_type if filters.event_type else None,
+        severity=filters.severity if filters.severity and ',' not in filters.severity else None,
+        min_risk_score=filters.min_risk_score,
+        max_risk_score=filters.max_risk_score,
+        limit=filters.limit + filters.offset  # Fetch enough for pagination
+    )
 
-    if filters.min_risk_score is not None:
-        queryset = queryset.filter(risk_score__gte=filters.min_risk_score)
+    # Handle comma-separated severity levels (BigQuery filter only handles single value)
+    if filters.severity and ',' in filters.severity:
+        severity_levels = set(filters.severity.split(','))
+        bq_events = [e for e in bq_events if e.get('severity') in severity_levels]
 
-    if filters.max_risk_score is not None:
-        queryset = queryset.filter(risk_score__lte=filters.max_risk_score)
-
-    if filters.has_sanctions:
-        queryset = queryset.filter(sanctions_matches__isnull=False).distinct()
-
-    if filters.event_type:
-        queryset = queryset.filter(event_type=filters.event_type)
-
+    # Handle source filter
     if filters.source:
-        queryset = queryset.filter(source=filters.source)
+        bq_events = [e for e in bq_events if e.get('source_name') == filters.source]
 
-    # Sort by risk_score DESC, timestamp DESC
-    queryset = queryset.order_by('-risk_score', '-timestamp')
+    # Handle has_sanctions filter (query PostgreSQL for sanctions matches)
+    if filters.has_sanctions:
+        # Get event IDs that have sanctions matches from PostgreSQL
+        sanctioned_event_ids = set(
+            SanctionsMatch.objects.values_list('event_id', flat=True).distinct()
+        )
+        # Convert to strings for comparison
+        sanctioned_event_ids = {str(eid) for eid in sanctioned_event_ids}
+        bq_events = [e for e in bq_events if e.get('id') in sanctioned_event_ids]
 
-    # Pagination
-    queryset = queryset[filters.offset:filters.offset + filters.limit]
-
-    # Prefetch sanctions matches
-    queryset = queryset.prefetch_related('sanctions_matches')
+    # Apply pagination
+    bq_events = bq_events[filters.offset:filters.offset + filters.limit]
 
     # Convert to response schema
     results = []
-    for event in queryset:
-        # Extract entities from llm_analysis
-        entities = {"people": [], "organizations": [], "locations": []}
-        if event.llm_analysis and 'entities' in event.llm_analysis:
-            entities = event.llm_analysis['entities']
+    for event in bq_events:
+        event_id = event.get('id')
 
-        # Convert sanctions matches
-        sanctions = [
-            SanctionsMatchSchema(
-                entity_name=match.entity_name,
-                entity_type=match.entity_type,
-                sanctions_list=match.sanctions_list,
-                match_score=match.match_score
-            )
-            for match in event.sanctions_matches.all()
-        ]
+        # Extract entities from metadata (was llm_analysis in PostgreSQL)
+        entities = {"people": [], "organizations": [], "locations": []}
+        metadata = event.get('metadata')
+        if metadata and isinstance(metadata, dict) and 'entities' in metadata:
+            entities = metadata['entities']
+
+        # Fetch sanctions matches from PostgreSQL (if any)
+        sanctions = []
+        if filters.has_sanctions or event_id:
+            sanctions_matches = SanctionsMatch.objects.filter(event_id=event_id)
+            sanctions = [
+                SanctionsMatchSchema(
+                    entity_name=match.entity_name,
+                    entity_type=match.entity_type,
+                    sanctions_list=match.sanctions_list,
+                    match_score=match.match_score
+                )
+                for match in sanctions_matches
+            ]
 
         results.append(RiskIntelligenceEventSchema(
-            id=str(event.id),
-            source=event.source,
-            event_type=event.event_type,
-            timestamp=event.timestamp,
-            title=event.title,
-            summary=event.summary,
-            risk_score=event.risk_score,
-            severity=event.severity,
-            urgency=event.urgency,
-            sentiment=event.sentiment,
-            themes=event.themes or [],
+            id=str(event_id),
+            source=event.get('source_name', ''),
+            event_type=event.get('event_type', ''),
+            timestamp=event.get('mentioned_at'),
+            title=event.get('title', ''),
+            summary=event.get('content', ''),  # BigQuery uses 'content', PostgreSQL used 'summary'
+            risk_score=event.get('risk_score'),
+            severity=event.get('severity'),
+            urgency=metadata.get('urgency') if metadata else None,
+            sentiment=metadata.get('sentiment') if metadata else None,
+            themes=metadata.get('themes', []) if metadata else [],
             sanctions_matches=sanctions,
             entities=entities
         ))
