@@ -208,48 +208,11 @@ CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'default'
 
-# Celery Beat Schedule for periodic tasks
-from celery.schedules import crontab
-
-CELERY_BEAT_SCHEDULE = {
-    # Deprecated: Old DOC API ingestion
-    # 'ingest-gdelt-events': {
-    #     'task': 'data_pipeline.tasks.gdelt_tasks.ingest_gdelt_events',
-    #     'schedule': 900.0,  # 15 minutes in seconds
-    #     'args': (15,),  # lookback_minutes
-    # },
-    # New: BigQuery native dataset sync
-    'gdelt-sync': {
-        'task': 'data_pipeline.tasks.gdelt_sync_task.sync_gdelt_events',
-        'schedule': 900.0,  # 15 minutes in seconds
-        'kwargs': {'lookback_minutes': 15},
-    },
-    'ingest-reliefweb-updates': {
-        'task': 'data_pipeline.tasks.reliefweb_tasks.ingest_reliefweb_updates',
-        'schedule': 86400.0,  # 24 hours in seconds
-        'args': (1,),  # lookback_days
-    },
-    'ingest-fred-series': {
-        'task': 'data_pipeline.tasks.fred_tasks.ingest_fred_series',
-        'schedule': 86400.0,  # 24 hours in seconds
-        'args': (7,),  # lookback_days (7 days to catch late-arriving data)
-    },
-    'ingest-comtrade-trade-data': {
-        'task': 'data_pipeline.tasks.comtrade_tasks.ingest_comtrade_trade_data',
-        'schedule': 2592000.0,  # 30 days in seconds (monthly)
-        'args': (3,),  # lookback_months (accounts for 2-3 month data lag)
-    },
-    'ingest-worldbank-indicators': {
-        'task': 'data_pipeline.tasks.worldbank_tasks.ingest_worldbank_indicators',
-        'schedule': 7776000.0,  # 90 days in seconds (quarterly)
-        'args': (2,),  # lookback_years (World Bank data is annual)
-    },
-    'refresh-sanctions-screening': {
-        'task': 'refresh_sanctions_screening',
-        'schedule': crontab(hour=4, minute=0),  # Daily at 4 AM UTC
-        'args': (7,),  # lookback_days (7-day rolling window)
-    },
-}
+# CELERY_BEAT_SCHEDULE disabled - migrated to Cloud Scheduler (Phase 18-01)
+# All periodic tasks now run via Cloud Scheduler → Cloud Functions/Cloud Run
+# For rollback: restore schedule entries from git history (commit cb29c09)
+# Migration completed: Phase 18-03
+CELERY_BEAT_SCHEDULE = {}
 
 # GCP Secret Manager Configuration
 GCP_PROJECT_ID = os.environ.get('GCP_PROJECT_ID', 'venezuelawatch-staging')
