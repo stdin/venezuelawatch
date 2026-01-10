@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 ## Current Position
 
 Phase: 18 of 18 (GCP-Native Pipeline Migration)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-10 - Completed 18-01-PLAN.md
+Last activity: 2026-01-10 - Completed 18-02-PLAN.md
 
 Progress: ████████████████████████████░ 98%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 54
+- Total plans completed: 55
 - Average duration: 10 min
-- Total execution time: 10.2 hours
+- Total execution time: 10.3 hours
 
 **By Phase:**
 
@@ -45,11 +45,11 @@ Progress: ███████████████████████�
 | 14.3 | 1 | 9 min | 9 min |
 | 15 | 1 | 4 min | 4 min |
 | 16 | 1 | 8 min | 8 min |
-| 18 | 1 | 10 min | 10 min |
+| 18 | 2 | 18 min | 9 min |
 
 **Recent Trend:**
-- Last 5 plans: 10min, 9min, 4min, 8min, 10min
-- Trend: Fast (frontend visualization components)
+- Last 5 plans: 9min, 4min, 8min, 10min, 8min
+- Trend: Fast (GCP-native migration infrastructure)
 
 ## Accumulated Context
 
@@ -242,6 +242,10 @@ Recent decisions affecting current work:
 - Phase 18: Standalone functions with no Django dependencies for serverless deployment
 - Phase 18: Pub/Sub event publishing instead of Celery task dispatch
 - Phase 18: 512MB-900MB memory allocation based on task complexity
+- Phase 18: Pub/Sub push subscriptions (not pull) for lower latency and simpler code
+- Phase 18: Cloud Tasks for LLM analysis queue (handles retries, rate limiting automatically)
+- Phase 18: Internal API handlers (/api/internal/*) with OIDC authentication (not public endpoints)
+- Phase 18: 100% business logic reuse from existing Celery tasks (only orchestration replaced)
 
 ### Deferred Issues
 
@@ -269,5 +273,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-10
-Stopped at: Completed 18-01-PLAN.md (Ingestion Layer Migration - code ready, deployment pending)
+Stopped at: Completed 18-02-PLAN.md (Processing Layer Migration - handlers ready, deployment pending)
 Resume file: None
