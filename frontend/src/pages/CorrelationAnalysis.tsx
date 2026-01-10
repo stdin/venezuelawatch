@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Container, Grid, Card, Title, Text, MultiSelect, Select, NumberInput, Button, Stack, Alert } from '@mantine/core';
+import { Container, Grid, Card, Title, Text, MultiSelect, Select, NumberInput, Button, Stack, Alert, SegmentedControl } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { CorrelationGraph } from '../components/CorrelationGraph';
+import { CorrelationHeatmap } from '../components/charts/CorrelationHeatmap';
 
 // Available variables for correlation analysis - using Mantine's grouped format
 const AVAILABLE_VARIABLES = [
@@ -39,6 +40,7 @@ export const CorrelationAnalysis: React.FC = () => {
   const [method, setMethod] = useState<'pearson' | 'spearman'>('pearson');
   const [minEffectSize, setMinEffectSize] = useState(0.7);
   const [alpha, setAlpha] = useState(0.05);
+  const [viewMode, setViewMode] = useState<'graph' | 'heatmap'>('graph');
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['correlations', selectedVariables, method, minEffectSize, alpha],
@@ -163,17 +165,40 @@ export const CorrelationAnalysis: React.FC = () => {
           </Card>
         </Grid.Col>
 
-        {/* Graph column */}
+        {/* Visualization column */}
         <Grid.Col span={{ base: 12, md: 8 }}>
           {!data ? (
             <Card padding="lg" radius="md" style={{ minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Text c="dimmed">Select at least 2 variables and click "Compute Correlations" to begin</Text>
             </Card>
           ) : (
-            <CorrelationGraph
-              correlations={data.correlations}
-              variableLabels={variableLabels}
-            />
+            <Stack gap="md">
+              {/* View toggle */}
+              <Card padding="md" radius="md">
+                <SegmentedControl
+                  value={viewMode}
+                  onChange={(v) => setViewMode(v as 'graph' | 'heatmap')}
+                  data={[
+                    { label: 'Network Graph', value: 'graph' },
+                    { label: 'Heatmap Matrix', value: 'heatmap' }
+                  ]}
+                  fullWidth
+                />
+              </Card>
+
+              {/* Render selected view */}
+              {viewMode === 'graph' ? (
+                <CorrelationGraph
+                  correlations={data.correlations}
+                  variableLabels={variableLabels}
+                />
+              ) : (
+                <CorrelationHeatmap
+                  correlations={data.correlations}
+                  variableLabels={variableLabels}
+                />
+              )}
+            </Stack>
           )}
         </Grid.Col>
       </Grid>
