@@ -10,6 +10,7 @@ from typing import Dict, Any
 from celery import shared_task
 from django.utils import timezone
 from datetime import timedelta
+import pytz
 
 from data_pipeline.tasks.base import BaseIngestionTask
 from api.services.gdelt_bigquery_service import gdelt_bigquery_service
@@ -91,7 +92,7 @@ def sync_gdelt_events(self, lookback_minutes: int = 15) -> Dict[str, Any]:
             try:
                 # Parse GDELT date format (YYYYMMDDHHMMSS)
                 date_str = str(gdelt_event['DATEADDED'])
-                event_date = timezone.datetime.strptime(date_str[:8], '%Y%m%d').replace(tzinfo=timezone.utc)
+                event_date = timezone.datetime.strptime(date_str[:8], '%Y%m%d').replace(tzinfo=pytz.UTC)
 
                 # Generate title from actors and event code
                 title = f"{gdelt_event.get('Actor1Name', 'Unknown')} - {gdelt_event.get('Actor2Name', 'Event')} ({gdelt_event.get('EventCode', '')})"
