@@ -316,22 +316,29 @@ def extract_entities_pubsub(request):
 
 def _extract_from_llm_analysis(event: dict) -> Dict[str, Any]:
     """
-    Extract entities from structured LLM analysis.
+    Extract entities from structured LLM analysis and GKG data.
 
-    Processes people, organizations, and locations from llm_analysis['entities'].
+    Processes people, organizations, and locations from:
+    1. llm_analysis['entities'] (LLM-extracted, context-rich)
+    2. metadata['gkg']['persons'] and ['organizations'] (GDELT-sourced, high-confidence)
+
     Creates/matches Entity records, creates EntityMention links, and updates trending.
+    Deduplicates GKG entities against LLM entities using Jaro-Winkler fuzzy matching.
 
     Args:
-        event: Event dict from BigQuery with llm_analysis field
+        event: Event dict from BigQuery with llm_analysis and metadata.gkg fields
 
     Returns:
-        Dict with extraction statistics
+        Dict with extraction statistics (includes GKG vs LLM source counts)
     """
     from django.db import transaction
+    from rapidfuzz import fuzz
 
     entities_data = event['llm_analysis']['entities']
     extracted_entities = []
     linked_count = 0
+    gkg_entities_count = 0
+    llm_entities_count = 0
     event_id = event['id']
     event_timestamp = event['mentioned_at']
 
@@ -339,13 +346,16 @@ def _extract_from_llm_analysis(event: dict) -> Dict[str, Any]:
     from types import SimpleNamespace
     mock_event = SimpleNamespace(timestamp=event_timestamp, id=event_id)
 
+    # Track entity names for deduplication
+    processed_names = set()
+
     with transaction.atomic():
-        # Process people
+        # Process LLM-extracted people
         for person in entities_data.get('people', []):
             entity, created, match_score = EntityService.find_or_create_entity(
                 raw_name=person['name'],
                 entity_type='PERSON',
-                metadata={'role': person.get('role')}
+                metadata={'role': person.get('role'), 'source': 'llm'}
             )
 
             EntityService.link_entity_to_event(
@@ -365,14 +375,16 @@ def _extract_from_llm_analysis(event: dict) -> Dict[str, Any]:
             )
 
             extracted_entities.append(entity.canonical_name)
+            processed_names.add(person['name'].lower())
             linked_count += 1
+            llm_entities_count += 1
 
-        # Process organizations
+        # Process LLM-extracted organizations
         for org in entities_data.get('organizations', []):
             entity, created, match_score = EntityService.find_or_create_entity(
                 raw_name=org['name'],
                 entity_type='ORGANIZATION',
-                metadata={'org_type': org.get('type')}
+                metadata={'org_type': org.get('type'), 'source': 'llm'}
             )
 
             EntityService.link_entity_to_event(
@@ -391,7 +403,9 @@ def _extract_from_llm_analysis(event: dict) -> Dict[str, Any]:
             )
 
             extracted_entities.append(entity.canonical_name)
+            processed_names.add(org['name'].lower())
             linked_count += 1
+            llm_entities_count += 1
 
         # Process locations
         for location in entities_data.get('locations', []):
@@ -419,12 +433,94 @@ def _extract_from_llm_analysis(event: dict) -> Dict[str, Any]:
             extracted_entities.append(entity.canonical_name)
             linked_count += 1
 
+        # Process GKG-sourced entities (supplement LLM extraction)
+        gkg_data = event.get('metadata', {}).get('gkg')
+        if gkg_data:
+            # Helper function for fuzzy deduplication
+            def is_duplicate(name: str, threshold: float = 0.85) -> bool:
+                """Check if name is duplicate using Jaro-Winkler similarity."""
+                name_lower = name.lower()
+                for processed in processed_names:
+                    score = fuzz.jaro_winkler(name_lower, processed)
+                    if score >= threshold:
+                        return True
+                return False
+
+            # Process GKG persons
+            for person_name in gkg_data.get('persons', []):
+                if not person_name or is_duplicate(person_name):
+                    continue  # Skip if duplicate or empty
+
+                entity, created, match_score = EntityService.find_or_create_entity(
+                    raw_name=person_name,
+                    entity_type='PERSON',
+                    metadata={'source': 'gkg'}
+                )
+
+                EntityService.link_entity_to_event(
+                    entity=entity,
+                    event=mock_event,
+                    raw_name=person_name,
+                    match_score=match_score,
+                    relevance=0.8,  # GKG entities have high confidence
+                    event_id=event_id
+                )
+
+                TrendingService.update_entity_score(
+                    entity_id=str(entity.id),
+                    timestamp=event_timestamp,
+                    weight=0.8
+                )
+
+                extracted_entities.append(entity.canonical_name)
+                processed_names.add(person_name.lower())
+                linked_count += 1
+                gkg_entities_count += 1
+
+            # Process GKG organizations
+            for org_name in gkg_data.get('organizations', []):
+                if not org_name or is_duplicate(org_name):
+                    continue  # Skip if duplicate or empty
+
+                entity, created, match_score = EntityService.find_or_create_entity(
+                    raw_name=org_name,
+                    entity_type='ORGANIZATION',
+                    metadata={'source': 'gkg'}
+                )
+
+                EntityService.link_entity_to_event(
+                    entity=entity,
+                    event=mock_event,
+                    raw_name=org_name,
+                    match_score=match_score,
+                    relevance=0.8,
+                    event_id=event_id
+                )
+
+                TrendingService.update_entity_score(
+                    entity_id=str(entity.id),
+                    timestamp=event_timestamp,
+                    weight=0.8
+                )
+
+                extracted_entities.append(entity.canonical_name)
+                processed_names.add(org_name.lower())
+                linked_count += 1
+                gkg_entities_count += 1
+
+    logger.info(
+        f"Entity extraction complete for event {event_id}: "
+        f"{llm_entities_count} LLM entities, {gkg_entities_count} GKG entities"
+    )
+
     return {
         'status': 'success',
         'event_id': event_id,
         'entities_extracted': len(extracted_entities),
         'entities_linked': linked_count,
-        'entity_names': extracted_entities
+        'entity_names': extracted_entities,
+        'llm_entities': llm_entities_count,
+        'gkg_entities': gkg_entities_count
     }
 
 
