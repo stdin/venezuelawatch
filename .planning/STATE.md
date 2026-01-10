@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 ## Current Position
 
 Milestone: v1.3 GDELT Intelligence
-Phase: 22 of 24 (Data Source Architecture)
+Phase: 23 of 24 (Intelligence Pipeline Rebuild)
 Plan: 1 of unknown in current phase
 Status: In progress
-Last activity: 2026-01-10 - Completed 22-01-PLAN.md
+Last activity: 2026-01-10 - Completed 23-01-PLAN.md
 
-Progress: ░░░░░░░░░░ 6%
+Progress: ░░░░░░░░░░ 7%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 62
+- Total plans completed: 63
 - Average duration: 9 min
-- Total execution time: 10.8 hours
+- Total execution time: 10.9 hours
 
 **By Phase:**
 
@@ -50,10 +50,11 @@ Progress: ░░░░░░░░░░ 6%
 | 20 | 2 | 13 min | 6 min |
 | 21 | 3 | 10 min | 3 min |
 | 22 | 1 | 2 min | 2 min |
+| 23 | 1 | 7 min | 7 min |
 
 **Recent Trend:**
-- Last 5 plans: 6min, 1min, 1min, 3min, 2min
-- Trend: Fast (architecture setup)
+- Last 5 plans: 1min, 1min, 3min, 2min, 7min
+- Trend: Fast (intelligence pipeline)
 
 ## Accumulated Context
 
@@ -269,6 +270,13 @@ Recent decisions affecting current work:
 - Phase 22: Separate validate() from transform() for partial success publishing
 - Phase 22: In-memory health tracking (not persistent) for lightweight observability
 - Phase 22: publish_events() concrete helper method prevents code duplication across adapters
+- Phase 23: MinMaxScaler with codebook ranges (not data-fitted) for stable normalization
+- Phase 23: Invert Goldstein scale and tone (negative values = higher risk) for intuitive scoring
+- Phase 23: Default weights: goldstein=0.35, tone=0.25, themes=0.25, intensity=0.15
+- Phase 23: Handle missing GKG data with neutral score (50) instead of error
+- Phase 23: Theme presence scored categorically (1=60, 2=80, 3+=100) not proportionally
+- Phase 23: Theme intensity scored by frequency (0=20, 1-2=50, 3-5=75, 6+=100)
+- Phase 23: Add `or 0` / `or {}` fallback for None values to prevent TypeError
 
 ### Deferred Issues
 
@@ -298,5 +306,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-10
-Stopped at: Completed 22-01-PLAN.md
+Stopped at: Completed 23-01-PLAN.md
 Resume file: None

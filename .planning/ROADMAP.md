@@ -264,6 +264,6 @@ Plans:
 | 20. GKG Integration | v1.3 | 2/? | In progress | 2026-01-10 |
 | 21. Mentions Tracking | v1.3 | 3/3 | Complete | 2026-01-10 |
 | 22. Data Source Architecture | v1.3 | 1/? | In progress | 2026-01-10 |
-| 23. Intelligence Pipeline Rebuild | v1.3 | 0/? | Not started | - |
+| 23. Intelligence Pipeline Rebuild | v1.3 | 1/2 | In progress | 2026-01-10 |
 | 24. LLM Optimization & UI | v1.3 | 0/? | Not started | - |
 | 25. Add More BigQuery Data Sources | v1.3 | 0/? | Not started | - |
