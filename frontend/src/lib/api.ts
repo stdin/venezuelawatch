@@ -199,8 +199,13 @@ export const api = {
     return response.json()
   },
 
-  async getEntityProfile(entityId: string): Promise<EntityProfile> {
-    const response = await fetch(`${API_BASE}/entities/${entityId}`, {
+  async getEntityProfile(entityId: string, includeHistory: boolean = true): Promise<EntityProfile> {
+    const params = new URLSearchParams()
+    if (includeHistory) {
+      params.append('include_history', 'true')
+    }
+    const url = `${API_BASE}/entities/${entityId}${params.toString() ? `?${params.toString()}` : ''}`
+    const response = await fetch(url, {
       credentials: 'include',
     })
     if (!response.ok) {

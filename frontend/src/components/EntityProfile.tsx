@@ -3,6 +3,7 @@ import { Card, Alert, Badge, Text, Title, Stack, Group, Divider, List, Skeleton 
 import { format } from 'date-fns'
 import { api } from '../lib/api'
 import type { EntityProfile as EntityProfileType } from '../lib/types'
+import { EntityForecastChart } from './forecasting/EntityForecastChart'
 
 interface EntityProfileProps {
   entityId: string
@@ -185,6 +186,12 @@ export function EntityProfile({ entityId }: EntityProfileProps) {
           </Stack>
         </Card>
       )}
+
+      {/* Risk Score Forecast Chart */}
+      <EntityForecastChart
+        entityId={profile.id}
+        historicalData={profile.risk_history}
+      />
 
       {/* Known Aliases Card */}
       {profile.aliases && profile.aliases.length > 0 && (

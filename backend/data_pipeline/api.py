@@ -423,12 +423,13 @@ def get_trending_entities(
 
 
 @entity_router.get("/{entity_id}", response=EntityProfileSchema)
-def get_entity_profile(request: HttpRequest, entity_id: str):
+def get_entity_profile(request: HttpRequest, entity_id: str, include_history: bool = False):
     """
     Get detailed entity profile with sanctions status and recent events.
 
     Args:
         entity_id: UUID of the entity
+        include_history: If True, include 30-day historical risk scores
 
     Returns:
         EntityProfileSchema with full profile details
@@ -463,6 +464,29 @@ def get_entity_profile(request: HttpRequest, entity_id: str):
         for m in recent_mentions
     ]
 
+    # Get risk history for last 30 days if requested
+    risk_history = None
+    if include_history:
+        cutoff = timezone.now() - timedelta(days=30)
+        history_mentions = EntityMention.objects.filter(
+            entity=entity,
+            mentioned_at__gte=cutoff
+        ).select_related('event').order_by('mentioned_at')
+
+        # Aggregate by date
+        from collections import defaultdict
+        daily_scores = defaultdict(list)
+        for m in history_mentions:
+            if m.event.risk_score is not None:
+                date_str = m.mentioned_at.date().isoformat()
+                daily_scores[date_str].append(m.event.risk_score)
+
+        # Calculate daily average
+        risk_history = [
+            {'date': date, 'risk_score': sum(scores) / len(scores)}
+            for date, scores in sorted(daily_scores.items())
+        ]
+
     # Get trending rank from TrendingService
     from data_pipeline.services.trending_service import TrendingService
     trending_rank = TrendingService.get_entity_rank(str(entity.id))
@@ -480,7 +504,8 @@ def get_entity_profile(request: HttpRequest, entity_id: str):
         metadata=entity.metadata,
         sanctions_status=sanctions_status,
         risk_score=avg_risk,
-        recent_events=recent_events
+        recent_events=recent_events,
+        risk_history=risk_history
     )
 
 

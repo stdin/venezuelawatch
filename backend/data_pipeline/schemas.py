@@ -96,6 +96,7 @@ class EntityProfileSchema(Schema):
     sanctions_status: bool  # True if any sanctions matches
     risk_score: Optional[float] = None  # Avg risk from events
     recent_events: List[dict]  # Last 5 events mentioning entity
+    risk_history: Optional[List[dict]] = None  # Historical risk scores for forecasting (optional)
 
 
 class EntityMentionSchema(Schema):

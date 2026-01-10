@@ -134,6 +134,10 @@ export interface EntityProfile extends Entity {
     severity?: string
     timestamp: string
   }>
+  risk_history?: Array<{
+    date: string
+    risk_score: number
+  }>
 }
 
 /**
