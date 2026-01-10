@@ -5,6 +5,7 @@ from chat.api import chat_router
 from forecasting.api import router as forecasting_router
 from api.correlation.views import router as correlation_router
 from api.views.internal import internal_router
+from api.views.graph import graph_router
 
 api = NinjaAPI(
     title="VenezuelaWatch API",
@@ -38,5 +39,8 @@ api.add_router("/correlation", correlation_router, tags=["Correlation Analysis"]
 
 # Add internal processing router (Phase 18 - GCP-native pipeline)
 api.add_router("/internal", internal_router, tags=["Internal Processing"])
+
+# Add graph visualization router (Phase 26)
+api.add_router("/graph", graph_router, tags=["Graph Visualization"])
 
 # Will add more routers here in future phases
