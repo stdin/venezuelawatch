@@ -11,7 +11,7 @@ from django.http import HttpRequest, JsonResponse
 from django.utils import timezone
 from django.db.models import Count
 
-from data_pipeline.tasks.gdelt_tasks import ingest_gdelt_events
+from data_pipeline.tasks.gdelt_sync_task import sync_gdelt_events
 from data_pipeline.tasks.reliefweb_tasks import ingest_reliefweb_updates
 from data_pipeline.tasks.fred_tasks import ingest_fred_series
 from data_pipeline.tasks.comtrade_tasks import ingest_comtrade_trade_data
@@ -78,7 +78,7 @@ def trigger_gdelt_ingestion(request: HttpRequest, payload: GDELTTriggerRequest):
 
     try:
         # Dispatch Celery task asynchronously
-        result = ingest_gdelt_events.delay(lookback_minutes=payload.lookback_minutes)
+        result = sync_gdelt_events.delay(lookback_minutes=payload.lookback_minutes)
 
         return TaskTriggerResponse(
             status="dispatched",
