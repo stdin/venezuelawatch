@@ -71,7 +71,8 @@ function getHighRiskClusterNodeIds(
  */
 export function useGraphData(
   minCooccurrence: number = 3,
-  timeRange: string = '30d'
+  timeRange: string = '30d',
+  selectedThemes: string[] = []
 ): UseGraphDataReturn {
   const [data, setData] = useState<GraphData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -89,6 +90,11 @@ export function useGraphData(
           min_cooccurrence: minCooccurrence.toString(),
           time_range: timeRange,
         })
+
+        // Add theme filter if selected
+        if (selectedThemes.length > 0) {
+          params.set('theme_categories', selectedThemes.join(','))
+        }
 
         const response = await fetch(`/api/graph/entities?${params}`, {
           credentials: 'include',
@@ -119,7 +125,7 @@ export function useGraphData(
     return () => {
       mounted = false
     }
-  }, [minCooccurrence, timeRange])
+  }, [minCooccurrence, timeRange, selectedThemes])
 
   const nodes = data?.nodes || []
   const highRiskCluster = data?.high_risk_cluster ?? null

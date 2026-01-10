@@ -1,0 +1,11 @@
+{
+  "session_id": "5fb1be8c-93f6-45ea-8e2d-adb48b432316",
+  "transcript_path": "/Users/burrito/.claude/projects/-Users-burrito-Projects-venezuelawatch2/5fb1be8c-93f6-45ea-8e2d-adb48b432316.jsonl",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "/Users/burrito/Projects/venezuelawatch2/backend/data_pipeline/services/graph_builder.py",
+    "old_string": "\"\"\"\nGraph builder service for entity relationship visualization.\n\nBuilds entity co-occurrence graphs from PostgreSQL EntityMention data,\ncalculates relationship weights, and prepares data for frontend visualization.\n\"\"\"\nimport json\nimport subprocess\nimport tempfile\nimport os\nfrom datetime import datetime, timedelta\nfrom typing import Dict, Any, List\nfrom pathlib import Path\nfrom django.db.models import Count, Q\nfrom django.utils import timezone\n\nfrom core.models import Entity, EntityMention",
+    "new_string": "\"\"\"\nGraph builder service for entity relationship visualization.\n\nBuilds entity co-occurrence graphs from PostgreSQL EntityMention data,\ncalculates relationship weights, and prepares data for frontend visualization.\n\"\"\"\nimport json\nimport subprocess\nimport tempfile\nimport os\nfrom datetime import datetime, timedelta\nfrom typing import Dict, Any, List, Union, Optional\nfrom pathlib import Path\nfrom django.db.models import Count, Q\nfrom django.utils import timezone\n\nfrom core.models import Entity, EntityMention\nfrom data_pipeline.services.theme_enricher import ThemeEnricher"
+  }
+}

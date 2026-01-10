@@ -19,6 +19,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 
 from data_pipeline.adapters.base import DataSourceAdapter
+from data_pipeline.services.category_classifier import CategoryClassifier
 from api.services.gdelt_bigquery_service import gdelt_bigquery_service
 from api.bigquery_models import Event as BigQueryEvent
 
@@ -170,22 +171,26 @@ class WorldBankAdapter(DataSourceAdapter):
 
     def transform(self, raw_data: List[Dict[str, Any]]) -> List[BigQueryEvent]:
         """
-        Transform World Bank WDI data to BigQuery Event schema.
+        Transform World Bank WDI data to canonical Event schema with normalizer logic.
 
-        Maps economic indicators to economic signal events with:
-        - Stable event_id based on country code, indicator code, and year
-        - Constructed World Bank indicator URL
-        - Metadata preserving indicator details and values
-        - Event type 'economic' (development indicators are economic signals)
-        - Published date as year-end (WB data is annual/quarterly)
+        Implements canonical normalizer from platform design (section 5.2):
+        - Category classification using indicator code prefixes
+        - Magnitude normalization (percent_change → 0-1)
+        - Direction classification based on indicator semantics
+        - Source credibility 0.95 (World Bank is authoritative)
 
         Args:
             raw_data: List of indicator dicts from fetch()
 
         Returns:
-            List of BigQueryEvent instances ready for validation and publishing
+            List of BigQueryEvent instances with canonical fields populated
         """
         bigquery_events = []
+
+        # Track previous values for percent_change calculation
+        # In production, this would query BigQuery for historical data
+        # For now, we'll compute when prev_value is available in metadata
+        prev_values = {}
 
         for indicator in raw_data:
             try:
@@ -198,22 +203,60 @@ class WorldBankAdapter(DataSourceAdapter):
                 value = indicator.get('value')
 
                 # Skip if missing critical fields
-                if not indicator_code or not year:
+                if not indicator_code or not year or value is None:
                     logger.warning(
-                        f"Skipping indicator with missing code or year: {indicator}"
+                        f"Skipping indicator with missing code, year, or value: {indicator}"
                     )
                     continue
 
-                # Generate stable event ID from country code, indicator code, and year
-                # Format: wb-{country_code}-{indicator_code}-{year}
+                # Classify category using indicator code prefix
+                category, subcategory = CategoryClassifier.classify(
+                    'world_bank',
+                    {'indicator_code': indicator_code}
+                )
+
+                # Calculate percent change from previous value
+                # For Phase 25, we'll use 0 if no previous value
+                # Phase 26+ will fetch from BigQuery for accurate historical comparison
+                prev_value_key = f"{country_code}-{indicator_code}"
+                prev_value = prev_values.get(prev_value_key, value)
+
+                if prev_value and prev_value != 0:
+                    pct_change = ((value - prev_value) / prev_value) * 100
+                else:
+                    pct_change = 0
+
+                # Update prev_values for next iteration
+                prev_values[prev_value_key] = value
+
+                # Normalize magnitude: percent_change → 0-1
+                # 50% change = 1.0
+                magnitude_norm = min(abs(pct_change) / 50, 1.0)
+
+                # Determine direction based on indicator type
+                # Some indicators are "good news" (GDP growth), others "bad news" (inflation)
+                negative_is_bad = (
+                    indicator_code.startswith(('FP.CPI', 'SL.UEM')) or  # Inflation, unemployment
+                    'DEBT' in indicator_code or
+                    'DEFICIT' in indicator_code
+                )
+
+                if negative_is_bad:
+                    direction = "NEGATIVE" if pct_change > 0 else ("POSITIVE" if pct_change < 0 else "NEUTRAL")
+                else:
+                    direction = "POSITIVE" if pct_change > 0 else ("NEGATIVE" if pct_change < 0 else "NEUTRAL")
+
+                # Confidence scoring
+                source_credibility = 0.95  # World Bank is authoritative
+                confidence = 0.95
+
+                # Generate stable event ID
                 event_id = f"wb-{country_code}-{indicator_code}-{year}"
 
                 # Construct World Bank indicator URL
-                # Format: https://data.worldbank.org/indicator/{indicator_code}?locations=VE
                 wb_url = f"https://data.worldbank.org/indicator/{indicator_code}?locations=VE"
 
                 # Convert year to datetime (use year-end as publication date)
-                # World Bank data is typically published at year-end or quarter-end
                 published_at = timezone.datetime(
                     year=int(year),
                     month=12,
@@ -224,26 +267,81 @@ class WorldBankAdapter(DataSourceAdapter):
 
                 # Create descriptive title and content
                 title = f"{indicator_name} for {country_name} ({year})"
-                content = f"{indicator_name}: {value}"
+                content = f"{indicator_name}: {value} ({pct_change:+.1f}% change)"
 
-                # Create BigQueryEvent
+                # Create canonical BigQueryEvent
                 bq_event = BigQueryEvent(
+                    # Identity
                     id=event_id,
+                    source='world_bank',
+                    source_event_id=event_id,
                     source_url=wb_url,
-                    mentioned_at=published_at,
+                    source_name=self.source_name,
+
+                    # Temporal
+                    event_timestamp=published_at,
+                    ingested_at=timezone.now(),
                     created_at=timezone.now(),
+
+                    # Classification
+                    category=category,
+                    subcategory=subcategory,
+                    event_type='INDICATOR_UPDATE',
+
+                    # Location
+                    country_code='VE',
+                    admin1=None,
+                    admin2=None,
+                    latitude=None,
+                    longitude=None,
+                    location='Venezuela',
+
+                    # Magnitude
+                    magnitude_raw=pct_change,
+                    magnitude_unit='percent_change',
+                    magnitude_norm=magnitude_norm,
+
+                    # Direction/Tone
+                    direction=direction,
+                    tone_raw=None,
+                    tone_norm=0.5,  # Neutral for data
+
+                    # Confidence
+                    num_sources=1,
+                    source_credibility=source_credibility,
+                    confidence=confidence,
+
+                    # Actors
+                    actor1_name=None,
+                    actor1_type=None,
+                    actor2_name=None,
+                    actor2_type=None,
+
+                    # Commodities/Sectors
+                    commodities=[],
+                    sectors=[],
+
+                    # Legacy fields
                     title=title,
                     content=content,
-                    source_name=self.source_name,
-                    event_type='economic',  # World Bank data is economic signal
-                    location='Venezuela',
-                    risk_score=None,  # Computed by LLM downstream
-                    severity=None,    # Computed by LLM downstream
+                    risk_score=None,  # Computed in Phase 25-02
+                    severity=None,    # Computed in Phase 25-02
+
+                    # Enhancement arrays (Phase 26+)
+                    themes=[],
+                    quotations=[],
+                    gcam_scores=None,
+                    entity_relationships=[],
+                    related_events=[],
+
+                    # Metadata
                     metadata={
                         'indicator_code': indicator_code,
                         'indicator_name': indicator_name,
                         'year': year,
                         'value': value,
+                        'prev_value': prev_value,
+                        'pct_change': pct_change,
                         'country_code': country_code,
                         'country_name': country_name
                     }

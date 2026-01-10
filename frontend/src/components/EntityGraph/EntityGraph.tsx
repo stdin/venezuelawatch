@@ -21,8 +21,12 @@ function getRiskColor(score: number): string {
  * Shows entity relationship network with community detection and risk-based colors
  * Auto-focuses camera on largest high-risk cluster for pattern discovery
  */
-export function EntityGraph() {
-  const { nodes, edges, highRiskCluster, highRiskClusterNodeIds, loading, error } = useGraphData()
+interface EntityGraphProps {
+  selectedThemes?: string[]
+}
+
+export function EntityGraph({ selectedThemes = [] }: EntityGraphProps) {
+  const { nodes, edges, highRiskCluster, highRiskClusterNodeIds, loading, error } = useGraphData(3, '30d', selectedThemes)
   const navigate = useNavigate()
   const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null)
   const graphRef = useRef<GraphCanvasRef>(null)

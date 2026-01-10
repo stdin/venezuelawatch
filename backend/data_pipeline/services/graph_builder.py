@@ -9,12 +9,13 @@ import subprocess
 import tempfile
 import os
 from datetime import datetime, timedelta
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Union, Optional
 from pathlib import Path
 from django.db.models import Count, Q
 from django.utils import timezone
 
 from core.models import Entity, EntityMention
+from data_pipeline.services.theme_enricher import ThemeEnricher
 
 
 class GraphBuilder:
@@ -23,7 +24,8 @@ class GraphBuilder:
     def build_entity_graph(
         self,
         time_range: str = "30d",
-        min_cooccurrence: int = 3
+        min_cooccurrence: int = 3,
+        theme_filter: Optional[Union[str, List[str]]] = None
     ) -> Dict[str, Any]:
         """
         Build entity relationship graph from co-occurrence in events.
@@ -161,6 +163,40 @@ class GraphBuilder:
                     'strength': rel_data['count']
                 }
             })
+
+        # Apply theme filtering if requested
+        if theme_filter:
+            # Normalize theme_filter to list
+            if isinstance(theme_filter, str):
+                filter_categories = [theme_filter]
+            else:
+                filter_categories = theme_filter
+
+            # Enrich edges with themes
+            enricher = ThemeEnricher()
+            filtered_edges = []
+
+            for edge in edges:
+                # Enrich edge with themes from events
+                enriched_edge = enricher.enrich_edge_with_themes(
+                    edge=edge,
+                    event_ids=edge['data']['event_ids']
+                )
+
+                # Filter by category
+                edge_category = enriched_edge['data'].get('category', 'other')
+                if edge_category in filter_categories:
+                    filtered_edges.append(enriched_edge)
+
+            edges = filtered_edges
+
+            # Remove nodes that have no remaining edges (isolated nodes)
+            entities_in_filtered_graph = set()
+            for edge in edges:
+                entities_in_filtered_graph.add(edge['source'])
+                entities_in_filtered_graph.add(edge['target'])
+
+            nodes = [node for node in nodes if node['id'] in entities_in_filtered_graph]
 
         return {
             'nodes': nodes,

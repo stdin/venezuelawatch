@@ -33,6 +33,8 @@ class EdgeData(Schema):
     """Edge data for relationship."""
     event_ids: List[str]
     strength: int
+    themes: Optional[List[str]] = None
+    category: Optional[str] = None
 
 
 class Edge(Schema):
@@ -93,7 +95,8 @@ graph_router = Router()
 def get_entity_graph(
     request,
     time_range: str = "30d",
-    min_cooccurrence: int = 3
+    min_cooccurrence: int = 3,
+    theme_categories: Optional[str] = None
 ):
     """
     Get entity relationship graph with community detection.
@@ -101,16 +104,24 @@ def get_entity_graph(
     Args:
         time_range: Time window ("7d", "30d", "90d")
         min_cooccurrence: Minimum co-occurrence count to include edge
+        theme_categories: Optional comma-separated theme categories to filter by
+                         (e.g., "sanctions,trade,energy")
 
     Returns:
         Graph with nodes, edges, community assignments, and high-risk cluster
     """
     builder = GraphBuilder()
 
+    # Parse theme filter if provided
+    theme_filter = None
+    if theme_categories:
+        theme_filter = [cat.strip() for cat in theme_categories.split(',') if cat.strip()]
+
     # Build base graph from entity co-occurrences
     graph_data = builder.build_entity_graph(
         time_range=time_range,
-        min_cooccurrence=min_cooccurrence
+        min_cooccurrence=min_cooccurrence,
+        theme_filter=theme_filter
     )
 
     # Run community detection

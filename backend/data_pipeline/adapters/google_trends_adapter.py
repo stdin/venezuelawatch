@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 
 from data_pipeline.adapters.base import DataSourceAdapter
+from data_pipeline.services.category_classifier import CategoryClassifier
 from api.services.gdelt_bigquery_service import gdelt_bigquery_service
 from api.bigquery_models import Event as BigQueryEvent
 
@@ -110,48 +111,84 @@ class GoogleTrendsAdapter(DataSourceAdapter):
 
     def transform(self, raw_data: List[Dict[str, Any]]) -> List[BigQueryEvent]:
         """
-        Transform Google Trends data to BigQuery Event schema.
+        Transform Google Trends data to canonical Event schema with normalizer logic.
 
-        Maps trending search terms to social signal events with:
-        - Stable event_id based on date and term
-        - Constructed Google Trends URL for each term
-        - Metadata preserving rank, score, geographic context
-        - Event type 'social' (search behavior is social signal)
+        Implements canonical normalizer from platform design (section 5.2):
+        - Category classification using search term keywords
+        - Magnitude normalization (interest score 0-100 → 0-1)
+        - Direction: NEGATIVE (assume elevated attention = concern)
+        - Tone normalization based on spike ratio vs baseline
+        - Source credibility 0.8 (Google Trends is reliable but indirect)
 
         Args:
             raw_data: List of trend dicts from fetch()
 
         Returns:
-            List of BigQueryEvent instances ready for validation and publishing
+            List of BigQueryEvent instances with canonical fields populated
         """
         bigquery_events = []
+
+        # Track baseline interest for spike detection
+        # In production, this would query historical data
+        # For Phase 25, we'll use a simple heuristic based on rank
+        baseline_interest = 25  # Default baseline
 
         for trend in raw_data:
             try:
                 # Extract fields
                 term = trend.get('term', '')
                 rank = trend.get('rank')
-                score = trend.get('score')
+                score = trend.get('score', 50)  # 0-100 interest score
                 refresh_date = trend.get('refresh_date')
                 country_name = trend.get('country_name', 'Venezuela')
                 region_name = trend.get('region_name', '')
 
-                # Generate stable event ID from refresh_date and term
-                # Format: gt-YYYY-MM-DD-normalized-term
+                # Classify category using search term
+                category, subcategory = CategoryClassifier.classify(
+                    'google_trends',
+                    {'term': term}
+                )
+
+                # Normalize magnitude: interest score 0-100 → 0-1
+                interest = score if score is not None else 50
+                magnitude_norm = interest / 100
+
+                # Calculate spike ratio for tone assessment
+                spike_ratio = interest / baseline_interest if baseline_interest > 0 else 1
+
+                # Direction: NEGATIVE (elevated search attention typically = concern)
+                direction = "NEGATIVE"
+
+                # Tone normalization: spike_ratio / 5 → 0-1
+                # 5x spike = max concern (tone_norm = 1.0)
+                tone_norm = min(spike_ratio / 5, 1.0)
+
+                # Confidence scoring
+                source_credibility = 0.8  # Google Trends is reliable but indirect signal
+                confidence = 0.8
+
+                # Determine event type
+                if spike_ratio > 2:
+                    event_type = "SEARCH_SPIKE"
+                else:
+                    event_type = "SEARCH_LEVEL"
+
+                # Extract commodities/sectors from term keywords
+                commodities, sectors = self._extract_commodities_sectors(term)
+
+                # Generate stable event ID
                 term_slug = term.lower().replace(' ', '-').replace('/', '-')
                 event_id = f"gt-{refresh_date}-{term_slug}"
 
                 # Construct Google Trends explore URL
-                # Format: https://trends.google.com/trends/explore?q=term&geo=VE
                 import urllib.parse
                 term_encoded = urllib.parse.quote_plus(term)
                 trends_url = f"https://trends.google.com/trends/explore?q={term_encoded}&geo=VE"
 
-                # Convert refresh_date to datetime (midnight UTC)
+                # Convert refresh_date to datetime
                 if isinstance(refresh_date, str):
                     published_at = timezone.datetime.strptime(refresh_date, '%Y-%m-%d').replace(tzinfo=timezone.utc)
                 else:
-                    # refresh_date is already a date object
                     published_at = timezone.datetime.combine(
                         refresh_date,
                         timezone.datetime.min.time()
@@ -162,22 +199,78 @@ class GoogleTrendsAdapter(DataSourceAdapter):
                 if region_name:
                     content += f" (region: {region_name})"
 
-                # Create BigQueryEvent
+                # Create canonical BigQueryEvent
                 bq_event = BigQueryEvent(
+                    # Identity
                     id=event_id,
+                    source='google_trends',
+                    source_event_id=event_id,
                     source_url=trends_url,
-                    mentioned_at=published_at,
+                    source_name=self.source_name,
+
+                    # Temporal
+                    event_timestamp=published_at,
+                    ingested_at=timezone.now(),
                     created_at=timezone.now(),
+
+                    # Classification
+                    category=category,
+                    subcategory=subcategory,
+                    event_type=event_type,
+
+                    # Location
+                    country_code='VE',
+                    admin1=region_name if region_name else None,
+                    admin2=None,
+                    latitude=None,
+                    longitude=None,
+                    location='Venezuela',
+
+                    # Magnitude
+                    magnitude_raw=interest,
+                    magnitude_unit='interest_score',
+                    magnitude_norm=magnitude_norm,
+
+                    # Direction/Tone
+                    direction=direction,
+                    tone_raw=None,
+                    tone_norm=tone_norm,
+
+                    # Confidence
+                    num_sources=1,
+                    source_credibility=source_credibility,
+                    confidence=confidence,
+
+                    # Actors
+                    actor1_name=None,
+                    actor1_type=None,
+                    actor2_name=None,
+                    actor2_type=None,
+
+                    # Commodities/Sectors
+                    commodities=commodities,
+                    sectors=sectors,
+
+                    # Legacy fields
                     title=term,
                     content=content,
-                    source_name=self.source_name,
-                    event_type='social',  # Search behavior is social signal
-                    location='Venezuela',
-                    risk_score=None,  # Computed by LLM downstream
-                    severity=None,    # Computed by LLM downstream
+                    risk_score=None,  # Computed in Phase 25-02
+                    severity=None,    # Computed in Phase 25-02
+
+                    # Enhancement arrays (Phase 26+)
+                    themes=[],
+                    quotations=[],
+                    gcam_scores=None,
+                    entity_relationships=[],
+                    related_events=[],
+
+                    # Metadata
                     metadata={
                         'rank': rank,
                         'score': score,
+                        'interest': interest,
+                        'spike_ratio': spike_ratio,
+                        'baseline_interest': baseline_interest,
                         'country': country_name,
                         'region': region_name,
                         'refresh_date': str(refresh_date)
@@ -190,8 +283,32 @@ class GoogleTrendsAdapter(DataSourceAdapter):
                 logger.error(f"Failed to transform Google Trends data: {e}", exc_info=True)
                 # Continue with other trends - don't fail entire batch
 
-        logger.info(f"Transformed {len(bigquery_events)} Google Trends to BigQuery schema")
+        logger.info(f"Transformed {len(bigquery_events)} Google Trends to canonical schema")
         return bigquery_events
+
+    def _extract_commodities_sectors(self, term: str) -> Tuple[List[str], List[str]]:
+        """
+        Extract commodities and sectors from search term.
+
+        Simple keyword matching for Phase 25. Phase 26+ will use NLP.
+        """
+        commodities = []
+        sectors = []
+
+        term_lower = term.lower()
+
+        # Commodity keywords
+        if 'oil' in term_lower or 'petróleo' in term_lower or 'pdvsa' in term_lower:
+            commodities.append('OIL')
+            sectors.append('ENERGY')
+        if 'gold' in term_lower or 'oro' in term_lower:
+            commodities.append('GOLD')
+            sectors.append('MINING')
+        if 'gas' in term_lower:
+            commodities.append('GAS')
+            sectors.append('ENERGY')
+
+        return (commodities, sectors)
 
     def validate(self, event: BigQueryEvent) -> Tuple[bool, Optional[str]]:
         """
