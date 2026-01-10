@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 
 Milestone: v1.3 GDELT Intelligence
 Phase: 24 of 25 (BigQuery Public Datasets)
-Plan: 2 of 2 in current phase
+Plan: 3 of 3 in current phase
 Status: Phase complete
-Last activity: 2026-01-10 - Completed 24-02-PLAN.md
+Last activity: 2026-01-10 - Completed 24-03-PLAN.md
 
-Progress: █████████░ 97%
+Progress: █████████░ 98%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 65
+- Total plans completed: 66
 - Average duration: 9 min
-- Total execution time: 11.1 hours
+- Total execution time: 11.2 hours
 
 **By Phase:**
 
@@ -51,11 +51,11 @@ Progress: █████████░ 97%
 | 21 | 3 | 10 min | 3 min |
 | 22 | 1 | 2 min | 2 min |
 | 23 | 2 | 11 min | 6 min |
-| 24 | 2 | 9 min | 5 min |
+| 24 | 3 | 14 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 2min, 7min, 4min, 5min
-- Trend: Fast (BigQuery adapters)
+- Last 5 plans: 2min, 7min, 4min, 5min, 5min
+- Trend: Fast (Phase 24 complete)
 
 ## Accumulated Context
 
@@ -287,6 +287,10 @@ Recent decisions affecting current work:
 - Phase 24: SEC EDGAR adapter stubbed pending schema discovery (bq ls bigquery-public-data:sec_edgar)
 - Phase 24: BigQuery partition filtering for cost optimization (1TB/month free tier)
 - Phase 24: Stable event ID formats: gt-{date}-{term}, wb-{code}-{indicator}-{year}, sec-{filing_id}
+- Phase 24: Entity linking at publish time (not query time) for performance optimization
+- Phase 24: Metadata.linked_entities stores canonical IDs for consistent multi-source queries
+- Phase 24: Capitalized word patterns for simple entity extraction (Phase 6 enhancement deferred)
+- Phase 24: GET /api/entities/{id}/sources endpoint groups events by source
 
 ### Deferred Issues
 
@@ -318,5 +322,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-10
-Stopped at: Completed Phase 24 Plan 02 (24-02-PLAN.md)
+Stopped at: Completed Phase 24 Plan 03 (24-03-PLAN.md) - Phase 24 complete
 Resume file: None
