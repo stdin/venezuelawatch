@@ -311,6 +311,6 @@ Plans:
 | 23. Intelligence Pipeline Rebuild | v1.3 | 2/2 | Complete | 2026-01-10 |
 | 24. BigQuery Public Datasets | v1.3 | 3/3 | Complete | 2026-01-10 |
 | 25. Update System to Follow Platform Design | v1.3 | 2/2 | Complete | 2026-01-10 |
-| 26. GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking | v1.3 | 0/? | Not started | - |
+| 26. GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking | v1.3 | 2/? | In progress | - |
 | 27. Rolling Window Statistics, Persistence Spike Detection, Multi-Source Corroboration | v1.3 | 0/? | Not started | - |
 | 28. Small-Scale End-to-End Pipeline Test in GCP | v1.3 | 0/? | Not started | - |
