@@ -1,5 +1,38 @@
 # Project Milestones: VenezuelaWatch
 
+## v1.2 Advanced Analytics (Shipped: 2026-01-10)
+
+**Delivered:** Polyglot persistence architecture, GCP-native serverless pipeline, and correlation analysis backend
+
+**Phases completed:** 14-18 (excluding 17, partial 15) — 14 plans total
+
+**Key accomplishments:**
+
+- Polyglot persistence architecture (PostgreSQL + BigQuery) for unified time-series analytics
+- BigQuery migration: 5 partitioned tables with clustering for efficient time-series queries
+- GDELT native BigQuery integration with 4x event capacity (1000 vs 250) and 15x richer data fields (61 vs 4)
+- Complete event migration to BigQuery (GDELT, ReliefWeb, FRED, UN Comtrade, World Bank) for unified analytics
+- GCP-native serverless orchestration (Cloud Scheduler, Cloud Functions, Pub/Sub, Cloud Tasks) replacing Celery
+- 6 standalone Cloud Functions for ingestion with OIDC authentication and deployment automation
+- Event-driven Cloud Run handlers with Pub/Sub push subscriptions for <1s latency
+- Correlation analysis backend with scipy/statsmodels and Bonferroni correction
+- Enhanced data visualization (heatmaps, timelines, view toggles with CSS Grid and Recharts)
+- Vertex AI time-series forecasting infrastructure with TiDE model auto-selection
+
+**Stats:**
+
+- 112 files created/modified
+- +19,709 lines added, -541 lines removed (net +19,168)
+- ~16,341 total lines Python/TypeScript/TSX
+- 6 phases (3 decimal phases inserted), 14 plans, ~42 tasks
+- 2 days from BigQuery setup to GCP cutover complete (2026-01-08 → 2026-01-10)
+
+**Git range:** `feat(14-01)` → `feat(18-02)`
+
+**What's next:** Deploy GCP infrastructure (code ready, deployment deferred), complete Phase 15-02 correlation UI, or plan v1.3
+
+---
+
 ## v1.1 UI/UX Overhaul (Shipped: 2026-01-10)
 
 **Delivered:** Comprehensive UI/UX redesign with professional design system, Mantine component library, and WCAG 2.1 AA accessible, mobile-responsive application.

@@ -12,10 +12,11 @@ None
 
 - ✅ **v1.0 MVP** - Phases 1-7 (shipped 2026-01-09)
 - ✅ **v1.1 UI/UX Overhaul** - Phases 8-13 (shipped 2026-01-10)
-- 🚧 **v1.2 Advanced Analytics** - Phases 14-17 (in progress)
+- ✅ **v1.2 Advanced Analytics** - Phases 14-18 (shipped 2026-01-10, partial)
 
 ## Completed Milestones
 
+- ✅ [v1.2 Advanced Analytics](milestones/v1.2-Advanced-Analytics-ROADMAP.md) (Phases 14-18, partial) — SHIPPED 2026-01-10
 - ✅ [v1.1 UI/UX Overhaul](milestones/v1.1-UI-UX-Overhaul-ROADMAP.md) (Phases 8-13) — SHIPPED 2026-01-10
 - ✅ [v1.0 MVP](milestones/) (Phases 1-7) — SHIPPED 2026-01-09
 
@@ -133,110 +134,23 @@ See [milestones/v1.1-UI-UX-Overhaul-ROADMAP.md](milestones/v1.1-UI-UX-Overhaul-R
 
 </details>
 
-### 🚧 v1.2 Advanced Analytics (In Progress)
+<details>
+<summary>✅ v1.2 Advanced Analytics (Phases 14-18, partial) - SHIPPED 2026-01-10</summary>
 
 **Milestone Goal:** Add powerful intelligence capabilities with time-series forecasting, correlation analysis, custom reports, and enhanced data visualization.
 
-#### Phase 14: Time-Series Forecasting
-**Goal**: Predict risk trends, economic indicators, and event patterns using statistical models
-**Depends on**: Phase 13 (previous milestone complete)
-**Research**: Completed (14-RESEARCH.md)
-**Research topics**: Python forecasting libraries (Prophet, statsmodels, scikit-learn), model selection for time-series data, integration with existing TimescaleDB data
-**Plans**: 4 plans
+- [x] Phase 14: Time-Series Forecasting (4/4 plans) — completed 2026-01-10
+- [x] Phase 14.1: BigQuery Migration (4/4 plans, INSERTED) — completed 2026-01-10
+- [x] Phase 14.2: GDELT Native BigQuery (1/1 plan, INSERTED) — completed 2026-01-10
+- [x] Phase 14.3: Complete Event Migration to BigQuery (1/1 plan, INSERTED) — completed 2026-01-10
+- [x] Phase 15: Correlation & Pattern Analysis (1/2 plans, partial) — backend complete 2026-01-10
+- [x] Phase 16: Enhanced Data Visualization (1/1 plan) — completed 2026-01-09
+- [ ] Phase 17: Custom Reports & Alerts (deferred to v1.3+)
+- [x] Phase 18: GCP-Native Pipeline Migration (3/3 plans) — completed 2026-01-10
 
-Plans:
-- [x] 14-01: BigQuery ETL Setup
-- [x] 14-02: Vertex AI Training Infrastructure
-- [x] 14-03: Forecast API Integration
-- [x] 14-04: Frontend Forecast Visualization
+**Note:** Phase 15-02 (correlation UI) and Phase 17 deferred to future milestone. See [archive](milestones/v1.2-Advanced-Analytics-ROADMAP.md) for full details.
 
-#### Phase 14.1: BigQuery Migration (INSERTED)
-**Goal**: Migrate from TimescaleDB to polyglot persistence (PostgreSQL + BigQuery) for time-series data - consolidate with Phase 14 forecasting infrastructure, update Phases 1/3/4/6/7 ingestion and queries
-**Depends on**: Phase 14
-**Research**: Completed (TIMESCALEDB-MIGRATION.md)
-**Plans**: 4 plans
-
-Plans:
-- [x] 14.1-01: BigQuery Schema & Service Setup
-- [x] 14.1-02: Celery Ingestion Migration
-- [x] 14.1-03: API Views Migration
-- [x] 14.1-04: Data Migration & Validation
-
-**Details:**
-**URGENT:** TimescaleDB extension not available on Cloud SQL PostgreSQL - blocking production deployment. Migration to polyglot persistence (PostgreSQL for transactional data, BigQuery for time-series analytics) consolidates infrastructure with Phase 14 forecasting and provides better scalability.
-
-**Reference:** See `.planning/TIMESCALEDB-MIGRATION.md` for complete research and migration strategy.
-
-#### Phase 14.2: GDELT Native BigQuery (INSERTED)
-**Goal**: Migrate from custom GDELT DOC API polling to GDELT's native BigQuery dataset (gdelt-bq.gdeltv2) for richer data and simpler architecture
-**Depends on**: Phase 14.1
-**Research**: Not required (native dataset, direct query migration)
-**Plans**: 1 plan
-
-Plans:
-- [x] 14.2-01: GDELT BigQuery Federation & Sync Task
-
-**Details:**
-Replace custom GDELT DOC API polling (250 event limit, 3-4 fields) with direct queries to GDELT's native BigQuery dataset (1000 event limit, 61 rich fields). Unlocks 2,300+ themes/emotions, 65 languages, historical access beyond 15-minute windows, and actor network analysis. Eliminates custom ingestion infrastructure while providing richer event data (GoldsteinScale, AvgTone, NumMentions, actor codes/names, QuadClass, geographic coordinates).
-
-**Benefits:** 4x event capacity, 15x more data fields, historical query capability, simpler architecture, future-proof for GDELT themes/emotions analysis.
-
-**Reference:** See Phase 14.2 plan and summary documents for implementation details.
-
-#### Phase 14.3: Complete Event Migration to BigQuery (INSERTED)
-**Goal**: Migrate all remaining event ingestion sources (ReliefWeb, FRED, UN Comtrade, World Bank) and API views from PostgreSQL to BigQuery for unified time-series analytics
-**Depends on**: Phase 14.2
-**Research**: Not required (extends BigQuery migration pattern established in 14.1/14.2)
-**Plans**: 1 plan
-
-Plans:
-- [x] 14.3-01: Migrate Processing Tasks to BigQuery
-
-**Details:**
-**URGENT:** Complete the polyglot persistence migration by moving all remaining event data sources to BigQuery. Phase 14.1 established infrastructure and migrated entity risk time-series. Phase 14.2 migrated GDELT to native BigQuery dataset. Phase 14.3 completes the migration by moving ReliefWeb, FRED, UN Comtrade, and World Bank ingestion tasks to write to BigQuery, updating all remaining API views to query BigQuery instead of PostgreSQL Event model, and deprecating PostgreSQL Event model (keep for Django metadata only, not time-series data).
-
-**Benefits:** Unified time-series analytics platform, eliminates cross-database queries, enables Phase 15 correlation analysis across all data sources, consistent query performance, simplified architecture.
-
-**Reference:** Phase 14.3 completes the architectural shift from hybrid (PostgreSQL + BigQuery) to fully polyglot (PostgreSQL for transactional, BigQuery for all time-series).
-
-#### Phase 15: Correlation & Pattern Analysis
-**Goal**: Discover relationships between events, entities, and economic data with visual correlation matrices
-**Depends on**: Phase 14.3
-**Research**: Completed (15-RESEARCH.md)
-**Research topics**: Correlation analysis methods for mixed data types, pattern detection algorithms, network analysis for entity relationships
-**Status**: Partial complete (1/2 plans complete)
-
-Plans:
-- [x] 15-01: Correlation Backend API (scipy/statsmodels, Bonferroni correction) - 4 min
-- [ ] 15-02: TBD
-
-#### Phase 16: Enhanced Data Visualization
-**Goal**: Interactive charts, heatmaps, network graphs, custom dashboards, visualization library expansion
-**Depends on**: Phase 15
-**Research**: Unlikely (extending existing Recharts patterns)
-**Status**: Complete (1/1 plans complete)
-
-Plans:
-- [x] 16-01: Heatmaps, Timelines, View Toggles (CSS Grid, Recharts ComposedChart) - 8 min
-
-#### Phase 18: GCP-Native Pipeline Migration
-**Goal**: Migrate data pipeline from Celery to fully GCP-native orchestration (Cloud Scheduler, Cloud Run, Pub/Sub, Cloud Tasks) for serverless scalability and observability
-**Depends on**: Phase 14.2 (GDELT Native BigQuery complete)
-**Research**: Completed (GCP-NATIVE-ORCHESTRATION-RESEARCH.md)
-**Research topics**: Cloud Composer vs Cloud Scheduler, Cloud Run vs Cloud Functions, Pub/Sub event-driven patterns, Cloud Tasks queue management, Django containerization, Eventarc triggers, cost optimization
-**Plans**: TBD
-
-Plans:
-- [x] 18-01: Ingestion Layer Migration (Cloud Functions + deployment scripts) - 10 min
-- [x] 18-02: Processing Layer Migration (Pub/Sub + Cloud Run + Cloud Tasks) - 8 min
-- [x] 18-03: Cutover & Infrastructure Cleanup (Celery removed, deployment deferred) - 8 min
-
-**Details:**
-Comprehensive migration from Celery-based orchestration to GCP-native serverless architecture. Ingestion layer (GDELT, ReliefWeb, FRED, Comtrade, World Bank, sanctions) migrates to Cloud Scheduler + Cloud Functions for near-zero cost ($1-2/month within free tier). Processing layer (LLM analysis, entity extraction) migrates to Pub/Sub + Cloud Run + Cloud Tasks for auto-scaling (0→100 concurrent instances) and 34% cost reduction ($115/month vs $175/month). Chat API remains on Cloud Run (no change). Total migration: 3 weeks with phased rollout and rollback capability.
-
-**Benefits:** Auto-scaling, GCP-native observability (Cloud Logging, Error Reporting, Trace), built-in retries, serverless operational simplicity, future-proof for Vertex AI integration.
-
-**Reference:** See `.planning/GCP-NATIVE-ORCHESTRATION-RESEARCH.md` for complete architecture, migration strategy, code examples, and cost analysis.
+</details>
 
 ## Progress
 

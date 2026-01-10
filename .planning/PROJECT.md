@@ -85,27 +85,32 @@ Accurate risk intelligence that identifies sanctions changes, political disrupti
 | Mixed latency by data source | Breaking news/alerts need near-real-time, economic data can be slower - optimizes cost and complexity while meeting user needs | — Pending |
 | Individual users with team architecture | Simpler v1 while avoiding costly refactor later when teams are needed | — Pending |
 
-## Current State (v1.1)
+## Current State (v1.2)
 
-**Shipped:** v1.0 MVP (2026-01-09) + v1.1 UI/UX Overhaul (2026-01-10)
+**Shipped:** v1.0 MVP (2026-01-09) + v1.1 UI/UX Overhaul (2026-01-10) + v1.2 Advanced Analytics (2026-01-10)
 
 **Tech Stack:**
 - Frontend: React 19, TypeScript, Mantine UI, Recharts, @tanstack/react-query, assistant-ui, Vite
-- Backend: Django 5.2, Celery, Redis, TimescaleDB/PostgreSQL, django-ninja, django-allauth
-- Infrastructure: GCP (Cloud SQL, Cloud Storage, Secret Manager)
+- Backend: Django 5.2, PostgreSQL, BigQuery, django-ninja, django-allauth, scipy, statsmodels
+- Infrastructure: GCP (Cloud SQL, BigQuery, Cloud Storage, Secret Manager, Cloud Functions, Cloud Scheduler, Pub/Sub, Cloud Tasks, Cloud Run)
+- Data Pipeline: GCP-native serverless (Cloud Scheduler → Cloud Functions → BigQuery → Pub/Sub → Cloud Run)
 - Testing: Storybook 10 with a11y addon, Vitest
-- Total LOC: ~7,709 frontend TypeScript/TSX
+- Total LOC: ~16,341 Python/TypeScript/TSX
 
 **Current Features:**
-- Multi-source data pipeline (GDELT, FRED, UN Comtrade, World Bank, ReliefWeb)
+- Polyglot persistence architecture (PostgreSQL for transactional, BigQuery for time-series analytics)
+- Multi-source data pipeline (GDELT native BigQuery with 1000-event capacity, ReliefWeb, FRED, UN Comtrade, World Bank)
+- GCP-native serverless orchestration (Cloud Scheduler, Cloud Functions, Pub/Sub, Cloud Tasks, Cloud Run)
+- Correlation analysis backend with scipy/statsmodels and Bonferroni correction
+- Vertex AI time-series forecasting infrastructure with TiDE model
 - Risk intelligence with sanctions screening and severity classification
 - Real-time events dashboard with Recharts visualization and Mantine filters
 - Entity tracking with leaderboard, trending metrics, and detailed profiles
 - AI chat with Claude streaming and custom tool UI components
+- Enhanced data visualization (heatmaps, timelines, view toggles)
 - Mobile-responsive design (xs: 576px → xl: 1408px breakpoints)
 - WCAG 2.1 AA accessible with keyboard navigation and screen reader support
 - Professional design system with OKLCH colors and semantic tokens
-- Comprehensive documentation (responsive design + accessibility patterns)
 
 **User Feedback Themes:**
 (No user testing yet - ready for beta)
@@ -116,4 +121,4 @@ Accurate risk intelligence that identifies sanctions changes, political disrupti
 - Potential virtualized list performance optimization for 1000+ entities
 
 ---
-*Last updated: 2026-01-10 after v1.1 milestone*
+*Last updated: 2026-01-10 after v1.2 milestone*

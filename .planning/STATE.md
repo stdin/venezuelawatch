@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-10)
 
 **Core value:** Accurate risk intelligence that identifies sanctions changes, political disruptions, and trade opportunities before they impact investment decisions.
-**Current focus:** v1.1 shipped — Ready for production deployment or v1.2 planning
+**Current focus:** v1.2 shipped — Polyglot persistence and GCP-native serverless pipeline complete
 
 ## Current Position
 
-Phase: 18 of 18 (GCP-Native Pipeline Migration)
-Plan: 3 of 3 in current phase
-Status: Complete (deployment deferred)
-Last activity: 2026-01-10 - Completed 18-03-PLAN.md
+Milestone: v1.2 Advanced Analytics shipped 2026-01-10
+Phase: 15 (Correlation & Pattern Analysis) - 1/2 plans complete
+Status: Planning next work (Phase 15-02 or v1.3)
+Last activity: 2026-01-10 - Archived v1.2 milestone
 
-Progress: ████████████████████████████▓ 99%
+Progress: ██████████████████████████████ 100% (v1.2 scope complete)
 
 ## Performance Metrics
 
@@ -267,11 +267,11 @@ None yet.
 
 - v1.0 MVP shipped 2026-01-09: Complete SaaS platform with data pipeline, risk intelligence, dashboard, entity tracking, and AI chat (Phases 1-7)
 - v1.1 UI/UX Overhaul shipped 2026-01-10: Comprehensive UI/UX redesign with design system, component library, and responsive design (Phases 8-13)
-- Milestone v1.2 Advanced Analytics created: Time-series forecasting, correlation analysis, custom reports, enhanced visualization (Phases 14-17)
-- **Phase 14.1 inserted after Phase 14 (2026-01-09):** BigQuery Migration - TimescaleDB not available on Cloud SQL, migrate to polyglot persistence (PostgreSQL + BigQuery) - URGENT infrastructure fix blocking production deployment (COMPLETE 2026-01-10)
-- **Phase 14.2 inserted after Phase 14.1 (2026-01-10):** GDELT Native BigQuery - Migrate from custom GDELT DOC API polling to native BigQuery dataset (gdelt-bq.gdeltv2) for richer data and simpler architecture - Unlocks 2,300+ themes/emotions, 65 languages, historical access (COMPLETE 2026-01-10)
-- **Phase 14.3 inserted after Phase 14.2 (2026-01-10):** Complete Event Migration to BigQuery - Migrate all remaining event ingestion (ReliefWeb, FRED, UN Comtrade, World Bank) and API views from PostgreSQL to BigQuery for unified time-series analytics - URGENT architectural prerequisite for Phase 15 correlation analysis
-- **Phase 18 added to v1.2 (2026-01-10):** GCP-Native Pipeline Migration - Comprehensive migration from Celery to GCP-native serverless orchestration (Cloud Scheduler, Cloud Run, Pub/Sub, Cloud Tasks) for auto-scaling, observability, and operational simplicity - Research complete (GCP-NATIVE-ORCHESTRATION-RESEARCH.md)
+- **v1.2 Advanced Analytics shipped 2026-01-10:** Polyglot persistence architecture (PostgreSQL + BigQuery), GCP-native serverless orchestration, correlation analysis backend (Phases 14-18, partial) — Phase 15-02 and Phase 17 deferred to future milestone
+- Phase 14.1 inserted after Phase 14 (2026-01-09): BigQuery Migration - TimescaleDB not available on Cloud SQL, migrate to polyglot persistence
+- Phase 14.2 inserted after Phase 14.1 (2026-01-10): GDELT Native BigQuery - 4x event capacity, 15x richer data fields
+- Phase 14.3 inserted after Phase 14.2 (2026-01-10): Complete Event Migration to BigQuery - unified time-series analytics platform
+- Phase 18 added to v1.2 (2026-01-10): GCP-Native Pipeline Migration - serverless orchestration replacing Celery
 
 ## Session Continuity
 
