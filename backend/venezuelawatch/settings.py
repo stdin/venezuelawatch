@@ -260,3 +260,7 @@ OFAC_API_URL = 'https://sanctionssearch.ofac.treas.gov/api/PublicationPreview/ex
 VERTEX_AI_ENDPOINT_ID = os.environ.get('VERTEX_AI_ENDPOINT_ID', '')
 VERTEX_AI_PROJECT_ID = os.environ.get('GCP_PROJECT_ID', 'venezuelawatch-staging')
 VERTEX_AI_LOCATION = os.environ.get('VERTEX_AI_LOCATION', 'us-central1')
+
+# BigQuery Configuration
+GCP_PROJECT_ID = os.getenv('GCP_PROJECT_ID', 'venezuelawatch-staging')
+BIGQUERY_DATASET = os.getenv('BIGQUERY_DATASET', 'venezuelawatch_analytics')
