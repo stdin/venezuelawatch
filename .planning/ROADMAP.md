@@ -13,6 +13,11 @@ None
 - ✅ **v1.0 MVP** - Phases 1-7 (shipped 2026-01-09)
 - ✅ **v1.1 UI/UX Overhaul** - Phases 8-13 (shipped 2026-01-10)
 
+## Completed Milestones
+
+- ✅ [v1.1 UI/UX Overhaul](milestones/v1.1-UI-UX-Overhaul-ROADMAP.md) (Phases 8-13) — SHIPPED 2026-01-10
+- ✅ [v1.0 MVP](milestones/) (Phases 1-7) — SHIPPED 2026-01-09
+
 ## Phases
 
 <details>
@@ -110,76 +115,22 @@ Plans:
 
 </details>
 
-### ✅ v1.1 UI/UX Overhaul (Shipped 2026-01-10)
+<details>
+<summary>✅ v1.1 UI/UX Overhaul (Phases 8-13) - SHIPPED 2026-01-10</summary>
 
-**Milestone Goal:** Comprehensive UI/UX redesign with professional design system, improved component library, and enhanced user experience across all pages
+See [milestones/v1.1-UI-UX-Overhaul-ROADMAP.md](milestones/v1.1-UI-UX-Overhaul-ROADMAP.md) for complete phase details.
 
-#### Phase 8: Design System Foundation
-**Goal**: Establish comprehensive design system with color palette, typography, spacing, and component tokens
-**Depends on**: Phase 7 (v1.0 complete)
-**Research**: Completed (08-RESEARCH.md)
-**Research topics**: Design token systems, color theory for data visualization, typography scales, spacing/sizing systems, CSS architecture patterns
-**Plans**: 2 plans
+**Key deliverables:**
+- Professional design system with OKLCH colors, 1.25 modular typography, semantic tokens
+- Storybook 10 interactive style guide with theme switcher
+- Mantine UI component library (28.1k stars, 120+ components)
+- Dashboard redesign with Recharts visualization and Mantine Grid layout
+- Entity pages with leaderboard, metric toggles, and risk intelligence profiles
+- Chat interface with compact tool cards and real-time streaming
+- Mobile-responsive (320px-1440px+) with WCAG 2.1 AA accessibility
+- Comprehensive documentation (1755 lines): responsive patterns and accessibility guidelines
 
-Plans:
-- [x] 08-01: Design Token Foundation (typography, OKLCH colors, spacing)
-- [x] 08-02: Storybook Interactive Style Guide
-
-#### Phase 9: Component Library Rebuild
-**Goal**: Rebuild core UI components (buttons, inputs, cards, modals, tables) with consistent design and accessibility
-**Depends on**: Phase 8
-**Research**: Completed (09-RESEARCH.md)
-**Research topics**: Headless UI libraries, Radix UI primitives, ARIA patterns, component composition patterns
-**Plans**: TBD
-
-Plans:
-- [x] 09-01: Foundation + Form Components (Button, Input)
-
-#### Phase 10: Dashboard Redesign
-**Goal**: Redesign Dashboard and Events Feed with improved layout, data visualization, and filtering UX
-**Depends on**: Phase 9
-**Research**: Completed (10-RESEARCH.md)
-**Research topics**: Mantine Grid responsive patterns, Recharts data visualization, React Query data fetching, Mantine form components
-**Plans**: 4 plans
-
-Plans:
-- [x] 10-01: Responsive Layout & Grid System
-- [x] 10-02: Events Feed Redesign
-- [x] 10-03: Data Visualization with Recharts
-- [x] 10-04: Filter UX Enhancement
-
-#### Phase 11: Entity Pages Redesign
-**Goal**: Redesign entity leaderboard and profile pages with better information architecture and visualization
-**Depends on**: Phase 9
-**Research**: Unlikely (using established components and patterns from Phase 9)
-**Plans**: 3/3 complete
-
-Plans:
-- [x] 11-01: Layout & Metric Toggles (Mantine Grid, SegmentedControl)
-- [x] 11-02: EntityLeaderboard Redesign (Mantine Card, Badge, Skeleton loading)
-- [x] 11-03: EntityProfile Redesign (Mantine Card sections, Alert for sanctions)
-
-#### Phase 12: Chat Interface Polish
-**Goal**: Polish chat interface with better message rendering, tool card design, and conversation UX
-**Depends on**: Phase 9
-**Research**: Unlikely (using established components and patterns from Phase 9)
-**Plans**: TBD
-
-Plans:
-- [ ] 12-01: TBD
-
-#### Phase 13: Responsive & Accessibility
-**Goal**: Ensure mobile responsive design, keyboard navigation, ARIA labels, loading states, and error handling across all pages
-**Depends on**: Phases 10, 11, 12
-**Research**: Completed (13-RESEARCH.md)
-**Research topics**: Mobile-first responsive design, WCAG 2.1 AA compliance, screen reader testing, keyboard navigation patterns, loading state patterns
-**Plans**: 4/4 complete
-
-Plans:
-- [x] 13-01: Responsive Foundation & A11y Setup (Mantine breakpoints, Storybook a11y, skip links, ARIA landmarks)
-- [x] 13-02: Dashboard Responsive & Keyboard Nav (mobile-first Grid, collapsible TrendsPanel, keyboard EventCards, ARIA labels)
-- [x] 13-03: Entities & Chat Responsive (modal pattern, keyboard nav, ARIA labels, touch targets)
-- [x] 13-04: Accessibility Verification & Documentation
+</details>
 
 ## Progress
 

@@ -12,26 +12,25 @@ Accurate risk intelligence that identifies sanctions changes, political disrupti
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Dashboard with real-time event aggregation from 7 data sources (GDELT, FRED, UN Comtrade, World Bank, ReliefWeb) — v1.0
+- ✓ News/Events feed with filtering, search, and sentiment analysis — v1.0, enhanced UX in v1.1
+- ✓ Risk scoring system for sanctions, political changes, supply chain disruptions — v1.0
+- ✓ Entity Watch for tracking people, companies, and governments with news mentions, sanctions monitoring, and trending metrics — v1.0, enhanced UI in v1.1
+- ✓ AI chat interface for natural language queries, event explanation, and tool-based data access — v1.0, polished UI in v1.1
+- ✓ Individual user authentication and accounts — v1.0
+- ✓ Architecture supporting future team features (user model designed for teams) — v1.0
+- ✓ Mobile-responsive design (320px-1440px+) — v1.1
+- ✓ WCAG 2.1 AA accessibility (keyboard navigation, ARIA labels, screen reader support) — v1.1
+- ✓ Professional design system with comprehensive component library — v1.1
 
 ### Active
 
-- [ ] Dashboard with real-time event aggregation from 7 data sources (GDELT, FRED, UN Comtrade, World Bank, ReliefWeb, USITC, Port Authorities)
-- [ ] News/Events feed with filtering, search, and sentiment analysis
-- [ ] Risk scoring system for sanctions, political changes, supply chain disruptions
-- [ ] Entity Watch for tracking people, companies, and governments with:
-  - News mentions and sentiment tracking
-  - Network relationship mapping
-  - Sanctions and legal status monitoring
-  - Activities and transactions tracking
-- [ ] AI chat interface for:
-  - Natural language queries across all data sources
-  - Event explanation and impact analysis
-  - Custom report generation
 - [ ] Trade opportunity identification (arbitrage, supply chain shifts, new routes)
 - [ ] Competitive intelligence tracking (what key players are doing)
-- [ ] Individual user authentication and accounts
-- [ ] Architecture supporting future team features (shared workspaces, permissions)
+- [ ] USITC and Port Authorities data source integration (deferred from v1.0)
+- [ ] Team workspaces with role-based permissions
+- [ ] Proactive alerting and notifications
+- [ ] Deep historical analysis beyond 3-6 months
 
 ### Out of Scope
 
@@ -86,5 +85,35 @@ Accurate risk intelligence that identifies sanctions changes, political disrupti
 | Mixed latency by data source | Breaking news/alerts need near-real-time, economic data can be slower - optimizes cost and complexity while meeting user needs | — Pending |
 | Individual users with team architecture | Simpler v1 while avoiding costly refactor later when teams are needed | — Pending |
 
+## Current State (v1.1)
+
+**Shipped:** v1.0 MVP (2026-01-09) + v1.1 UI/UX Overhaul (2026-01-10)
+
+**Tech Stack:**
+- Frontend: React 19, TypeScript, Mantine UI, Recharts, @tanstack/react-query, assistant-ui, Vite
+- Backend: Django 5.2, Celery, Redis, TimescaleDB/PostgreSQL, django-ninja, django-allauth
+- Infrastructure: GCP (Cloud SQL, Cloud Storage, Secret Manager)
+- Testing: Storybook 10 with a11y addon, Vitest
+- Total LOC: ~7,709 frontend TypeScript/TSX
+
+**Current Features:**
+- Multi-source data pipeline (GDELT, FRED, UN Comtrade, World Bank, ReliefWeb)
+- Risk intelligence with sanctions screening and severity classification
+- Real-time events dashboard with Recharts visualization and Mantine filters
+- Entity tracking with leaderboard, trending metrics, and detailed profiles
+- AI chat with Claude streaming and custom tool UI components
+- Mobile-responsive design (xs: 576px → xl: 1408px breakpoints)
+- WCAG 2.1 AA accessible with keyboard navigation and screen reader support
+- Professional design system with OKLCH colors and semantic tokens
+- Comprehensive documentation (responsive design + accessibility patterns)
+
+**User Feedback Themes:**
+(No user testing yet - ready for beta)
+
+**Known Issues/Technical Debt:**
+- TypeScript errors in Modal.stories.tsx (pre-existing, non-blocking)
+- Consider Mantine v8.x upgrade when stable
+- Potential virtualized list performance optimization for 1000+ entities
+
 ---
-*Last updated: 2026-01-08 after initialization*
+*Last updated: 2026-01-10 after v1.1 milestone*
