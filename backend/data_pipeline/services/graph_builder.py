@@ -4,8 +4,13 @@ Graph builder service for entity relationship visualization.
 Builds entity co-occurrence graphs from PostgreSQL EntityMention data,
 calculates relationship weights, and prepares data for frontend visualization.
 """
+import json
+import subprocess
+import tempfile
+import os
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
+from pathlib import Path
 from django.db.models import Count, Q
 from django.utils import timezone
 
@@ -183,3 +188,67 @@ class GraphBuilder:
         else:
             # Default to 30 days
             return now - timedelta(days=30)
+
+    def detect_communities(self, nodes: List[Dict], edges: List[Dict]) -> Dict[str, Any]:
+        """
+        Detect communities in graph using Graphology Louvain algorithm.
+
+        Runs Node.js subprocess with Graphology library to perform community detection.
+        Returns nodes with community assignments and identifies high-risk cluster.
+
+        Args:
+            nodes: List of node dictionaries
+            edges: List of edge dictionaries
+
+        Returns:
+            Dictionary with nodes (including community field) and high_risk_cluster ID
+        """
+        # Create temporary JSON file with graph data
+        graph_data = {
+            'nodes': nodes,
+            'edges': edges
+        }
+
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as tmp_file:
+            json.dump(graph_data, tmp_file)
+            tmp_path = tmp_file.name
+
+        try:
+            # Get path to Node.js community detection script
+            script_dir = Path(__file__).parent.parent / 'scripts'
+            script_path = script_dir / 'community_detection.js'
+
+            # Execute Node.js script
+            result = subprocess.run(
+                ['node', str(script_path), tmp_path],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+
+            if result.returncode != 0:
+                raise RuntimeError(f"Community detection failed: {result.stderr}")
+
+            # Parse JSON response
+            detection_result = json.loads(result.stdout)
+
+            # Assign community field to nodes
+            community_map = detection_result['communities']
+            for node in nodes:
+                node_id = node['id']
+                if node_id in community_map:
+                    if 'data' not in node:
+                        node['data'] = {}
+                    node['data']['community'] = str(community_map[node_id])
+
+            return {
+                'nodes': nodes,
+                'edges': edges,
+                'high_risk_cluster': str(detection_result.get('high_risk_cluster')),
+                'cluster_stats': detection_result.get('cluster_stats', {})
+            }
+
+        finally:
+            # Clean up temporary file
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)

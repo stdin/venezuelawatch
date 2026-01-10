@@ -1,0 +1,11 @@
+{
+  "name": "backend-scripts",
+  "version": "1.0.0",
+  "description": "Node.js scripts for backend processing",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "graphology": "^0.26.0",
+    "graphology-communities-louvain": "^2.0.2"
+  }
+}
