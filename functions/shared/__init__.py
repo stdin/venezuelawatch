@@ -1,10 +1,8 @@
 """
-Shared utilities for VenezuelaWatch Cloud Functions.
+Shared utilities for Cloud Functions.
 
-Provides common clients for BigQuery, Secret Manager, and Pub/Sub.
+Provides common functionality across ingestion functions:
+- Pub/Sub event publishing
+- BigQuery client initialization
+- Error handling patterns
 """
-from .bigquery_client import BigQueryClient
-from .secrets import SecretManagerClient
-from .pubsub_client import PubSubClient
-
-__all__ = ['BigQueryClient', 'SecretManagerClient', 'PubSubClient']
