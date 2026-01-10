@@ -204,7 +204,7 @@ Plans:
 **Depends on**: Phase 14.3
 **Research**: Completed (15-RESEARCH.md)
 **Research topics**: Correlation analysis methods for mixed data types, pattern detection algorithms, network analysis for entity relationships
-**Status**: In progress (1/2 plans complete)
+**Status**: Partial complete (1/2 plans complete)
 
 Plans:
 - [x] 15-01: Correlation Backend API (scipy/statsmodels, Bonferroni correction) - 4 min
@@ -214,10 +214,10 @@ Plans:
 **Goal**: Interactive charts, heatmaps, network graphs, custom dashboards, visualization library expansion
 **Depends on**: Phase 15
 **Research**: Unlikely (extending existing Recharts patterns)
-**Plans**: TBD
+**Status**: Complete (1/1 plans complete)
 
 Plans:
-- [ ] 16-01: TBD
+- [x] 16-01: Heatmaps, Timelines, View Toggles (CSS Grid, Recharts ComposedChart) - 8 min
 
 #### Phase 18: GCP-Native Pipeline Migration
 **Goal**: Migrate data pipeline from Celery to fully GCP-native orchestration (Cloud Scheduler, Cloud Run, Pub/Sub, Cloud Tasks) for serverless scalability and observability
@@ -259,7 +259,7 @@ Comprehensive migration from Celery-based orchestration to GCP-native serverless
 | 14. Time-Series Forecasting | v1.2 | 4/4 | Complete | 2026-01-10 |
 | 14.1. BigQuery Migration (INSERTED) | v1.2 | 4/4 | Complete | 2026-01-10 |
 | 14.2. GDELT Native BigQuery (INSERTED) | v1.2 | 1/1 | Complete | 2026-01-10 |
-| 14.3. Complete Event Migration to BigQuery (INSERTED) | v1.2 | 0/? | Not started | - |
-| 15. Correlation & Pattern Analysis | v1.2 | 0/? | Not started | - |
-| 16. Enhanced Data Visualization | v1.2 | 0/? | Not started | - |
+| 14.3. Complete Event Migration to BigQuery (INSERTED) | v1.2 | 1/1 | Complete | 2026-01-10 |
+| 15. Correlation & Pattern Analysis | v1.2 | 1/2 | Partial | - |
+| 16. Enhanced Data Visualization | v1.2 | 1/1 | Complete | 2026-01-09 |
 | 18. GCP-Native Pipeline Migration | v1.2 | 0/4 | Not started | - |
