@@ -76,23 +76,23 @@ class GdeltQuantitativeScorer:
         scores = []
 
         # 1. Goldstein scale (invert: negative values = higher risk)
-        goldstein = event_metadata.get('goldstein_scale', 0)
+        goldstein = event_metadata.get('goldstein_scale', 0) or 0
         goldstein_inverted = -goldstein  # -10 becomes +10 (high risk)
         goldstein_score = self.goldstein_scaler.transform([[goldstein_inverted]])[0][0]
         scores.append((goldstein_score, self.weights['goldstein']))
 
         # 2. Tone (invert: negative sentiment = higher risk)
-        tone = event_metadata.get('avg_tone', 0)
+        tone = event_metadata.get('avg_tone', 0) or 0
         tone_inverted = -tone  # -100 becomes +100 (high risk)
         tone_score = self.tone_scaler.transform([[tone_inverted]])[0][0]
         scores.append((tone_score, self.weights['tone']))
 
         # 3. GKG themes (categorical presence)
-        themes_score = self._score_themes(event_metadata.get('gkg', {}))
+        themes_score = self._score_themes(event_metadata.get('gkg') or {})
         scores.append((themes_score, self.weights['themes']))
 
         # 4. Theme intensity (count/frequency)
-        intensity_score = self._score_theme_intensity(event_metadata.get('gkg', {}))
+        intensity_score = self._score_theme_intensity(event_metadata.get('gkg') or {})
         scores.append((intensity_score, self.weights['intensity']))
 
         # Weighted average
