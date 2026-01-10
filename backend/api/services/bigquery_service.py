@@ -319,6 +319,46 @@ class BigQueryService:
         results = self.client.query(query, job_config=job_config).result()
         return [dict(row) for row in results]
 
+    def search_events(
+        self,
+        query: str,
+        start_date: datetime,
+        end_date: datetime,
+        limit: int = 20
+    ) -> List[dict]:
+        """
+        Search events by text query (LIKE search on title and content).
+
+        Args:
+            query: Search query string
+            start_date: Start of time range
+            end_date: End of time range
+            limit: Maximum number of results
+
+        Returns:
+            List of matching event dicts
+        """
+        bq_query = f"""
+            SELECT *
+            FROM `{self.project_id}.{self.dataset_id}.events`
+            WHERE (title LIKE @query OR content LIKE @query)
+            AND mentioned_at BETWEEN @start_date AND @end_date
+            ORDER BY mentioned_at DESC
+            LIMIT @limit
+        """
+
+        job_config = bigquery.QueryJobConfig(
+            query_parameters=[
+                bigquery.ScalarQueryParameter('query', 'STRING', f'%{query}%'),
+                bigquery.ScalarQueryParameter('start_date', 'TIMESTAMP', start_date),
+                bigquery.ScalarQueryParameter('end_date', 'TIMESTAMP', end_date),
+                bigquery.ScalarQueryParameter('limit', 'INT64', limit)
+            ]
+        )
+
+        results = self.client.query(bq_query, job_config=job_config).result()
+        return [dict(row) for row in results]
+
     def get_entity_stats(self, entity_id: str, days: int = 90) -> dict:
         """
         Get aggregated stats for entity profile.
