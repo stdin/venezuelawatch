@@ -3,6 +3,7 @@ from core.api import router as health_router, user_router
 from data_pipeline.api import router as tasks_router, risk_router, entity_router
 from chat.api import chat_router
 from forecasting.api import router as forecasting_router
+from api.correlation.views import router as correlation_router
 
 api = NinjaAPI(
     title="VenezuelaWatch API",
@@ -30,5 +31,8 @@ api.add_router("/chat", chat_router, tags=["AI Chat"])
 
 # Add forecasting router (Phase 14)
 api.add_router("/forecasting", forecasting_router, tags=["Forecasting"])
+
+# Add correlation analysis router (Phase 15)
+api.add_router("/correlation", correlation_router, tags=["Correlation Analysis"])
 
 # Will add more routers here in future phases
