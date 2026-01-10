@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "core",
     "data_pipeline",
     "chat",
+    "forecasting",
 ]
 
 # Custom User Model
