@@ -150,10 +150,24 @@ Plans:
 - [x] 14-03: Forecast API Integration
 - [x] 14-04: Frontend Forecast Visualization
 
+#### Phase 14.1: BigQuery Migration (INSERTED)
+**Goal**: Migrate from TimescaleDB to polyglot persistence (PostgreSQL + BigQuery) for time-series data - consolidate with Phase 14 forecasting infrastructure, update Phases 1/3/4/6/7 ingestion and queries
+**Depends on**: Phase 14
+**Research**: Completed (TIMESCALEDB-MIGRATION.md)
+**Plans**: TBD
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 14.1 to break down)
+
+**Details:**
+**URGENT:** TimescaleDB extension not available on Cloud SQL PostgreSQL - blocking production deployment. Migration to polyglot persistence (PostgreSQL for transactional data, BigQuery for time-series analytics) consolidates infrastructure with Phase 14 forecasting and provides better scalability.
+
+**Reference:** See `.planning/TIMESCALEDB-MIGRATION.md` for complete research and migration strategy.
+
 #### Phase 15: Correlation & Pattern Analysis
 **Goal**: Discover relationships between events, entities, and economic data with visual correlation matrices
-**Depends on**: Phase 14
-**Research**: Likely (statistical correlation methods, graph algorithms)
+**Depends on**: Phase 14.1
+**Research**: Completed (15-RESEARCH.md)
 **Research topics**: Correlation analysis methods for mixed data types, pattern detection algorithms, network analysis for entity relationships
 **Plans**: TBD
 
@@ -196,7 +210,8 @@ Plans:
 | 11. Entity Pages Redesign | v1.1 | 3/3 | Complete | 2026-01-09 |
 | 12. Chat Interface Polish | v1.1 | 2/2 | Complete | 2026-01-09 |
 | 13. Responsive & Accessibility | v1.1 | 4/4 | Complete | 2026-01-10 |
-| 14. Time-Series Forecasting | v1.2 | 2/4 | In progress | - |
+| 14. Time-Series Forecasting | v1.2 | 4/4 | Complete | 2026-01-10 |
+| 14.1. BigQuery Migration (INSERTED) | v1.2 | 0/? | Not started | - |
 | 15. Correlation & Pattern Analysis | v1.2 | 0/? | Not started | - |
 | 16. Custom Reports & Export | v1.2 | 0/? | Not started | - |
 | 17. Enhanced Data Visualization | v1.2 | 0/? | Not started | - |

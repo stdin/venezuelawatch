@@ -219,16 +219,19 @@ None yet.
 
 ### Blockers/Concerns
 
-**Phase 1 Manual Steps Required:**
-- TimescaleDB extension setup (requires psql client)
-- Django migrations application to Cloud SQL
-- See backend/README.md for detailed instructions
+**Phase 14.1 Migration Required (URGENT):**
+- TimescaleDB extension not available on Cloud SQL PostgreSQL
+- Must migrate to polyglot persistence (PostgreSQL + BigQuery) before production deployment
+- Affects Phases 1, 3, 4, 6, 7 (ingestion and queries need updating)
+- Estimated effort: ~28 hours (3.5 days)
+- See .planning/TIMESCALEDB-MIGRATION.md for complete migration strategy
 
 ### Roadmap Evolution
 
 - v1.0 MVP shipped 2026-01-09: Complete SaaS platform with data pipeline, risk intelligence, dashboard, entity tracking, and AI chat (Phases 1-7)
 - v1.1 UI/UX Overhaul shipped 2026-01-10: Comprehensive UI/UX redesign with design system, component library, and responsive design (Phases 8-13)
 - Milestone v1.2 Advanced Analytics created: Time-series forecasting, correlation analysis, custom reports, enhanced visualization (Phases 14-17)
+- **Phase 14.1 inserted after Phase 14 (2026-01-09):** BigQuery Migration - TimescaleDB not available on Cloud SQL, migrate to polyglot persistence (PostgreSQL + BigQuery) - URGENT infrastructure fix blocking production deployment
 
 ## Session Continuity
 
