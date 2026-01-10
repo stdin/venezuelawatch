@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 
 Milestone: v1.3 GDELT Intelligence
 Phase: 20 of 24 (GKG Integration)
-Plan: 1 of ? in current phase
+Plan: 2 of ? in current phase
 Status: In progress
-Last activity: 2026-01-10 - Completed 20-01-PLAN.md
+Last activity: 2026-01-10 - Completed 20-02-PLAN.md
 
-Progress: ░░░░░░░░░░ 2%
+Progress: ░░░░░░░░░░ 4%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 57
+- Total plans completed: 58
 - Average duration: 9 min
-- Total execution time: 10.5 hours
+- Total execution time: 10.6 hours
 
 **By Phase:**
 
@@ -47,10 +47,10 @@ Progress: ░░░░░░░░░░ 2%
 | 15 | 1 | 4 min | 4 min |
 | 16 | 1 | 8 min | 8 min |
 | 18 | 3 | 26 min | 9 min |
-| 20 | 1 | 6 min | 6 min |
+| 20 | 2 | 13 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 8min, 10min, 8min, 8min, 6min
+- Last 5 plans: 10min, 8min, 8min, 6min, 6min
 - Trend: Fast (data pipeline services)
 
 ## Accumulated Context
@@ -254,6 +254,11 @@ Recent decisions affecting current work:
 - Phase 20: Store raw GKG strings in metadata.gkg_data (parsing deferred to Plan 02)
 - Phase 20: Missing GKG records logged but not errors (expected for many events)
 - Phase 20: Query GKG by DocumentIdentifier, not 3-table join (performance)
+- Phase 20: GKG parser functions in separate module for testability
+- Phase 20: Jaro-Winkler 0.85 threshold for GKG entity deduplication (consistent with Phase 6)
+- Phase 20: GKG entities supplement (not replace) LLM entity extraction
+- Phase 20: Source attribution via 'source' metadata ('llm' vs 'gkg')
+- Phase 20: Quotations and GCAM kept raw (complex parsing deferred)
 
 ### Deferred Issues
 
@@ -283,5 +288,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-10
-Stopped at: Completed 20-01-PLAN.md
+Stopped at: Completed 20-02-PLAN.md
 Resume file: None

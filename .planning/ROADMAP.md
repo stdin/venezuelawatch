@@ -259,7 +259,7 @@ Plans:
 | 16. Enhanced Data Visualization | v1.2 | 1/1 | Complete | 2026-01-09 |
 | 18. GCP-Native Pipeline Migration | v1.2 | 3/3 | Complete | 2026-01-10 |
 | 19. GDELT Events Enrichment | v1.3 | 1/? | In progress | 2026-01-10 |
-| 20. GKG Integration | v1.3 | 0/? | Not started | - |
+| 20. GKG Integration | v1.3 | 2/? | In progress | 2026-01-10 |
 | 21. Mentions Tracking | v1.3 | 0/? | Not started | - |
 | 22. Data Source Architecture | v1.3 | 0/? | Not started | - |
 | 23. Intelligence Pipeline Rebuild | v1.3 | 0/? | Not started | - |
