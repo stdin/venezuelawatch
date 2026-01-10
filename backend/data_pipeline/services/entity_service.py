@@ -5,6 +5,7 @@ This service normalizes entity mentions from events using JaroWinkler
 similarity to deduplicate name variations (e.g., "Nicolás Maduro" = "N. Maduro").
 """
 
+import logging
 from typing import Tuple, Optional
 from django.db import transaction
 from django.utils import timezone
@@ -12,6 +13,8 @@ from rapidfuzz import process, utils
 from rapidfuzz.distance import JaroWinkler
 
 from core.models import Entity, EntityMention, Event
+
+logger = logging.getLogger(__name__)
 
 
 class EntityService:
@@ -97,40 +100,64 @@ class EntityService:
         event: Event,
         raw_name: str,
         match_score: float,
-        relevance: float = None
+        relevance: float = None,
+        event_id: str = None  # BigQuery event ID if event is from BigQuery
     ) -> EntityMention:
         """
         Create EntityMention linking entity to event.
 
+        Now writes to BigQuery entity_mentions table instead of PostgreSQL.
+
         Args:
-            entity: Entity to link
-            event: Event to link
+            entity: Entity to link (still in PostgreSQL)
+            event: Event to link (for metadata - may be from PostgreSQL or BigQuery)
             raw_name: Original name as extracted from event
             match_score: Fuzzy match score (0.0-1.0)
             relevance: Optional LLM relevance score
+            event_id: BigQuery event ID (if event is from BigQuery, required)
 
         Returns:
-            EntityMention instance
+            EntityMention instance (Django model for backwards compatibility)
         """
-        # Create or get EntityMention
-        mention, created = EntityMention.objects.get_or_create(
-            entity=entity,
-            event=event,
-            raw_name=raw_name,
-            defaults={
-                'match_score': match_score,
-                'relevance': relevance,
-                'mentioned_at': event.timestamp
-            }
+        from api.bigquery_models import EntityMention as BigQueryEntityMention
+        from api.services.bigquery_service import bigquery_service
+
+        # Determine event ID (prefer explicit event_id parameter for BigQuery events)
+        bq_event_id = event_id if event_id else str(event.id)
+
+        # Create BigQuery EntityMention
+        bq_mention = BigQueryEntityMention(
+            entity_id=str(entity.id),  # Entity still in PostgreSQL
+            event_id=bq_event_id,  # Event now in BigQuery
+            mentioned_at=event.timestamp,
+            context=raw_name  # Store raw_name as context
         )
 
-        if created:
-            # Increment entity mention count and update last_seen
+        try:
+            # Insert to BigQuery
+            bigquery_service.insert_entity_mentions([bq_mention])
+            logger.info(f"Created BigQuery EntityMention: entity={entity.id} event={bq_event_id}")
+
+            # Increment entity mention count and update last_seen in PostgreSQL
             entity.mention_count += 1
             entity.last_seen = timezone.now()
             entity.save(update_fields=['mention_count', 'last_seen', 'updated_at'])
 
-        return mention
+            # Return a mock Django EntityMention for backwards compatibility
+            # (not saved to PostgreSQL, just for return value)
+            mock_mention = EntityMention(
+                entity=entity,
+                event=event,
+                raw_name=raw_name,
+                match_score=match_score,
+                relevance=relevance,
+                mentioned_at=event.timestamp
+            )
+            return mock_mention
+
+        except Exception as e:
+            logger.error(f"Failed to create BigQuery EntityMention: {e}", exc_info=True)
+            raise
 
     @classmethod
     @transaction.atomic
