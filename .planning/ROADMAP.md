@@ -184,13 +184,13 @@ Plans:
 **Goal**: Track narrative spread by monitoring how events are mentioned across articles over time for early warning signals
 **Depends on**: Phase 20
 **Research**: Complete
-**Plans**: 2/3 complete
-**Status**: In progress
+**Plans**: 3/3 complete
+**Status**: Complete
 
 Plans:
 - [x] 21-01: Mentions tracking infrastructure (PostgreSQL spike model + BigQuery service)
 - [x] 21-02: TDD spike detection logic
-- [ ] 21-03: Spike intelligence analysis
+- [x] 21-03: Mention tracker Cloud Function deployment
 
 #### Phase 22: Data Source Architecture
 
@@ -262,7 +262,7 @@ Plans:
 | 18. GCP-Native Pipeline Migration | v1.2 | 3/3 | Complete | 2026-01-10 |
 | 19. GDELT Events Enrichment | v1.3 | 1/? | In progress | 2026-01-10 |
 | 20. GKG Integration | v1.3 | 2/? | In progress | 2026-01-10 |
-| 21. Mentions Tracking | v1.3 | 2/3 | In progress | - |
+| 21. Mentions Tracking | v1.3 | 3/3 | Complete | 2026-01-10 |
 | 22. Data Source Architecture | v1.3 | 0/? | Not started | - |
 | 23. Intelligence Pipeline Rebuild | v1.3 | 0/? | Not started | - |
 | 24. LLM Optimization & UI | v1.3 | 0/? | Not started | - |
