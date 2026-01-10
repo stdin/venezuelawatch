@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 
 ## Current Position
 
-Phase: 14.1 of 17 (BigQuery Migration) ✓ COMPLETE
-Plan: 4 of 4 in current phase
-Status: Complete
-Last activity: 2026-01-10 - Completed Phase 14.1 (data migration skipped)
+Phase: 14.2 of 17 (GDELT Native BigQuery)
+Plan: 0 of 1 in current phase
+Status: Planning
+Last activity: 2026-01-10 - Created Phase 14.2 plan (GDELT BigQuery migration)
 
 Progress: ██████████████████████████ 100%
 
@@ -239,7 +239,8 @@ None yet.
 - v1.0 MVP shipped 2026-01-09: Complete SaaS platform with data pipeline, risk intelligence, dashboard, entity tracking, and AI chat (Phases 1-7)
 - v1.1 UI/UX Overhaul shipped 2026-01-10: Comprehensive UI/UX redesign with design system, component library, and responsive design (Phases 8-13)
 - Milestone v1.2 Advanced Analytics created: Time-series forecasting, correlation analysis, custom reports, enhanced visualization (Phases 14-17)
-- **Phase 14.1 inserted after Phase 14 (2026-01-09):** BigQuery Migration - TimescaleDB not available on Cloud SQL, migrate to polyglot persistence (PostgreSQL + BigQuery) - URGENT infrastructure fix blocking production deployment
+- **Phase 14.1 inserted after Phase 14 (2026-01-09):** BigQuery Migration - TimescaleDB not available on Cloud SQL, migrate to polyglot persistence (PostgreSQL + BigQuery) - URGENT infrastructure fix blocking production deployment (COMPLETE 2026-01-10)
+- **Phase 14.2 inserted after Phase 14.1 (2026-01-10):** GDELT Native BigQuery - Migrate from custom GDELT DOC API polling to native BigQuery dataset (gdelt-bq.gdeltv2) for richer data and simpler architecture - Unlocks 2,300+ themes/emotions, 65 languages, historical access
 
 ## Session Continuity
 
