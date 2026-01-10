@@ -242,6 +242,7 @@ None yet.
 - Milestone v1.2 Advanced Analytics created: Time-series forecasting, correlation analysis, custom reports, enhanced visualization (Phases 14-17)
 - **Phase 14.1 inserted after Phase 14 (2026-01-09):** BigQuery Migration - TimescaleDB not available on Cloud SQL, migrate to polyglot persistence (PostgreSQL + BigQuery) - URGENT infrastructure fix blocking production deployment (COMPLETE 2026-01-10)
 - **Phase 14.2 inserted after Phase 14.1 (2026-01-10):** GDELT Native BigQuery - Migrate from custom GDELT DOC API polling to native BigQuery dataset (gdelt-bq.gdeltv2) for richer data and simpler architecture - Unlocks 2,300+ themes/emotions, 65 languages, historical access (COMPLETE 2026-01-10)
+- **Phase 18 added to v1.2 (2026-01-10):** GCP-Native Pipeline Migration - Comprehensive migration from Celery to GCP-native serverless orchestration (Cloud Scheduler, Cloud Run, Pub/Sub, Cloud Tasks) for auto-scaling, observability, and operational simplicity - Research complete (GCP-NATIVE-ORCHESTRATION-RESEARCH.md)
 
 ## Session Continuity
 
