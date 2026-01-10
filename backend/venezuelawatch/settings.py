@@ -212,10 +212,17 @@ CELERY_CACHE_BACKEND = 'default'
 from celery.schedules import crontab
 
 CELERY_BEAT_SCHEDULE = {
-    'ingest-gdelt-events': {
-        'task': 'data_pipeline.tasks.gdelt_tasks.ingest_gdelt_events',
+    # Deprecated: Old DOC API ingestion
+    # 'ingest-gdelt-events': {
+    #     'task': 'data_pipeline.tasks.gdelt_tasks.ingest_gdelt_events',
+    #     'schedule': 900.0,  # 15 minutes in seconds
+    #     'args': (15,),  # lookback_minutes
+    # },
+    # New: BigQuery native dataset sync
+    'gdelt-sync': {
+        'task': 'data_pipeline.tasks.gdelt_sync_task.sync_gdelt_events',
         'schedule': 900.0,  # 15 minutes in seconds
-        'args': (15,),  # lookback_minutes
+        'kwargs': {'lookback_minutes': 15},
     },
     'ingest-reliefweb-updates': {
         'task': 'data_pipeline.tasks.reliefweb_tasks.ingest_reliefweb_updates',
