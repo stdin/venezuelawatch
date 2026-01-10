@@ -17,6 +17,13 @@ from api.services.gdelt_bigquery_service import gdelt_bigquery_service
 from api.services.gdelt_gkg_service import gdelt_gkg_service
 from api.bigquery_models import Event as BigQueryEvent
 from api.services.bigquery_service import bigquery_service
+from api.services.gdelt_gkg_parsers import (
+    parse_v2_themes,
+    parse_v2_persons,
+    parse_v2_organizations,
+    parse_v2_locations,
+    parse_v2_tone,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +70,9 @@ def sync_gdelt_events(self, lookback_minutes: int = 15) -> Dict[str, Any]:
         # Enrich events with GKG data (themes, entities, sentiment)
         events_with_gkg = 0
         events_without_gkg = 0
+        total_themes = 0
+        total_persons = 0
+        total_orgs = 0
 
         for gdelt_event in gdelt_events:
             source_url = gdelt_event.get('SOURCEURL')
@@ -73,24 +83,54 @@ def sync_gdelt_events(self, lookback_minutes: int = 15) -> Dict[str, Any]:
                     event_date = timezone.datetime.strptime(date_str[:8], '%Y%m%d').replace(tzinfo=pytz.UTC)
 
                     # Fetch GKG record by DocumentIdentifier (= SOURCEURL)
-                    gkg_record = gdelt_gkg_service.get_gkg_by_document_id(
+                    gkg_raw = gdelt_gkg_service.get_gkg_by_document_id(
                         document_id=source_url,
                         partition_date=event_date
                     )
 
-                    if gkg_record:
-                        gdelt_event['gkg_raw'] = gkg_record
+                    if gkg_raw:
+                        # Parse GKG fields into structured data
+                        themes_list = parse_v2_themes(gkg_raw.get('V2Themes'))
+                        persons_list = parse_v2_persons(gkg_raw.get('V2Persons'))
+                        orgs_list = parse_v2_organizations(gkg_raw.get('V2Organizations'))
+                        locations_list = parse_v2_locations(gkg_raw.get('V2Locations'))
+                        tone_dict = parse_v2_tone(gkg_raw.get('V2Tone'))
+
+                        # Build structured GKG dict
+                        gdelt_event['gkg_parsed'] = {
+                            'record_id': gkg_raw.get('GKGRECORDID'),
+                            'source': gkg_raw.get('SourceCommonName'),
+                            'themes': themes_list,
+                            'persons': persons_list,
+                            'organizations': orgs_list,
+                            'locations': locations_list,
+                            'tone': tone_dict,
+                            'quotations': gkg_raw.get('Quotations', ''),  # Keep raw for now
+                            'gcam': gkg_raw.get('GCAM', '')  # Keep raw for now, complex format
+                        }
+
                         events_with_gkg += 1
+                        total_themes += len(themes_list)
+                        total_persons += len(persons_list)
+                        total_orgs += len(orgs_list)
+
+                        logger.debug(
+                            f"Parsed GKG for {source_url[:50]}: "
+                            f"{len(themes_list)} themes, {len(persons_list)} persons, {len(orgs_list)} orgs"
+                        )
                     else:
                         events_without_gkg += 1
 
                 except Exception as e:
-                    logger.warning(f"Failed to fetch GKG for {source_url[:50]}: {e}")
+                    logger.warning(f"Failed to parse GKG for {source_url[:50]}: {e}")
                     events_without_gkg += 1
             else:
                 events_without_gkg += 1
 
-        logger.info(f"GKG enrichment: {events_with_gkg} with GKG data, {events_without_gkg} without")
+        logger.info(
+            f"GKG enrichment: {events_with_gkg} events with GKG data, {events_without_gkg} without | "
+            f"Parsed {total_themes} themes, {total_persons} persons, {total_orgs} organizations"
+        )
 
         events_created = 0
         events_skipped = 0
@@ -193,8 +233,8 @@ def sync_gdelt_events(self, lookback_minutes: int = 15) -> Dict[str, Any]:
                         'action_geo_adm2': gdelt_event.get('ActionGeo_ADM2Code'),
                         'action_geo_feature_id': gdelt_event.get('ActionGeo_FeatureID'),
 
-                        # GKG enrichment data (raw strings, will parse in next plan)
-                        'gkg_data': gdelt_event.get('gkg_raw') if 'gkg_raw' in gdelt_event else None,
+                        # GKG enrichment data (parsed into structured fields)
+                        'gkg': gdelt_event.get('gkg_parsed') if 'gkg_parsed' in gdelt_event else None,
                     }
                 )
 
