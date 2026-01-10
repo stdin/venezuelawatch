@@ -3,6 +3,7 @@ import { GraphCanvas, GraphCanvasRef } from 'reagraph'
 import { useNavigate } from 'react-router-dom'
 import { Skeleton } from '@mantine/core'
 import { useGraphData } from './useGraphData'
+import { EdgeNarrative } from './EdgeNarrative'
 import type { GraphNode, GraphEdge } from './useGraphData'
 
 /**
@@ -67,58 +68,64 @@ export function EntityGraph() {
   }
 
   return (
-    <GraphCanvas
-      ref={graphRef}
-      nodes={nodes}
-      edges={edges}
-      layoutType="forceDirected2d"
-      sizingType="centrality" // Auto-size nodes by importance
-      clusterAttribute="community" // Use community from backend
-      draggable={true}
-      
-      // Directional weighted edges (CONTEXT.md requirement)
-      edgeInterpolation="curved"
-      edgeArrowPosition="end"
-      
-      // Visual styling
-      theme={{
-        canvas: {
-          background: '#FFFFFF'
-        },
-        node: {
-          fill: (node: GraphNode) => {
-            // Sanctions status takes priority (red)
-            if (node.data.sanctions_status) return '#DC2626'
-            // Otherwise use risk score
-            return getRiskColor(node.data.risk_score)
+    <>
+      <GraphCanvas
+        ref={graphRef}
+        nodes={nodes}
+        edges={edges}
+        layoutType="forceDirected2d"
+        sizingType="centrality" // Auto-size nodes by importance
+        clusterAttribute="community" // Use community from backend
+        draggable={true}
+        
+        // Directional weighted edges (CONTEXT.md requirement)
+        edgeInterpolation="curved"
+        edgeArrowPosition="end"
+        
+        // Visual styling
+        theme={{
+          canvas: {
+            background: '#FFFFFF'
           },
-          activeFill: '#3B82F6',
-          opacity: 0.9,
-          selectedOpacity: 1.0
-        },
-        edge: {
-          fill: '#94A3B8',
-          opacity: 0.6,
-          selectedOpacity: 1.0,
-          // Log scale for edge thickness based on weight
-          width: (edge: GraphEdge) => Math.log(edge.weight + 1) * 2
-        },
-        cluster: {
-          stroke: '#64748B',
-          strokeWidth: 2,
-          opacity: 0.1
-        }
-      }}
-      
-      // Click handlers
-      onNodeClick={(node: GraphNode) => {
-        navigate(`/entities/${node.id}`)
-      }}
-      onEdgeClick={(edge: GraphEdge) => {
-        setSelectedEdge(edge)
-        // TODO: Plan 26-03 Task 4 will add narrative modal
-        console.log('Edge clicked:', edge)
-      }}
-    />
+          node: {
+            fill: (node: GraphNode) => {
+              // Sanctions status takes priority (red)
+              if (node.data.sanctions_status) return '#DC2626'
+              // Otherwise use risk score
+              return getRiskColor(node.data.risk_score)
+            },
+            activeFill: '#3B82F6',
+            opacity: 0.9,
+            selectedOpacity: 1.0
+          },
+          edge: {
+            fill: '#94A3B8',
+            opacity: 0.6,
+            selectedOpacity: 1.0,
+            // Log scale for edge thickness based on weight
+            width: (edge: GraphEdge) => Math.log(edge.weight + 1) * 2
+          },
+          cluster: {
+            stroke: '#64748B',
+            strokeWidth: 2,
+            opacity: 0.1
+          }
+        }}
+        
+        // Click handlers
+        onNodeClick={(node: GraphNode) => {
+          navigate(`/entities/${node.id}`)
+        }}
+        onEdgeClick={(edge: GraphEdge) => {
+          setSelectedEdge(edge)
+        }}
+      />
+
+      {/* EdgeNarrative modal for relationship explanations */}
+      <EdgeNarrative
+        edge={selectedEdge}
+        onClose={() => setSelectedEdge(null)}
+      />
+    </>
   )
 }

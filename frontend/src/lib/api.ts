@@ -227,3 +227,41 @@ export const api = {
     return response.json()
   },
 }
+
+// Graph narrative methods
+export interface EventSummary {
+  id: string
+  title: string
+  published_at: string | null
+  risk_score: number
+  severity: string
+}
+
+export interface EntityInfo {
+  id: string
+  name: string
+  entity_type: string
+}
+
+export interface NarrativeResponse {
+  narrative: string
+  events: EventSummary[]
+  entity_a: EntityInfo
+  entity_b: EntityInfo
+}
+
+export async function fetchNarrative(
+  entityAId: string,
+  entityBId: string
+): Promise<NarrativeResponse> {
+  const response = await fetch(
+    `${API_BASE}/graph/narrative/${entityAId}/${entityBId}`,
+    {
+      credentials: 'include',
+    }
+  )
+  if (!response.ok) {
+    throw new Error(`Failed to fetch narrative: ${response.status}`)
+  }
+  return response.json()
+}
