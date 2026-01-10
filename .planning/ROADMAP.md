@@ -217,15 +217,15 @@ Plans:
 
 **Goal**: Integrate Google Trends, SEC EDGAR, and World Bank data via BigQuery public datasets for multi-source intelligence correlation
 **Depends on**: Phase 23
-**Plans**: 3 plans (1 of 3 complete)
+**Plans**: 2 plans complete
+**Status**: Complete
 
 Plans:
 - [x] 24-01: Entity Resolution Foundation (Splink + canonical entity registry)
-- [ ] 24-02: BigQuery Adapters (Google Trends, SEC EDGAR, World Bank)
-- [ ] 24-03: Cross-Dataset Correlation Engine
+- [x] 24-02: BigQuery Adapters (Google Trends, SEC EDGAR, World Bank)
 
 **Details:**
-Enable cross-dataset entity linking and multi-source intelligence correlation using BigQuery public datasets.
+Entity resolution foundation with Splink-based canonical entity registry (Plan 01) and BigQuery public dataset adapters for Google Trends, SEC EDGAR (stub), and World Bank WDI (Plan 02) complete. Ready for correlation engine integration.
 
 #### Phase 25: Update Scoring and Ranking System
 
@@ -268,5 +268,5 @@ Plans:
 | 21. Mentions Tracking | v1.3 | 3/3 | Complete | 2026-01-10 |
 | 22. Data Source Architecture | v1.3 | 1/? | In progress | 2026-01-10 |
 | 23. Intelligence Pipeline Rebuild | v1.3 | 2/2 | Complete | 2026-01-10 |
-| 24. Add More BigQuery Data Sources | v1.3 | 0/? | Not started | - |
+| 24. BigQuery Public Datasets | v1.3 | 2/2 | Complete | 2026-01-10 |
 | 25. Update Scoring and Ranking System | v1.3 | 0/? | Not started | - |

@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 
 Milestone: v1.3 GDELT Intelligence
 Phase: 24 of 25 (BigQuery Public Datasets)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-01-10 - Completed 24-01-PLAN.md
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-01-10 - Completed 24-02-PLAN.md
 
-Progress: █████████░ 96%
+Progress: █████████░ 97%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 64
+- Total plans completed: 65
 - Average duration: 9 min
-- Total execution time: 11.0 hours
+- Total execution time: 11.1 hours
 
 **By Phase:**
 
@@ -51,11 +51,11 @@ Progress: █████████░ 96%
 | 21 | 3 | 10 min | 3 min |
 | 22 | 1 | 2 min | 2 min |
 | 23 | 2 | 11 min | 6 min |
-| 24 | 1 | 4 min | 4 min |
+| 24 | 2 | 9 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 1min, 3min, 2min, 7min, 4min
-- Trend: Fast (entity resolution)
+- Last 5 plans: 3min, 2min, 7min, 4min, 5min
+- Trend: Fast (BigQuery adapters)
 
 ## Accumulated Context
 
@@ -282,6 +282,11 @@ Recent decisions affecting current work:
 - Phase 24: Tier 2 Splink threshold 0.85 match_probability (per research)
 - Phase 24: Blocking rules first 3 chars + country_code + entity_type for O(n) performance
 - Phase 24: Lazy linker initialization pattern for Splink 4.x API compatibility
+- Phase 24: Google Trends international_top_terms (not US-only) for Venezuela search data
+- Phase 24: Event type mapping: Google Trends=social, World Bank=economic, SEC EDGAR=regulatory
+- Phase 24: SEC EDGAR adapter stubbed pending schema discovery (bq ls bigquery-public-data:sec_edgar)
+- Phase 24: BigQuery partition filtering for cost optimization (1TB/month free tier)
+- Phase 24: Stable event ID formats: gt-{date}-{term}, wb-{code}-{indicator}-{year}, sec-{filing_id}
 
 ### Deferred Issues
 
@@ -313,5 +318,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-10
-Stopped at: Completed Phase 24 Plan 01 (24-01-PLAN.md)
+Stopped at: Completed Phase 24 Plan 02 (24-02-PLAN.md)
 Resume file: None
