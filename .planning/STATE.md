@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 
 ## Current Position
 
-Phase: 14 of 17 (Time-Series Forecasting)
-Plan: 4 of 4 in current phase
-Status: Phase complete
-Last activity: 2026-01-10 - Completed 14-04-PLAN.md
+Phase: 14.1 of 17 (BigQuery Migration)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-01-09 - Completed 14.1-01-PLAN.md
 
 Progress: █████████████████████████ 98%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 45
+- Total plans completed: 46
 - Average duration: 11 min
-- Total execution time: 8.9 hours
+- Total execution time: 9.0 hours
 
 **By Phase:**
 
@@ -40,10 +40,11 @@ Progress: ███████████████████████�
 | 12 | 2 | 47 min | 24 min |
 | 13 | 4 | 26 min | 7 min |
 | 14 | 4 | 22 min | 6 min |
+| 14.1 | 1 | 5 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 10min, 1min, 10min, 5min, 6min
-- Trend: Fast (infrastructure and UI)
+- Last 5 plans: 1min, 10min, 5min, 6min, 5min
+- Trend: Fast (infrastructure)
 
 ## Accumulated Context
 
@@ -212,6 +213,13 @@ Recent decisions affecting current work:
 - Phase 14: Autoscaling 1-10 replicas balances availability with cost (~$100/month minimum)
 - Phase 14: 80/10/10 train/val/test split for robust forecasting model evaluation
 - Phase 14: Training deferred until 60+ days historical data available in PostgreSQL
+- Phase 14.1: Polyglot persistence architecture (PostgreSQL for transactional, BigQuery for time-series)
+- Phase 14.1: STRING IDs in BigQuery (no AUTO_INCREMENT, generate UUIDs in Python)
+- Phase 14.1: Streaming inserts for BigQuery (simpler than batch load jobs)
+- Phase 14.1: GCP Application Default Credentials (ADC) for authentication
+- Phase 14.1: Dataclasses with to_bigquery_row() for type-safe row generation
+- Phase 14.1: Parameterized queries in BigQuery to prevent SQL injection
+- Phase 14.1: TIME partitioning by DATE(mentioned_at) for query performance
 
 ### Deferred Issues
 
@@ -219,11 +227,11 @@ None yet.
 
 ### Blockers/Concerns
 
-**Phase 14.1 Migration Required (URGENT):**
+**Phase 14.1 Migration In Progress:**
 - TimescaleDB extension not available on Cloud SQL PostgreSQL
-- Must migrate to polyglot persistence (PostgreSQL + BigQuery) before production deployment
-- Affects Phases 1, 3, 4, 6, 7 (ingestion and queries need updating)
-- Estimated effort: ~28 hours (3.5 days)
+- Migrating to polyglot persistence (PostgreSQL + BigQuery)
+- Plan 1/4 complete: BigQuery infrastructure and service layer created
+- Remaining: Plans 2-4 (Celery ingestion, API views, data migration)
 - See .planning/TIMESCALEDB-MIGRATION.md for complete migration strategy
 
 ### Roadmap Evolution
@@ -235,6 +243,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-10
-Stopped at: Completed 14-04-PLAN.md (Phase 14 complete)
+Last session: 2026-01-09
+Stopped at: Completed 14.1-01-PLAN.md (Phase 14.1 plan 1 of 4)
 Resume file: None

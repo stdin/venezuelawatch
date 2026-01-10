@@ -157,7 +157,7 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 14.1-01: BigQuery Schema & Service Setup
+- [x] 14.1-01: BigQuery Schema & Service Setup
 - [ ] 14.1-02: Celery Ingestion Migration
 - [ ] 14.1-03: API Views Migration
 - [ ] 14.1-04: Data Migration & Validation
@@ -214,7 +214,7 @@ Plans:
 | 12. Chat Interface Polish | v1.1 | 2/2 | Complete | 2026-01-09 |
 | 13. Responsive & Accessibility | v1.1 | 4/4 | Complete | 2026-01-10 |
 | 14. Time-Series Forecasting | v1.2 | 4/4 | Complete | 2026-01-10 |
-| 14.1. BigQuery Migration (INSERTED) | v1.2 | 0/4 | Planning complete | - |
+| 14.1. BigQuery Migration (INSERTED) | v1.2 | 1/4 | In progress | - |
 | 15. Correlation & Pattern Analysis | v1.2 | 0/? | Not started | - |
 | 16. Custom Reports & Export | v1.2 | 0/? | Not started | - |
 | 17. Enhanced Data Visualization | v1.2 | 0/? | Not started | - |
