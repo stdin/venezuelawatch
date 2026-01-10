@@ -1,7 +1,7 @@
 """
 Celery tasks for intelligence processing using LLM (Claude) for comprehensive analysis.
 
-These tasks analyze Event instances to populate intelligence fields:
+These tasks analyze events from BigQuery to populate intelligence fields:
 - sentiment: Sentiment score from -1 (negative) to +1 (positive)
 - risk_score: Risk assessment from 0 (low) to 1 (high)
 - entities: List of extracted named entities
@@ -12,6 +12,8 @@ These tasks analyze Event instances to populate intelligence fields:
 - language: Detected language code
 
 Uses comprehensive one-shot LLM analysis for efficiency and multilingual support.
+
+Migration: Phase 14.3 - Now reads events from BigQuery instead of PostgreSQL.
 """
 import logging
 from typing import Dict, Any, List, Optional
@@ -19,17 +21,19 @@ from celery import shared_task, group
 from django.utils import timezone
 from datetime import timedelta
 
-from core.models import Event
 from data_pipeline.tasks.base import BaseIngestionTask
 from data_pipeline.services.llm_intelligence import LLMIntelligence
+from api.services.bigquery_service import bigquery_service
 
 logger = logging.getLogger(__name__)
 
 
 @shared_task(base=BaseIngestionTask, bind=True)
-def analyze_event_intelligence(self, event_id: int, model: str = "fast") -> Dict[str, Any]:
+def analyze_event_intelligence(self, event_id: str, model: str = "fast") -> Dict[str, Any]:
     """
     Analyze a single event using comprehensive LLM intelligence.
+
+    Reads event from BigQuery, performs LLM analysis, and updates event in BigQuery.
 
     Performs one-shot analysis with Claude to extract:
     1. Sentiment (score, label, confidence, reasoning)
@@ -42,13 +46,13 @@ def analyze_event_intelligence(self, event_id: int, model: str = "fast") -> Dict
     8. Language detection
 
     Args:
-        event_id: ID of Event to analyze
+        event_id: ID of Event to analyze (UUID string from BigQuery)
         model: LLM model tier ("fast", "standard", "premium")
 
     Returns:
         Dictionary with comprehensive analysis results:
         {
-            'event_id': int,
+            'event_id': str,
             'sentiment': float,
             'risk_score': float,
             'entities': List[str],
@@ -60,12 +64,30 @@ def analyze_event_intelligence(self, event_id: int, model: str = "fast") -> Dict
         }
     """
     try:
-        # Fetch event
-        event = Event.objects.get(id=event_id)
+        # Fetch event from BigQuery
+        event = bigquery_service.get_event_by_id(event_id)
+
+        if not event:
+            logger.error(f"Event {event_id} not found in BigQuery")
+            return {
+                'event_id': event_id,
+                'status': 'error',
+                'error': 'Event not found'
+            }
+
+        # Create mock event object for LLMIntelligence compatibility
+        from types import SimpleNamespace
+        mock_event = SimpleNamespace(
+            title=event.get('title', ''),
+            content=event.get('content', ''),
+            source=event.get('source_name', ''),
+            event_type=event.get('event_type', ''),
+            timestamp=event.get('mentioned_at')
+        )
 
         # Perform comprehensive LLM analysis (one API call)
         logger.info(f"Performing LLM intelligence analysis for Event {event_id}")
-        analysis = LLMIntelligence.analyze_event_model(event, model=model)
+        analysis = LLMIntelligence.analyze_event_model(mock_event, model=model)
 
         # Extract entity names for backward compatibility
         entities = []
@@ -76,31 +98,30 @@ def analyze_event_intelligence(self, event_id: int, model: str = "fast") -> Dict
         for loc in analysis['entities'].get('locations', []):
             entities.append(loc['name'])
 
-        # Update event with all intelligence fields
-        event.sentiment = analysis['sentiment']['score']
-        event.entities = entities[:20]  # Limit to top 20 for backward compat
-        event.summary = analysis['summary']['short']
-        event.relationships = analysis['relationships']
-        event.themes = analysis['themes']
-        event.urgency = analysis['urgency']
-        event.language = analysis['language']
-        event.llm_analysis = analysis  # Store complete analysis
-
         # Calculate comprehensive multi-dimensional risk score
-        # (combines LLM risk + sanctions + sentiment + urgency + supply chain)
-        from data_pipeline.services.risk_scorer import RiskScorer
-        comprehensive_risk = RiskScorer.calculate_comprehensive_risk(event)
-        event.risk_score = comprehensive_risk
+        # Note: RiskScorer expects an Event model, so we'll use just the LLM risk for now
+        # TODO: Adapt RiskScorer to work with dict-based events
+        comprehensive_risk = analysis['risk']['score'] * 100  # Scale 0-1 to 0-100
 
-        # Classify severity (impact assessment independent of risk score)
-        from data_pipeline.services.impact_classifier import ImpactClassifier
-        severity = ImpactClassifier.classify_severity(event)
-        event.severity = severity
+        # Classify severity
+        # Note: ImpactClassifier also expects Event model, using LLM analysis for now
+        # TODO: Adapt ImpactClassifier to work with dict-based events
+        severity = 'SEV3'  # Default medium severity
 
-        event.save(update_fields=[
-            'sentiment', 'risk_score', 'entities', 'summary',
-            'relationships', 'themes', 'urgency', 'language', 'llm_analysis', 'severity'
-        ])
+        # Update event in BigQuery with all intelligence fields
+        bigquery_service.update_event_analysis(
+            event_id=event_id,
+            sentiment=analysis['sentiment']['score'],
+            risk_score=comprehensive_risk,
+            entities=entities[:20],  # Limit to top 20
+            summary=analysis['summary']['short'],
+            relationships=analysis['relationships'],
+            themes=analysis['themes'],
+            urgency=analysis['urgency'],
+            language=analysis['language'],
+            llm_analysis=analysis,
+            severity=severity
+        )
 
         logger.info(
             f"Event {event_id} intelligence updated: "
@@ -130,14 +151,6 @@ def analyze_event_intelligence(self, event_id: int, model: str = "fast") -> Dict
             'status': 'success',
         }
 
-    except Event.DoesNotExist:
-        logger.error(f"Event {event_id} not found")
-        return {
-            'event_id': event_id,
-            'status': 'error',
-            'error': 'Event not found'
-        }
-
     except Exception as e:
         logger.error(f"Failed to analyze Event {event_id}: {e}", exc_info=True)
         return {
@@ -153,11 +166,11 @@ def batch_analyze_events(
     source: Optional[str] = None,
     event_type: Optional[str] = None,
     days_back: int = 30,
-    limit: Optional[int] = None,
+    limit: int = 100,
     reanalyze: bool = False,
 ) -> Dict[str, Any]:
     """
-    Batch analyze multiple events.
+    Batch analyze multiple events from BigQuery.
 
     Dispatches individual analysis tasks for events matching filters.
 
@@ -165,7 +178,7 @@ def batch_analyze_events(
         source: Filter by event source (e.g., 'GDELT', 'RELIEFWEB')
         event_type: Filter by event type (e.g., 'NEWS', 'HUMANITARIAN')
         days_back: Only analyze events from last N days (default: 30)
-        limit: Maximum number of events to process (default: no limit)
+        limit: Maximum number of events to process (default: 100)
         reanalyze: Re-analyze events that already have intelligence fields (default: False)
 
     Returns:
@@ -183,25 +196,42 @@ def batch_analyze_events(
         f"limit={limit}, reanalyze={reanalyze}"
     )
 
-    # Build query
+    # Get events from BigQuery
     cutoff_date = timezone.now() - timedelta(days=days_back)
-    queryset = Event.objects.filter(timestamp__gte=cutoff_date)
 
-    if source:
-        queryset = queryset.filter(source=source)
+    if reanalyze:
+        # Get all events (even those with analysis)
+        from google.cloud import bigquery as bq
+        query = f"""
+            SELECT id
+            FROM `{bigquery_service.project_id}.{bigquery_service.dataset_id}.events`
+            WHERE mentioned_at >= @cutoff_date
+        """
+        params = [bq.ScalarQueryParameter('cutoff_date', 'TIMESTAMP', cutoff_date)]
 
-    if event_type:
-        queryset = queryset.filter(event_type=event_type)
+        if source:
+            query += " AND source_name = @source"
+            params.append(bq.ScalarQueryParameter('source', 'STRING', source))
 
-    # Filter for events without intelligence (unless reanalyzing)
-    if not reanalyze:
-        queryset = queryset.filter(sentiment__isnull=True)
+        if event_type:
+            query += " AND event_type = @event_type"
+            params.append(bq.ScalarQueryParameter('event_type', 'STRING', event_type))
 
-    # Apply limit
-    if limit:
-        queryset = queryset[:limit]
+        query += " ORDER BY mentioned_at DESC LIMIT @limit"
+        params.append(bq.ScalarQueryParameter('limit', 'INT64', limit))
 
-    event_ids = list(queryset.values_list('id', flat=True))
+        job_config = bq.QueryJobConfig(query_parameters=params)
+        results = bigquery_service.client.query(query, job_config=job_config).result()
+        event_ids = [row.id for row in results]
+    else:
+        # Get only unanalyzed events
+        event_ids = bigquery_service.get_unanalyzed_events(
+            cutoff_date=cutoff_date,
+            source=source,
+            event_type=event_type,
+            limit=limit
+        )
+
     total_events = len(event_ids)
 
     logger.info(f"Found {total_events} events to analyze")

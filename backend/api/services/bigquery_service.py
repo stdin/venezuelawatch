@@ -359,6 +359,117 @@ class BigQueryService:
         results = self.client.query(bq_query, job_config=job_config).result()
         return [dict(row) for row in results]
 
+    def update_event_analysis(
+        self,
+        event_id: str,
+        sentiment: float,
+        risk_score: float,
+        entities: list,
+        summary: str,
+        relationships: dict,
+        themes: list,
+        urgency: str,
+        language: str,
+        llm_analysis: dict,
+        severity: str
+    ) -> None:
+        """
+        Update event with intelligence analysis results using BigQuery DML UPDATE.
+
+        Args:
+            event_id: Event ID to update
+            sentiment: Sentiment score (-1 to 1)
+            risk_score: Risk score (0-100)
+            entities: List of entity names
+            summary: LLM-generated summary
+            relationships: Entity relationships dict
+            themes: List of thematic topics
+            urgency: Urgency level string
+            language: Language code
+            llm_analysis: Complete LLM analysis dict
+            severity: Severity level (SEV1-SEV5)
+        """
+        # Build metadata JSON with all intelligence fields
+        metadata = {
+            'sentiment': sentiment,
+            'risk_score': risk_score,
+            'entities': entities,
+            'summary': summary,
+            'relationships': relationships,
+            'themes': themes,
+            'urgency': urgency,
+            'language': language,
+            'llm_analysis': llm_analysis,
+            'severity': severity
+        }
+
+        # Use BigQuery UPDATE DML to update metadata
+        query = f"""
+            UPDATE `{self.project_id}.{self.dataset_id}.events`
+            SET metadata = @metadata,
+                risk_score = @risk_score,
+                severity = @severity
+            WHERE id = @event_id
+        """
+
+        job_config = bigquery.QueryJobConfig(
+            query_parameters=[
+                bigquery.ScalarQueryParameter('event_id', 'STRING', event_id),
+                bigquery.ScalarQueryParameter('risk_score', 'FLOAT64', risk_score),
+                bigquery.ScalarQueryParameter('severity', 'STRING', severity),
+                bigquery.ScalarQueryParameter('metadata', 'JSON', str(metadata))
+            ]
+        )
+
+        # Execute UPDATE
+        self.client.query(query, job_config=job_config).result()
+
+    def get_unanalyzed_events(
+        self,
+        cutoff_date: datetime,
+        source: Optional[str] = None,
+        event_type: Optional[str] = None,
+        limit: int = 100
+    ) -> List[dict]:
+        """
+        Get events without LLM analysis (metadata.llm_analysis is null/empty).
+
+        Args:
+            cutoff_date: Only get events after this date
+            source: Filter by source (optional)
+            event_type: Filter by event type (optional)
+            limit: Maximum number of results
+
+        Returns:
+            List of event dicts without llm_analysis
+        """
+        query = f"""
+            SELECT id
+            FROM `{self.project_id}.{self.dataset_id}.events`
+            WHERE mentioned_at >= @cutoff_date
+            AND (metadata IS NULL OR JSON_VALUE(metadata, '$.llm_analysis') IS NULL)
+        """
+
+        params = [
+            bigquery.ScalarQueryParameter('cutoff_date', 'TIMESTAMP', cutoff_date)
+        ]
+
+        if source:
+            query += " AND source_name = @source"
+            params.append(bigquery.ScalarQueryParameter('source', 'STRING', source))
+
+        if event_type:
+            query += " AND event_type = @event_type"
+            params.append(bigquery.ScalarQueryParameter('event_type', 'STRING', event_type))
+
+        query += " ORDER BY mentioned_at DESC LIMIT @limit"
+        params.append(bigquery.ScalarQueryParameter('limit', 'INT64', limit))
+
+        job_config = bigquery.QueryJobConfig(query_parameters=params)
+        results = self.client.query(query, job_config=job_config).result()
+
+        return [row.id for row in results]
+
     def get_entity_stats(self, entity_id: str, days: int = 90) -> dict:
         """
         Get aggregated stats for entity profile.
