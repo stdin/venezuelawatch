@@ -33,13 +33,36 @@ export interface GraphData {
   high_risk_cluster: number | null
 }
 
+export interface ClusterCentroid {
+  x: number
+  y: number
+  z: number
+}
+
 interface UseGraphDataReturn {
   nodes: GraphNode[]
   edges: GraphEdge[]
   highRiskCluster: number | null
   communities: Record<string, CommunityInfo>
+  clusterCentroid: ClusterCentroid | null
+  highRiskClusterNodeIds: string[]
   loading: boolean
   error: string | null
+}
+
+/**
+ * Calculate the IDs of nodes in the high-risk cluster.
+ * Used for camera auto-focus on critical intelligence.
+ */
+function getHighRiskClusterNodeIds(
+  nodes: GraphNode[],
+  highRiskCluster: number | null
+): string[] {
+  if (highRiskCluster === null) return []
+
+  return nodes
+    .filter(node => node.data.community === highRiskCluster)
+    .map(node => node.id)
 }
 
 /**
@@ -98,11 +121,23 @@ export function useGraphData(
     }
   }, [minCooccurrence, timeRange])
 
+  const nodes = data?.nodes || []
+  const highRiskCluster = data?.high_risk_cluster ?? null
+
+  // Calculate high-risk cluster node IDs for camera focus
+  const highRiskClusterNodeIds = getHighRiskClusterNodeIds(nodes, highRiskCluster)
+
+  // Placeholder centroid - actual focusing uses node selection in Reagraph
+  const clusterCentroid: ClusterCentroid | null =
+    highRiskCluster !== null ? { x: 0, y: 0, z: 0 } : null
+
   return {
-    nodes: data?.nodes || [],
+    nodes,
     edges: data?.edges || [],
-    highRiskCluster: data?.high_risk_cluster || null,
+    highRiskCluster,
     communities: data?.communities || {},
+    clusterCentroid,
+    highRiskClusterNodeIds,
     loading,
     error,
   }
