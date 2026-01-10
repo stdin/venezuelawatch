@@ -590,3 +590,80 @@ def get_entity_timeline(request: HttpRequest, entity_id: str, days: int = 30):
             'end': timezone.now().isoformat()
         }
     )
+
+
+@entity_router.get("/{entity_id}/sources")
+def get_entity_sources(request: HttpRequest, entity_id: str):
+    """
+    Get all events across all sources mentioning this canonical entity.
+
+    Returns events from multiple data sources (gdelt, google_trends, world_bank, sec_edgar)
+    that mention this canonical entity, grouped by source.
+
+    Uses metadata.linked_entities array in BigQuery to find events linked to this entity.
+
+    Args:
+        entity_id: Canonical entity UUID
+
+    Returns:
+        Dict with entity info, aliases, and events grouped by source
+    """
+    from django.shortcuts import get_object_or_404
+    from api.services.bigquery_service import bigquery_service
+    from data_pipeline.models import CanonicalEntity, EntityAlias
+    from django.conf import settings
+
+    # Validate entity exists
+    entity = get_object_or_404(CanonicalEntity, id=entity_id)
+
+    # Get all aliases for this entity
+    aliases = EntityAlias.objects.filter(canonical_entity=entity)
+
+    # Query BigQuery for events with this entity in metadata.linked_entities
+    # Use JSON_EXTRACT_ARRAY and UNNEST to search JSON array
+    project = settings.GCP_PROJECT_ID
+    dataset = settings.BIGQUERY_DATASET
+
+    query = f"""
+    SELECT event_id, title, source, published_at, metadata, country
+    FROM `{project}.{dataset}.events_partitioned`
+    WHERE '{entity_id}' IN UNNEST(JSON_EXTRACT_ARRAY(metadata, '$.linked_entities'))
+    ORDER BY published_at DESC
+    LIMIT 100
+    """
+
+    try:
+        # Execute BigQuery query
+        job_config = bigquery_service.client.query(query)
+        results = job_config.result()
+        events = [dict(row) for row in results]
+    except Exception as e:
+        logger.error(f"BigQuery query failed for entity {entity_id}: {e}", exc_info=True)
+        events = []
+
+    # Group by source
+    by_source = {}
+    for event in events:
+        source = event.get('source', 'unknown')
+        if source not in by_source:
+            by_source[source] = []
+        by_source[source].append(event)
+
+    return {
+        "entity": {
+            "id": str(entity.id),
+            "name": entity.primary_name,
+            "type": entity.entity_type,
+        },
+        "aliases": [
+            {
+                "alias": a.alias,
+                "source": a.source,
+                "confidence": a.confidence,
+                "resolution_method": a.resolution_method,
+            }
+            for a in aliases
+        ],
+        "events_by_source": by_source,
+        "total_events": len(events),
+    }
