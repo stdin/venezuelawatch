@@ -92,6 +92,14 @@ deploy_function \
     540 \
     "512MB"
 
+# Deploy Mention Tracker (daily)
+deploy_function \
+    "mention-tracker" \
+    "functions/mention_tracker" \
+    "mention_tracker" \
+    540 \
+    "512MB"
+
 echo "======================================"
 echo "All functions deployed successfully!"
 echo "======================================"

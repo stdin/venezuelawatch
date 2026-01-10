@@ -83,6 +83,13 @@ create_job \
     "sanctions-sync" \
     '{"lookback_days": 7}'
 
+# Mention Tracker: Daily at 02:00 UTC (after ETL pipeline completes)
+create_job \
+    "mention-tracker-job" \
+    "0 2 * * *" \
+    "mention-tracker" \
+    '{}'
+
 echo "======================================"
 echo "All scheduler jobs created successfully!"
 echo "======================================"
