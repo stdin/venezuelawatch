@@ -13,6 +13,7 @@ None
 - ✅ **v1.0 MVP** - Phases 1-7 (shipped 2026-01-09)
 - ✅ **v1.1 UI/UX Overhaul** - Phases 8-13 (shipped 2026-01-10)
 - ✅ **v1.2 Advanced Analytics** - Phases 14-18 (shipped 2026-01-10, partial)
+- 🚧 **v1.3 GDELT Intelligence** - Phases 19-24 (in progress)
 
 ## Completed Milestones
 
@@ -152,6 +153,75 @@ See [milestones/v1.1-UI-UX-Overhaul-ROADMAP.md](milestones/v1.1-UI-UX-Overhaul-R
 
 </details>
 
+### 🚧 v1.3 GDELT Intelligence (In Progress)
+
+**Milestone Goal:** Maximize value from free BigQuery GDELT data (61 fields vs current 4) - rebuild intelligence pipeline around rich GDELT signals to reduce LLM costs and improve risk scoring accuracy.
+
+#### Phase 19: GDELT Events Enrichment
+
+**Goal**: Migrate from 4 basic fields to all 61 GDELT BigQuery fields (quotations, themes, tone, images, Goldstein scale, counts)
+**Depends on**: Phase 18 (GCP-Native Pipeline Migration)
+**Research**: Likely (GDELT field schema, quotations parsing, Goldstein scale interpretation)
+**Research topics**: GDELT 2.0 field definitions, quotation extraction patterns, Goldstein scale scoring, AvgTone normalization
+**Plans**: TBD
+
+Plans:
+- [ ] 19-01: TBD (run /gsd:plan-phase 19 to break down)
+
+#### Phase 20: GKG Integration
+
+**Goal**: Integrate GDELT Global Knowledge Graph for richer entity extraction, location mapping, theme categorization, and people/org tracking
+**Depends on**: Phase 19
+**Research**: Likely (GKG table schema, GCAM scores, entity relationships)
+**Research topics**: GKG V2 format, GCAM emotional dimensions, V2Themes taxonomy, entity relationship extraction
+**Plans**: TBD
+
+Plans:
+- [ ] 20-01: TBD
+
+#### Phase 21: Mentions Tracking
+
+**Goal**: Track narrative spread by monitoring how events are mentioned across articles over time for early warning signals
+**Depends on**: Phase 20
+**Research**: Likely (mentions table schema, narrative tracking algorithms)
+**Research topics**: GDELT Mentions table structure, time-series mention analysis, confidence scoring patterns
+**Plans**: TBD
+
+Plans:
+- [ ] 21-01: TBD
+
+#### Phase 22: Data Source Architecture
+
+**Goal**: Rebuild data source architecture with scalable adapter pattern (GDELT-first, plugin system for future integrations)
+**Depends on**: Phase 21
+**Research**: Unlikely (internal refactoring using established patterns from Phase 14.3)
+**Plans**: TBD
+
+Plans:
+- [ ] 22-01: TBD
+
+#### Phase 23: Intelligence Pipeline Rebuild
+
+**Goal**: Redesign intelligence pipeline to use GDELT tone/sentiment scores, themes, and quote analysis as primary risk signals
+**Depends on**: Phase 22
+**Research**: Likely (GDELT-based risk scoring methodologies)
+**Research topics**: Tone-based risk classification, theme-based severity mapping, quotation sentiment analysis
+**Plans**: TBD
+
+Plans:
+- [ ] 23-01: TBD
+
+#### Phase 24: LLM Optimization & UI
+
+**Goal**: Implement selective Claude processing based on GDELT signals (high-priority themes/tone), batching, prompt caching, and dashboard updates
+**Depends on**: Phase 23
+**Research**: Likely (Claude prompt caching, batching strategies)
+**Research topics**: Anthropic prompt caching API, batch processing patterns, token cost optimization
+**Plans**: TBD
+
+Plans:
+- [ ] 24-01: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -176,3 +246,9 @@ See [milestones/v1.1-UI-UX-Overhaul-ROADMAP.md](milestones/v1.1-UI-UX-Overhaul-R
 | 15. Correlation & Pattern Analysis | v1.2 | 1/2 | Partial | - |
 | 16. Enhanced Data Visualization | v1.2 | 1/1 | Complete | 2026-01-09 |
 | 18. GCP-Native Pipeline Migration | v1.2 | 3/3 | Complete | 2026-01-10 |
+| 19. GDELT Events Enrichment | v1.3 | 0/? | Not started | - |
+| 20. GKG Integration | v1.3 | 0/? | Not started | - |
+| 21. Mentions Tracking | v1.3 | 0/? | Not started | - |
+| 22. Data Source Architecture | v1.3 | 0/? | Not started | - |
+| 23. Intelligence Pipeline Rebuild | v1.3 | 0/? | Not started | - |
+| 24. LLM Optimization & UI | v1.3 | 0/? | Not started | - |

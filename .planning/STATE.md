@@ -9,12 +9,13 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 
 ## Current Position
 
-Milestone: v1.2 Advanced Analytics shipped 2026-01-10
-Phase: 15 (Correlation & Pattern Analysis) - 1/2 plans complete
-Status: Planning next work (Phase 15-02 or v1.3)
-Last activity: 2026-01-10 - Archived v1.2 milestone
+Milestone: v1.3 GDELT Intelligence
+Phase: 19 of 24 (GDELT Events Enrichment)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-10 - Milestone v1.3 created
 
-Progress: ██████████████████████████████ 100% (v1.2 scope complete)
+Progress: ░░░░░░░░░░ 0%
 
 ## Performance Metrics
 
@@ -272,9 +273,10 @@ None yet.
 - Phase 14.2 inserted after Phase 14.1 (2026-01-10): GDELT Native BigQuery - 4x event capacity, 15x richer data fields
 - Phase 14.3 inserted after Phase 14.2 (2026-01-10): Complete Event Migration to BigQuery - unified time-series analytics platform
 - Phase 18 added to v1.2 (2026-01-10): GCP-Native Pipeline Migration - serverless orchestration replacing Celery
+- **Milestone v1.3 GDELT Intelligence created:** Maximize value from free BigQuery GDELT data (61 fields), rebuild intelligence pipeline around GDELT signals, 6 phases (Phase 19-24)
 
 ## Session Continuity
 
 Last session: 2026-01-10
-Stopped at: Completed 18-03-PLAN.md (Celery removed, GCP cutover ready - deployment deferred)
+Stopped at: Milestone v1.3 initialization
 Resume file: None
