@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 ## Current Position
 
 Milestone: v1.3 GDELT Intelligence
-Phase: 19 of 24 (GDELT Events Enrichment)
+Phase: 20 of 24 (GKG Integration)
 Plan: 1 of ? in current phase
 Status: In progress
-Last activity: 2026-01-10 - Completed 19-01-PLAN.md
+Last activity: 2026-01-10 - Completed 20-01-PLAN.md
 
 Progress: ░░░░░░░░░░ 2%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 56
+- Total plans completed: 57
 - Average duration: 9 min
-- Total execution time: 10.4 hours
+- Total execution time: 10.5 hours
 
 **By Phase:**
 
@@ -47,10 +47,11 @@ Progress: ░░░░░░░░░░ 2%
 | 15 | 1 | 4 min | 4 min |
 | 16 | 1 | 8 min | 8 min |
 | 18 | 3 | 26 min | 9 min |
+| 20 | 1 | 6 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 4min, 8min, 10min, 8min, 8min
-- Trend: Fast (infrastructure automation scripts)
+- Last 5 plans: 8min, 10min, 8min, 8min, 6min
+- Trend: Fast (data pipeline services)
 
 ## Accumulated Context
 
@@ -250,6 +251,9 @@ Recent decisions affecting current work:
 - Phase 18: Big-bang cutover (not gradual) for clean break and operational simplicity
 - Phase 18: Celery dependencies removed proactively, deployment deferred to manual execution
 - Phase 18: Redis retained for trending cache (downscaled from Celery queue usage)
+- Phase 20: Store raw GKG strings in metadata.gkg_data (parsing deferred to Plan 02)
+- Phase 20: Missing GKG records logged but not errors (expected for many events)
+- Phase 20: Query GKG by DocumentIdentifier, not 3-table join (performance)
 
 ### Deferred Issues
 
@@ -279,5 +283,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-10
-Stopped at: Milestone v1.3 initialization
+Stopped at: Completed 20-01-PLAN.md
 Resume file: None
