@@ -242,21 +242,22 @@ Plans:
 **Details:**
 Align the current implementation with the canonical event model, severity assignment (P1-P4), and composite risk scoring architecture defined in the platform design document. Refactored severity classifier and composite risk scorer to match platform design (Plan 01), updated all adapters to use new scoring services (Plan 02).
 
-#### Phase 26: GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking
+#### Phase 26: GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking ✅
 
 **Goal**: GKG theme population, entity relationship graphs, event lineage tracking
 **Depends on**: Phase 25
-**Plans**: 3/4 plans complete
-**Status**: In progress
+**Plans**: 4/4 plans complete
+**Status**: Complete
+**Completed**: 2026-01-10
 
 Plans:
 - [x] 26-01: Backend graph data service with community detection
 - [x] 26-02: Interactive entity relationship graph visualization with Reagraph
 - [x] 26-03: Camera auto-focus and edge narratives for pattern discovery
-- [ ] 26-04: TBD (theme filtering or advanced features)
+- [x] 26-04: GKG theme filtering and event lineage tracking
 
 **Details:**
-Backend graph service with Louvain community detection and co-occurrence edge weighting (Plan 01 complete). Interactive WebGL graph visualization with Reagraph showing risk-based node colors, directional weighted edges, and click navigation (Plan 02 complete). Camera auto-focus to largest high-risk cluster with LLM-generated edge narratives explaining entity connections through causal chains (Plan 03 complete).
+Backend graph service with Louvain community detection and co-occurrence edge weighting (Plan 01 complete). Interactive WebGL graph visualization with Reagraph showing risk-based node colors, directional weighted edges, and click navigation (Plan 02 complete). Camera auto-focus to largest high-risk cluster with LLM-generated edge narratives explaining entity connections through causal chains (Plan 03 complete). GKG theme filtering for activity-specific networks (sanctions, trade, political, energy, adversarial) with temporal event lineage visualization showing cascade effects and escalation detection (Plan 04 complete). **Phase complete** - full pattern discovery system operational.
 
 #### Phase 27: Rolling Window Statistics, Persistence Spike Detection, Multi-Source Corroboration
 
