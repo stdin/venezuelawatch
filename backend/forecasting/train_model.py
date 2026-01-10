@@ -10,10 +10,7 @@ def train_entity_risk_model(project_id: str, location: str = 'us-central1'):
     # Create dataset from BigQuery table
     dataset = aiplatform.TimeSeriesDataset.create(
         display_name='entity-risk-forecasting',
-        bq_source=f'bq://{project_id}.intelligence.entity_risk_training_data',
-        time_column='mentioned_at',
-        time_series_identifier_column='entity_id',
-        target_column='risk_score'
+        bq_source=f'bq://{project_id}.intelligence.entity_risk_training_data'
     )
 
     # Define training job with AutoML
