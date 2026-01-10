@@ -46,6 +46,42 @@ class BigQueryService:
         if errors:
             raise Exception(f"BigQuery insert errors: {errors}")
 
+    def insert_fred_indicators(self, indicators: List[FREDIndicator]) -> None:
+        """Insert FRED economic indicators using streaming insert."""
+        if not indicators:
+            return
+
+        table_id = f"{self.project_id}.{self.dataset_id}.fred_indicators"
+        rows = [ind.to_bigquery_row() for ind in indicators]
+        errors = self.client.insert_rows_json(table_id, rows)
+
+        if errors:
+            raise Exception(f"BigQuery insert errors: {errors}")
+
+    def insert_un_comtrade(self, records: List[UNComtrade]) -> None:
+        """Insert UN Comtrade trade records using streaming insert."""
+        if not records:
+            return
+
+        table_id = f"{self.project_id}.{self.dataset_id}.un_comtrade"
+        rows = [rec.to_bigquery_row() for rec in records]
+        errors = self.client.insert_rows_json(table_id, rows)
+
+        if errors:
+            raise Exception(f"BigQuery insert errors: {errors}")
+
+    def insert_world_bank(self, indicators: List[WorldBank]) -> None:
+        """Insert World Bank development indicators using streaming insert."""
+        if not indicators:
+            return
+
+        table_id = f"{self.project_id}.{self.dataset_id}.world_bank"
+        rows = [ind.to_bigquery_row() for ind in indicators]
+        errors = self.client.insert_rows_json(table_id, rows)
+
+        if errors:
+            raise Exception(f"BigQuery insert errors: {errors}")
+
     # Query methods
     def get_recent_events(
         self,

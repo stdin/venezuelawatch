@@ -5,12 +5,14 @@ Fetches economic indicators from FRED API with parallel series processing
 and threshold-based alert generation.
 """
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from datetime import timezone as dt_timezone
 from typing import Dict, Any, Optional
 from celery import shared_task, group
 from django.db import transaction
 from django.utils import timezone
+from django.conf import settings
+from google.cloud import bigquery
 import pandas as pd
 
 from data_pipeline.tasks.base import BaseIngestionTask
@@ -22,6 +24,8 @@ from data_pipeline.config.fred_series import (
     get_series_config,
 )
 from core.models import Event
+from api.bigquery_models import FREDIndicator, Event as BigQueryEvent
+from api.services.bigquery_service import bigquery_service
 
 logger = logging.getLogger(__name__)
 
@@ -107,6 +111,10 @@ def ingest_single_series(
         observations_created = 0
         observations_skipped = 0
 
+        # Batch collection for BigQuery
+        fred_indicators = []
+        threshold_alert_events = []
+
         # Process each observation
         for obs_date, row in df.iterrows():
             value = row['value']
@@ -117,90 +125,148 @@ def ingest_single_series(
                 observations_skipped += 1
                 continue
 
-            # Convert pandas Timestamp to datetime
+            # Convert pandas Timestamp to datetime/date
             if hasattr(obs_date, 'to_pydatetime'):
-                obs_date = obs_date.to_pydatetime()
+                obs_datetime = obs_date.to_pydatetime()
+            else:
+                obs_datetime = obs_date
 
-            # Make timezone aware
-            if timezone.is_naive(obs_date):
-                obs_date = timezone.make_aware(obs_date, dt_timezone.utc)
+            # Convert to date for fred_indicators table
+            if isinstance(obs_datetime, datetime):
+                obs_date_only = obs_datetime.date()
+            else:
+                obs_date_only = obs_datetime
 
-            # Check for duplicate
-            existing = Event.objects.filter(
-                source='FRED',
-                content__series_id=series_id,
-                timestamp=obs_date
-            ).exists()
+            # Make timezone aware for event timestamps
+            if hasattr(obs_datetime, 'tzinfo') and timezone.is_naive(obs_datetime):
+                obs_datetime = timezone.make_aware(obs_datetime, dt_timezone.utc)
 
-            if existing:
-                logger.debug(f"Skipping duplicate observation for {series_id} on {obs_date}")
-                observations_skipped += 1
-                continue
+            # Check for duplicate in BigQuery fred_indicators
+            try:
+                query = f"""
+                    SELECT COUNT(*) as count
+                    FROM `{settings.GCP_PROJECT_ID}.{settings.BIGQUERY_DATASET}.fred_indicators`
+                    WHERE series_id = @series_id
+                    AND date = @date
+                """
+                job_config = bigquery.QueryJobConfig(
+                    query_parameters=[
+                        bigquery.ScalarQueryParameter('series_id', 'STRING', series_id),
+                        bigquery.ScalarQueryParameter('date', 'DATE', obs_date_only)
+                    ]
+                )
+                results = bigquery_service.client.query(query, job_config=job_config).result()
+                row_result = list(results)[0]
+                if row_result.count > 0:
+                    logger.debug(f"Skipping duplicate observation for {series_id} on {obs_date_only}")
+                    observations_skipped += 1
+                    continue
+            except Exception as e:
+                logger.error(f"Failed to check for duplicate in BigQuery: {e}")
+                # Continue with insert - better to have duplicate than skip valid observation
+                pass
 
             # Get previous observation for change calculation
-            previous_events = Event.objects.filter(
-                source='FRED',
-                content__series_id=series_id,
-                timestamp__lt=obs_date
-            ).order_by('-timestamp')[:1]
-
-            previous_value = None
-            if previous_events.exists():
-                previous_value = previous_events.first().content.get('value')
-
-            # Create observation dict
-            # Convert datetime to ISO string for JSON serialization
-            observation = {
-                'series_id': series_id,
-                'date': obs_date.isoformat() if hasattr(obs_date, 'isoformat') else str(obs_date),
-                'value': float(value),
-                'previous_value': previous_value,
-            }
-
-            # Map to Event
             try:
-                event = map_fred_to_event(observation, series_config)
+                prev_query = f"""
+                    SELECT value
+                    FROM `{settings.GCP_PROJECT_ID}.{settings.BIGQUERY_DATASET}.fred_indicators`
+                    WHERE series_id = @series_id
+                    AND date < @date
+                    ORDER BY date DESC
+                    LIMIT 1
+                """
+                prev_job_config = bigquery.QueryJobConfig(
+                    query_parameters=[
+                        bigquery.ScalarQueryParameter('series_id', 'STRING', series_id),
+                        bigquery.ScalarQueryParameter('date', 'DATE', obs_date_only)
+                    ]
+                )
+                prev_results = bigquery_service.client.query(prev_query, prev_job_config).result()
+                prev_rows = list(prev_results)
+                previous_value = prev_rows[0].value if prev_rows else None
+            except Exception as e:
+                logger.warning(f"Failed to get previous value from BigQuery: {e}")
+                previous_value = None
 
-                # Detect threshold breaches
+            # Create FREDIndicator for BigQuery
+            try:
+                fred_indicator = FREDIndicator(
+                    series_id=series_id,
+                    date=obs_date_only,
+                    value=float(value),
+                    series_name=series_config.get('name'),
+                    units=series_config.get('units')
+                )
+                fred_indicators.append(fred_indicator)
+                observations_created += 1
+                logger.debug(f"Prepared FRED indicator: {series_id} = {value} on {obs_date_only}")
+
+                # Detect threshold breaches for event generation
                 threshold_alerts = detect_threshold_events(
                     series_id=series_id,
                     current_value=float(value),
                     previous_value=previous_value,
                     config=series_config,
-                    observation_date=obs_date,
+                    observation_date=obs_datetime if isinstance(obs_datetime, datetime) else datetime.combine(obs_datetime, datetime.min.time()).replace(tzinfo=dt_timezone.utc),
                 )
 
-                # Save to database (observation + any alerts)
-                with transaction.atomic():
-                    event.save()
-                    observations_created += 1
-                    logger.debug(
-                        f"Created FRED event: {series_id} = {value} on {obs_date}"
-                    )
-
-                    # Save threshold alert events
-                    for alert in threshold_alerts:
-                        alert.save()
-                        logger.info(
-                            f"Created threshold alert: {alert.title}"
-                        )
-
-                # Dispatch LLM intelligence analysis (async background task)
-                analyze_task = get_intelligence_task()
-                analyze_task.delay(event.id, model='fast')
-                logger.debug(f"Dispatched LLM analysis for FRED event {event.id}")
-
-                # Also analyze threshold alerts (they contain important narrative context)
+                # Convert threshold alert Django events to BigQuery events
                 for alert in threshold_alerts:
-                    analyze_task.delay(alert.id, model='standard')  # Use standard model for alerts
-                    logger.debug(f"Dispatched LLM analysis for FRED alert {alert.id}")
+                    bq_alert = BigQueryEvent(
+                        source_url=f"https://fred.stlouisfed.org/series/{series_id}",
+                        mentioned_at=alert.timestamp,
+                        created_at=timezone.now(),
+                        title=alert.title,
+                        content=alert.content.get('description', '') if isinstance(alert.content, dict) else str(alert.content),
+                        source_name='FRED',
+                        event_type='economic_alert',
+                        location='Venezuela',
+                        risk_score=None,  # Computed in Phase 4
+                        severity=None,  # Computed in Phase 4
+                        metadata={
+                            'series_id': series_id,
+                            'threshold_type': alert.content.get('threshold_type') if isinstance(alert.content, dict) else None,
+                            'current_value': float(value),
+                            'previous_value': previous_value,
+                            'change_pct': ((float(value) - previous_value) / previous_value * 100) if previous_value else None
+                        }
+                    )
+                    threshold_alert_events.append(bq_alert)
+                    logger.info(f"Prepared threshold alert event: {bq_alert.title}")
 
             except Exception as e:
                 logger.error(
-                    f"Failed to create event for {series_id} observation: {e}",
+                    f"Failed to prepare FRED indicator for {series_id} observation: {e}",
                     exc_info=True
                 )
                 observations_skipped += 1
+
+        # Batch insert to BigQuery
+        if fred_indicators:
+            try:
+                bigquery_service.insert_fred_indicators(fred_indicators)
+                logger.info(f"Inserted {len(fred_indicators)} FRED indicators to BigQuery")
+            except Exception as e:
+                logger.error(f"Failed to insert FRED indicators to BigQuery: {e}", exc_info=True)
+                raise
+
+        # Insert threshold alert events
+        if threshold_alert_events:
+            try:
+                bigquery_service.insert_events(threshold_alert_events)
+                logger.info(f"Inserted {len(threshold_alert_events)} threshold alert events to BigQuery")
+
+                # Dispatch LLM intelligence analysis for threshold alerts
+                analyze_task = get_intelligence_task()
+                for alert_event in threshold_alert_events:
+                    analyze_task.delay(alert_event.id, model='standard')
+                    logger.debug(f"Dispatched LLM analysis for FRED alert {alert_event.id}")
+
+            except Exception as e:
+                logger.error(f"Failed to insert threshold alert events to BigQuery: {e}", exc_info=True)
+                # Don't raise - indicators are more important than alerts
+                pass
 
         result = {
             'series_id': series_id,
