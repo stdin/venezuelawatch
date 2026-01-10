@@ -228,6 +228,58 @@ Plans:
 **Details:**
 Complete multi-source entity-centric intelligence pipeline. Splink-based entity resolution (Plan 01), BigQuery public dataset adapters for Google Trends and World Bank WDI with SEC EDGAR stub (Plan 02), and automatic entity linking with multi-source API endpoint (Plan 03) operational. All adapters automatically link entities during ingestion.
 
+#### Phase 25: Update System to Follow Platform Design
+
+**Goal**: Update the system to roughly follow the design in docs/venezuela_risk_platform_design.md
+**Depends on**: Phase 24
+**Plans**: 2 plans complete
+**Status**: Complete
+
+Plans:
+- [x] 25-01: Refactor severity and risk scoring services
+- [x] 25-02: Update adapters to use new severity and risk scoring
+
+**Details:**
+Align the current implementation with the canonical event model, severity assignment (P1-P4), and composite risk scoring architecture defined in the platform design document. Refactored severity classifier and composite risk scorer to match platform design (Plan 01), updated all adapters to use new scoring services (Plan 02).
+
+#### Phase 26: GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking
+
+**Goal**: GKG theme population, entity relationship graphs, event lineage tracking
+**Depends on**: Phase 25
+**Plans**: 1/2 plans complete
+**Status**: In progress
+
+Plans:
+- [x] 26-01: Backend graph data service with community detection
+- [ ] 26-02: TBD (frontend visualization or narrative generation)
+
+**Details:**
+[To be added during planning]
+
+#### Phase 27: Rolling Window Statistics, Persistence Spike Detection, Multi-Source Corroboration
+
+**Goal**: Rolling window statistics, persistence spike detection, multi-source corroboration
+**Depends on**: Phase 26
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 27 to break down)
+
+**Details:**
+[To be added during planning]
+
+#### Phase 28: Small-Scale End-to-End Pipeline Test in GCP
+
+**Goal**: Small-scale end-to-end pipeline test in GCP
+**Depends on**: Phase 27
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 28 to break down)
+
+**Details:**
+[To be added during planning]
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -258,3 +310,7 @@ Complete multi-source entity-centric intelligence pipeline. Splink-based entity 
 | 22. Data Source Architecture | v1.3 | 1/? | In progress | 2026-01-10 |
 | 23. Intelligence Pipeline Rebuild | v1.3 | 2/2 | Complete | 2026-01-10 |
 | 24. BigQuery Public Datasets | v1.3 | 3/3 | Complete | 2026-01-10 |
+| 25. Update System to Follow Platform Design | v1.3 | 2/2 | Complete | 2026-01-10 |
+| 26. GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking | v1.3 | 0/? | Not started | - |
+| 27. Rolling Window Statistics, Persistence Spike Detection, Multi-Source Corroboration | v1.3 | 0/? | Not started | - |
+| 28. Small-Scale End-to-End Pipeline Test in GCP | v1.3 | 0/? | Not started | - |

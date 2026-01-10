@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 ## Current Position
 
 Milestone: v1.3 GDELT Intelligence
-Phase: 24 of 24 (BigQuery Public Datasets)
-Plan: 3 of 3 in current phase
-Status: Milestone complete
-Last activity: 2026-01-10 - Completed 24-03-PLAN.md
+Phase: 26 of 28 (GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-10 - Completed 26-01-PLAN.md
 
-Progress: ██████████ 100%
+Progress: █████████░ 90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 66
+- Total plans completed: 67
 - Average duration: 9 min
-- Total execution time: 11.2 hours
+- Total execution time: 11.3 hours
 
 **By Phase:**
 
@@ -52,10 +52,12 @@ Progress: ██████████ 100%
 | 22 | 1 | 2 min | 2 min |
 | 23 | 2 | 11 min | 6 min |
 | 24 | 3 | 14 min | 5 min |
+| 25 | 2 | 10 min | 5 min |
+| 26 | 1 | 4 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 2min, 7min, 4min, 5min, 5min
-- Trend: Fast (Phase 24 complete)
+- Last 5 plans: 7min, 4min, 5min, 5min, 4min
+- Trend: Fast (Phase 26 in progress)
 
 ## Accumulated Context
 
@@ -291,6 +293,10 @@ Recent decisions affecting current work:
 - Phase 24: Metadata.linked_entities stores canonical IDs for consistent multi-source queries
 - Phase 24: Capitalized word patterns for simple entity extraction (Phase 6 enhancement deferred)
 - Phase 24: GET /api/entities/{id}/sources endpoint groups events by source
+- Phase 26: Node.js subprocess for Graphology Louvain (Python-JS bridge, no Python equivalent)
+- Phase 26: Co-occurrence threshold default 3 (filters noise while preserving meaningful connections)
+- Phase 26: Time range default 30d (balances recency with sufficient relationship data)
+- Phase 26: Undirected graph edges for co-occurrence (symmetric relationship)
 
 ### Deferred Issues
 
@@ -317,10 +323,14 @@ None yet.
 - **Milestone v1.3 GDELT Intelligence created:** Maximize value from free BigQuery GDELT data (61 fields), rebuild intelligence pipeline around GDELT signals, 7 phases (Phase 19-25)
 - Phase 24 removed (2026-01-10): LLM Optimization & UI deferred, old Phase 25 renumbered to Phase 24
 - Phase 24 added (2026-01-10): Add more BigQuery data sources
-- Phase 25 added (2026-01-10): Update scoring and ranking system - consider both positive and negative events equally important, SEV based on impact magnitude
+- Phase 25 removed (2026-01-10): Update scoring and ranking system (deferred)
+- Phase 25 added (2026-01-10): Update system to follow platform design in docs/venezuela_risk_platform_design.md
+- Phase 26 added (2026-01-10): GKG theme population, entity relationship graphs, event lineage tracking
+- Phase 27 added (2026-01-10): Rolling window statistics, persistence spike detection, multi-source corroboration
+- Phase 28 added (2026-01-10): Small-scale end-to-end pipeline test in GCP
 
 ## Session Continuity
 
 Last session: 2026-01-10
-Stopped at: Completed Phase 24 Plan 03 (24-03-PLAN.md) - Phase 24 complete
+Stopped at: Completed Phase 26 Plan 01 (26-01-PLAN.md)
 Resume file: None
