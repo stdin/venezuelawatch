@@ -254,3 +254,8 @@ OPENSANCTIONS_API_KEY = os.environ.get('OPENSANCTIONS_API_KEY', '')
 OPENSANCTIONS_BASE_URL = os.environ.get('OPENSANCTIONS_BASE_URL', 'https://api.opensanctions.org')
 # Free OFAC API alternative: https://www.treasury.gov/ofac/downloads/
 OFAC_API_URL = 'https://sanctionssearch.ofac.treas.gov/api/PublicationPreview/exports/'
+
+# Vertex AI Forecasting Configuration
+VERTEX_AI_ENDPOINT_ID = os.environ.get('VERTEX_AI_ENDPOINT_ID', '')
+VERTEX_AI_PROJECT_ID = os.environ.get('GCP_PROJECT_ID', 'venezuelawatch-staging')
+VERTEX_AI_LOCATION = os.environ.get('VERTEX_AI_LOCATION', 'us-central1')
