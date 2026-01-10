@@ -133,7 +133,32 @@ def sync_gdelt_events(self, lookback_minutes: int = 15) -> Dict[str, Any]:
                         'actor2_name': gdelt_event.get('Actor2Name'),
                         'event_code': gdelt_event.get('EventCode'),
                         'action_geo_lat': gdelt_event.get('ActionGeo_Lat'),
-                        'action_geo_long': gdelt_event.get('ActionGeo_Long')
+                        'action_geo_long': gdelt_event.get('ActionGeo_Long'),
+
+                        # Religion & Ethnicity
+                        'actor1_religion1_code': gdelt_event.get('Actor1Religion1Code'),
+                        'actor1_religion2_code': gdelt_event.get('Actor1Religion2Code'),
+                        'actor2_religion1_code': gdelt_event.get('Actor2Religion1Code'),
+                        'actor2_religion2_code': gdelt_event.get('Actor2Religion2Code'),
+                        'actor1_ethnic_code': gdelt_event.get('Actor1EthnicCode'),
+                        'actor2_ethnic_code': gdelt_event.get('Actor2EthnicCode'),
+
+                        # Enhanced Actor Classification
+                        'actor1_known_group_code': gdelt_event.get('Actor1KnownGroupCode'),
+                        'actor1_type2_code': gdelt_event.get('Actor1Type2Code'),
+                        'actor2_known_group_code': gdelt_event.get('Actor2KnownGroupCode'),
+                        'actor2_type3_code': gdelt_event.get('Actor2Type3Code'),
+
+                        # Geographic Precision
+                        'actor1_geo_adm1': gdelt_event.get('Actor1Geo_ADM1Code'),
+                        'actor1_geo_adm2': gdelt_event.get('Actor1Geo_ADM2Code'),
+                        'actor1_geo_feature_id': gdelt_event.get('Actor1Geo_FeatureID'),
+                        'actor2_geo_adm1': gdelt_event.get('Actor2Geo_ADM1Code'),
+                        'actor2_geo_adm2': gdelt_event.get('Actor2Geo_ADM2Code'),
+                        'actor2_geo_feature_id': gdelt_event.get('Actor2Geo_FeatureID'),
+                        'action_geo_adm1': gdelt_event.get('ActionGeo_ADM1Code'),
+                        'action_geo_adm2': gdelt_event.get('ActionGeo_ADM2Code'),
+                        'action_geo_feature_id': gdelt_event.get('ActionGeo_FeatureID'),
                     }
                 )
 
