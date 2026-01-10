@@ -12,6 +12,7 @@ None
 
 - ✅ **v1.0 MVP** - Phases 1-7 (shipped 2026-01-09)
 - ✅ **v1.1 UI/UX Overhaul** - Phases 8-13 (shipped 2026-01-10)
+- 🚧 **v1.2 Advanced Analytics** - Phases 14-17 (in progress)
 
 ## Completed Milestones
 
@@ -132,6 +133,49 @@ See [milestones/v1.1-UI-UX-Overhaul-ROADMAP.md](milestones/v1.1-UI-UX-Overhaul-R
 
 </details>
 
+### 🚧 v1.2 Advanced Analytics (In Progress)
+
+**Milestone Goal:** Add powerful intelligence capabilities with time-series forecasting, correlation analysis, custom reports, and enhanced data visualization.
+
+#### Phase 14: Time-Series Forecasting
+**Goal**: Predict risk trends, economic indicators, and event patterns using statistical models
+**Depends on**: Phase 13 (previous milestone complete)
+**Research**: Likely (forecasting libraries, model selection)
+**Research topics**: Python forecasting libraries (Prophet, statsmodels, scikit-learn), model selection for time-series data, integration with existing TimescaleDB data
+**Plans**: TBD
+
+Plans:
+- [ ] 14-01: TBD (run /gsd:plan-phase 14 to break down)
+
+#### Phase 15: Correlation & Pattern Analysis
+**Goal**: Discover relationships between events, entities, and economic data with visual correlation matrices
+**Depends on**: Phase 14
+**Research**: Likely (statistical correlation methods, graph algorithms)
+**Research topics**: Correlation analysis methods for mixed data types, pattern detection algorithms, network analysis for entity relationships
+**Plans**: TBD
+
+Plans:
+- [ ] 15-01: TBD
+
+#### Phase 16: Custom Reports & Export
+**Goal**: User-defined report templates, PDF generation, CSV/Excel export, scheduled reports
+**Depends on**: Phase 15
+**Research**: Likely (PDF generation libraries, scheduling)
+**Research topics**: Python PDF libraries (ReportLab, WeasyPrint), Excel generation (openpyxl, xlsxwriter), report scheduling patterns
+**Plans**: TBD
+
+Plans:
+- [ ] 16-01: TBD
+
+#### Phase 17: Enhanced Data Visualization
+**Goal**: Interactive charts, heatmaps, network graphs, custom dashboards, visualization library expansion
+**Depends on**: Phase 16
+**Research**: Unlikely (extending existing Recharts patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 17-01: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -149,3 +193,7 @@ See [milestones/v1.1-UI-UX-Overhaul-ROADMAP.md](milestones/v1.1-UI-UX-Overhaul-R
 | 11. Entity Pages Redesign | v1.1 | 3/3 | Complete | 2026-01-09 |
 | 12. Chat Interface Polish | v1.1 | 2/2 | Complete | 2026-01-09 |
 | 13. Responsive & Accessibility | v1.1 | 4/4 | Complete | 2026-01-10 |
+| 14. Time-Series Forecasting | v1.2 | 0/? | Not started | - |
+| 15. Correlation & Pattern Analysis | v1.2 | 0/? | Not started | - |
+| 16. Custom Reports & Export | v1.2 | 0/? | Not started | - |
+| 17. Enhanced Data Visualization | v1.2 | 0/? | Not started | - |
