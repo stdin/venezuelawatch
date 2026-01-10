@@ -208,6 +208,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # - Event-driven tasks: Pub/Sub → Cloud Run
 # - Background tasks: Cloud Tasks
 # Redis retained for trending cache and Django caching only
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 
 # GCP Secret Manager Configuration
 GCP_PROJECT_ID = os.environ.get('GCP_PROJECT_ID', 'venezuelawatch-staging')

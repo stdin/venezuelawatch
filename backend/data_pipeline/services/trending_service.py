@@ -24,7 +24,7 @@ class TrendingService:
 
     # Initialize Redis client
     redis_client = redis.Redis.from_url(
-        settings.CELERY_BROKER_URL,
+        settings.REDIS_URL,
         decode_responses=True
     )
 
