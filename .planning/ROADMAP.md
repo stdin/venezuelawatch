@@ -154,10 +154,13 @@ Plans:
 **Goal**: Migrate from TimescaleDB to polyglot persistence (PostgreSQL + BigQuery) for time-series data - consolidate with Phase 14 forecasting infrastructure, update Phases 1/3/4/6/7 ingestion and queries
 **Depends on**: Phase 14
 **Research**: Completed (TIMESCALEDB-MIGRATION.md)
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 14.1 to break down)
+- [ ] 14.1-01: BigQuery Schema & Service Setup
+- [ ] 14.1-02: Celery Ingestion Migration
+- [ ] 14.1-03: API Views Migration
+- [ ] 14.1-04: Data Migration & Validation
 
 **Details:**
 **URGENT:** TimescaleDB extension not available on Cloud SQL PostgreSQL - blocking production deployment. Migration to polyglot persistence (PostgreSQL for transactional data, BigQuery for time-series analytics) consolidates infrastructure with Phase 14 forecasting and provides better scalability.
@@ -211,7 +214,7 @@ Plans:
 | 12. Chat Interface Polish | v1.1 | 2/2 | Complete | 2026-01-09 |
 | 13. Responsive & Accessibility | v1.1 | 4/4 | Complete | 2026-01-10 |
 | 14. Time-Series Forecasting | v1.2 | 4/4 | Complete | 2026-01-10 |
-| 14.1. BigQuery Migration (INSERTED) | v1.2 | 0/? | Not started | - |
+| 14.1. BigQuery Migration (INSERTED) | v1.2 | 0/4 | Planning complete | - |
 | 15. Correlation & Pattern Analysis | v1.2 | 0/? | Not started | - |
 | 16. Custom Reports & Export | v1.2 | 0/? | Not started | - |
 | 17. Enhanced Data Visualization | v1.2 | 0/? | Not started | - |
