@@ -228,18 +228,6 @@ Plans:
 **Details:**
 Complete multi-source entity-centric intelligence pipeline. Splink-based entity resolution (Plan 01), BigQuery public dataset adapters for Google Trends and World Bank WDI with SEC EDGAR stub (Plan 02), and automatic entity linking with multi-source API endpoint (Plan 03) operational. All adapters automatically link entities during ingestion.
 
-#### Phase 25: Update Scoring and Ranking System
-
-**Goal**: Update scoring and ranking system - consider that both positive and negative events are equally important and can have significant impact. SEV should be calculated on impact - both positive or negative.
-**Depends on**: Phase 24
-**Plans**: 0 plans
-
-Plans:
-- [ ] TBD (run /gsd:plan-phase 25 to break down)
-
-**Details:**
-[To be added during planning]
-
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -269,5 +257,4 @@ Plans:
 | 21. Mentions Tracking | v1.3 | 3/3 | Complete | 2026-01-10 |
 | 22. Data Source Architecture | v1.3 | 1/? | In progress | 2026-01-10 |
 | 23. Intelligence Pipeline Rebuild | v1.3 | 2/2 | Complete | 2026-01-10 |
-| 24. BigQuery Public Datasets | v1.3 | 2/2 | Complete | 2026-01-10 |
-| 25. Update Scoring and Ranking System | v1.3 | 0/? | Not started | - |
+| 24. BigQuery Public Datasets | v1.3 | 3/3 | Complete | 2026-01-10 |
