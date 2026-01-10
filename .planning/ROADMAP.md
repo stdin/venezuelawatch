@@ -227,7 +227,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 18-01: Ingestion Layer Migration (Cloud Scheduler + Cloud Functions)
+- [x] 18-01: Ingestion Layer Migration (Cloud Functions + deployment scripts) - 10 min
 - [ ] 18-02: Processing Layer Migration (Pub/Sub + Cloud Run + Cloud Tasks)
 - [ ] 18-03: Observability & Monitoring Setup
 - [ ] 18-04: Cutover & Decommission Celery
