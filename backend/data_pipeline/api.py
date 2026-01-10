@@ -398,42 +398,51 @@ def get_trending_entities(
     """
     Get trending entities leaderboard with metric toggle.
 
+    Now uses BigQuery for trending calculations instead of Redis.
+
     Metrics:
-    - mentions: Most mentioned entities (time-decayed score from Redis)
+    - mentions: Most mentioned entities (time-decayed score with 7-day half-life)
     - risk: Highest risk entities (avg risk_score from events)
     - sanctions: Recently sanctioned entities
 
     Returns:
         List of entities ordered by selected metric
     """
-    from data_pipeline.services.trending_service import TrendingService
+    from api.services.bigquery_service import bigquery_service
 
-    # Get trending entities from TrendingService
-    trending = TrendingService.get_trending_entities(metric=metric, limit=limit)
+    # Get trending entities from BigQuery
+    trending = bigquery_service.get_entity_trending(metric=metric, limit=limit)
 
-    # Filter by entity_type if provided
-    if entity_type:
-        trending = [e for e in trending if e['entity_type'] == entity_type]
+    # Bulk fetch Entity objects from PostgreSQL
+    entity_ids = [item['entity_id'] for item in trending]
+    entities = Entity.objects.filter(id__in=entity_ids)
+    entity_map = {str(e.id): e for e in entities}
 
     # Convert to EntitySchema format (add trending_score and rank)
     results = []
     for idx, entity_data in enumerate(trending, start=1):
-        # Get Entity object to fetch all fields
-        try:
-            entity = Entity.objects.get(id=entity_data['entity_id'])
-            results.append(EntitySchema(
-                id=str(entity.id),
-                canonical_name=entity.canonical_name,
-                entity_type=entity.entity_type,
-                mention_count=entity.mention_count,
-                first_seen=entity.first_seen,
-                last_seen=entity.last_seen,
-                trending_score=entity_data['score'],
-                trending_rank=idx
-            ))
-        except Entity.DoesNotExist:
-            logger.warning(f"Entity {entity_data['entity_id']} not found in database")
+        entity_id = entity_data['entity_id']
+
+        # Get Entity object
+        entity = entity_map.get(entity_id)
+        if not entity:
+            logger.warning(f"Entity {entity_id} not found in PostgreSQL")
             continue
+
+        # Filter by entity_type if provided
+        if entity_type and entity.entity_type != entity_type:
+            continue
+
+        results.append(EntitySchema(
+            id=str(entity.id),
+            canonical_name=entity.canonical_name,
+            entity_type=entity.entity_type,
+            mention_count=entity.mention_count,
+            first_seen=entity.first_seen,
+            last_seen=entity.last_seen,
+            trending_score=entity_data['score'],
+            trending_rank=idx
+        ))
 
     return results
 
@@ -503,9 +512,8 @@ def get_entity_profile(request: HttpRequest, entity_id: str, include_history: bo
             for date, scores in sorted(daily_scores.items())
         ]
 
-    # Get trending rank from TrendingService
-    from data_pipeline.services.trending_service import TrendingService
-    trending_rank = TrendingService.get_entity_rank(str(entity.id))
+    # Note: trending_rank removed (Redis deprecated, would need separate BigQuery query)
+    # Can be added back if needed by calling get_entity_trending and finding entity position
 
     return EntityProfileSchema(
         id=str(entity.id),
@@ -514,8 +522,8 @@ def get_entity_profile(request: HttpRequest, entity_id: str, include_history: bo
         mention_count=entity.mention_count,
         first_seen=entity.first_seen,
         last_seen=entity.last_seen,
-        trending_score=None,  # Could fetch from Redis if needed
-        trending_rank=trending_rank,
+        trending_score=None,  # Not included in profile view
+        trending_rank=None,  # Not included in profile view (Redis deprecated)
         aliases=entity.aliases,
         metadata=entity.metadata,
         sanctions_status=sanctions_status,
