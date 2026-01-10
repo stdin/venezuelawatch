@@ -55,6 +55,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import List, Dict, Any, Tuple, Optional
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -172,6 +173,128 @@ class DataSourceAdapter(ABC):
         """
         pass
 
+    def _extract_and_link_entities(self, event: 'Event') -> List[str]:
+        """
+        Extract entity mentions from event and link to canonical entities.
+
+        This method:
+        1. Extracts potential entity mentions using capitalization patterns
+        2. Resolves each mention to a canonical entity using SplinkEntityResolver
+        3. Creates/updates EntityAlias records with confidence and resolution method
+        4. Returns list of canonical entity IDs for storage in event metadata
+
+        Args:
+            event: BigQuery Event instance to extract entities from
+
+        Returns:
+            List of canonical entity ID strings
+
+        Note:
+            This runs at publish time (not query time) for performance.
+            Entity linking happens before BigQuery insert so metadata.linked_entities
+            is immediately available for multi-source queries.
+        """
+        from api.services.splink_resolver import SplinkEntityResolver
+        from data_pipeline.models import CanonicalEntity, EntityAlias
+        from django.utils import timezone
+
+        canonical_entity_ids = []
+
+        try:
+            # Extract potential entity mentions from title and content
+            # Use simple capitalized word pattern (can be enhanced later with Phase 6 patterns)
+            text = f"{event.title or ''} {event.content or ''}"
+
+            # Pattern: Find sequences of capitalized words (potential entities)
+            # Examples: "PDVSA", "Nicolás Maduro", "Petróleos de Venezuela"
+            capitalized_pattern = r'\b([A-Z][a-záéíóúñü]*(?:\s+[A-Z][a-záéíóúñü]*)*)\b'
+            potential_entities = re.findall(capitalized_pattern, text)
+
+            # Remove duplicates while preserving order
+            seen = set()
+            unique_entities = []
+            for entity in potential_entities:
+                entity_lower = entity.lower()
+                if entity_lower not in seen and len(entity) > 1:  # Skip single letters
+                    seen.add(entity_lower)
+                    unique_entities.append(entity)
+
+            # Limit to top 10 entities per event to avoid excessive processing
+            unique_entities = unique_entities[:10]
+
+            if not unique_entities:
+                return []
+
+            logger.info(
+                f"Extracted {len(unique_entities)} potential entities from event {event.id}: {unique_entities}"
+            )
+
+            # Initialize Splink resolver
+            resolver = SplinkEntityResolver()
+
+            # Resolve each entity to canonical form
+            for entity_name in unique_entities:
+                try:
+                    # Infer entity type from context (default to organization for Venezuela events)
+                    # TODO: Use NER or LLM for better entity type classification
+                    entity_type = 'organization'
+
+                    # Extract country code from event if available
+                    country_code = None
+                    if hasattr(event, 'location'):
+                        if 'Venezuela' in str(event.location):
+                            country_code = 'VE'
+
+                    # Resolve to canonical entity
+                    canonical_id, confidence, method = resolver.resolve_entity(
+                        entity_name=entity_name,
+                        source=self.source_name,
+                        entity_type=entity_type,
+                        country_code=country_code
+                    )
+
+                    canonical_entity_ids.append(canonical_id)
+
+                    # Update or create EntityAlias record
+                    alias_obj, created = EntityAlias.objects.get_or_create(
+                        alias=entity_name,
+                        source=self.source_name,
+                        defaults={
+                            'canonical_entity_id': canonical_id,
+                            'confidence': confidence,
+                            'resolution_method': method,
+                        }
+                    )
+
+                    if not created:
+                        # Update existing alias
+                        alias_obj.last_seen = timezone.now()
+                        alias_obj.save(update_fields=['last_seen'])
+
+                    logger.debug(
+                        f"Linked entity '{entity_name}' to canonical ID {canonical_id} "
+                        f"(confidence: {confidence:.3f}, method: {method})"
+                    )
+
+                except Exception as e:
+                    logger.warning(
+                        f"Failed to resolve entity '{entity_name}' for event {event.id}: {e}"
+                    )
+                    # Continue with other entities - don't fail entire event
+
+            logger.info(
+                f"Linked {len(canonical_entity_ids)} entities to event {event.id}"
+            )
+
+        except Exception as e:
+            logger.error(
+                f"Entity extraction failed for event {event.id}: {e}",
+                exc_info=True
+            )
+            # Return empty list on failure - don't fail entire publish operation
+
+        return canonical_entity_ids
+
     def publish_events(self, events: List['Event']) -> Dict[str, int]:
         """
         Publish validated events to Pub/Sub for downstream processing.
@@ -216,6 +339,17 @@ class DataSourceAdapter(ABC):
                 continue
 
             try:
+                # Extract and link entities before publishing
+                linked_entity_ids = self._extract_and_link_entities(event)
+                if linked_entity_ids:
+                    # Enrich event metadata with linked entities
+                    if not hasattr(event, 'metadata') or event.metadata is None:
+                        event.metadata = {}
+                    event.metadata['linked_entities'] = linked_entity_ids
+                    logger.info(
+                        f"Enriched event {event.id} with {len(linked_entity_ids)} linked entities"
+                    )
+
                 # Convert to JSON and publish
                 event_data = event.to_bigquery_row()
                 message_bytes = json.dumps(event_data).encode('utf-8')
