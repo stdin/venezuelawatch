@@ -190,7 +190,7 @@ Replace custom GDELT DOC API polling (250 event limit, 3-4 fields) with direct q
 **Plans**: 1 plan
 
 Plans:
-- [ ] 14.3-01: Migrate Processing Tasks to BigQuery
+- [x] 14.3-01: Migrate Processing Tasks to BigQuery
 
 **Details:**
 **URGENT:** Complete the polyglot persistence migration by moving all remaining event data sources to BigQuery. Phase 14.1 established infrastructure and migrated entity risk time-series. Phase 14.2 migrated GDELT to native BigQuery dataset. Phase 14.3 completes the migration by moving ReliefWeb, FRED, UN Comtrade, and World Bank ingestion tasks to write to BigQuery, updating all remaining API views to query BigQuery instead of PostgreSQL Event model, and deprecating PostgreSQL Event model (keep for Django metadata only, not time-series data).
