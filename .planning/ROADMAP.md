@@ -183,12 +183,14 @@ Plans:
 
 **Goal**: Track narrative spread by monitoring how events are mentioned across articles over time for early warning signals
 **Depends on**: Phase 20
-**Research**: Likely (mentions table schema, narrative tracking algorithms)
-**Research topics**: GDELT Mentions table structure, time-series mention analysis, confidence scoring patterns
-**Plans**: TBD
+**Research**: Complete
+**Plans**: 1/3 complete
+**Status**: In progress
 
 Plans:
-- [ ] 21-01: TBD
+- [x] 21-01: Mentions tracking infrastructure (PostgreSQL spike model + BigQuery service)
+- [ ] 21-02: TDD spike detection logic
+- [ ] 21-03: Spike intelligence analysis
 
 #### Phase 22: Data Source Architecture
 
