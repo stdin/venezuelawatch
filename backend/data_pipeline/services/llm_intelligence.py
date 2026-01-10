@@ -1,12 +1,12 @@
 """
-Comprehensive one-shot LLM intelligence analysis.
+Comprehensive one-shot LLM intelligence analysis with hybrid GDELT scoring.
 
 Uses Claude to analyze events in any language, extracting:
 - Sentiment (score, label, reasoning, nuances)
 - Summary (concise summary, key points)
 - Entities (people, orgs, locations with roles)
 - Relationships (entity relationships graph)
-- Risk assessment (score, level, reasoning, factors)
+- Risk assessment (hybrid score combining GDELT quantitative + LLM qualitative)
 - Themes and topics
 - Urgency level
 - Language detection
@@ -17,26 +17,39 @@ import logging
 import json
 from typing import Dict, Any, Optional, List
 from django.core.cache import cache
+from django.conf import settings
 
 from data_pipeline.services.llm_client import LLMClient
+from data_pipeline.services.gdelt_quantitative_scorer import GdeltQuantitativeScorer
 
 logger = logging.getLogger(__name__)
 
 
 class LLMIntelligence:
     """
-    Comprehensive intelligence analysis using Claude LLM.
+    Comprehensive intelligence analysis using hybrid GDELT + LLM scoring.
 
     Performs complete event analysis in one API call:
     - Multilingual support (Spanish, English, Arabic, Portuguese, etc.)
     - Sentiment analysis with cultural context
     - Entity extraction and relationship mapping
-    - Risk scoring with geopolitical awareness
+    - Hybrid risk scoring (GDELT quantitative + LLM qualitative)
     - Event summarization and key insights
     """
 
     # Cache TTL (24 hours)
     CACHE_TTL = 86400
+
+    # GDELT scorer (class-level, reuse across calls)
+    _gdelt_scorer = None
+
+    @classmethod
+    def get_gdelt_scorer(cls):
+        """Get or create GDELT scorer with configured weights."""
+        if cls._gdelt_scorer is None:
+            weights = settings.HYBRID_SCORING.get('gdelt_weights')
+            cls._gdelt_scorer = GdeltQuantitativeScorer(weights=weights)
+        return cls._gdelt_scorer
 
     @classmethod
     def analyze_event_comprehensive(
@@ -47,52 +60,19 @@ class LLMIntelligence:
         model: str = "fast"  # "fast" (Haiku), "standard" (Sonnet), "premium" (Opus)
     ) -> Dict[str, Any]:
         """
-        Perform comprehensive intelligence analysis on event.
+        Perform comprehensive intelligence analysis with hybrid scoring.
+
+        Now computes hybrid risk score combining GDELT quantitative signals
+        with LLM qualitative analysis using configurable weights.
 
         Args:
             title: Event title
             content: Event content (description, body, etc.)
-            context: Optional context (source, event_type, timestamp, etc.)
+            context: Optional context (must include 'metadata' for GDELT scoring)
             model: Model tier to use ("fast", "standard", "premium")
 
         Returns:
-            {
-                'sentiment': {
-                    'score': float (-1.0 to 1.0),
-                    'label': str ('positive', 'neutral', 'negative'),
-                    'confidence': float (0.0 to 1.0),
-                    'reasoning': str,
-                    'nuances': List[str]
-                },
-                'summary': {
-                    'short': str (1-2 sentences),
-                    'key_points': List[str] (3-5 bullet points),
-                    'full': str (2-3 paragraphs, if content is long)
-                },
-                'entities': {
-                    'people': [{'name': str, 'role': str, 'relevance': float}],
-                    'organizations': [{'name': str, 'type': str, 'relevance': float}],
-                    'locations': [{'name': str, 'type': str, 'relevance': float}]
-                },
-                'relationships': [
-                    {'subject': str, 'predicate': str, 'object': str, 'confidence': float}
-                ],
-                'risk': {
-                    'score': float (0.0 to 1.0),
-                    'level': str ('low', 'medium', 'high', 'critical'),
-                    'reasoning': str,
-                    'factors': List[str] (contributing risk factors),
-                    'mitigation': List[str] (suggested actions)
-                },
-                'themes': List[str] (overarching themes),
-                'urgency': str ('low', 'medium', 'high', 'immediate'),
-                'language': str (detected language code),
-                'metadata': {
-                    'model_used': str,
-                    'tokens_used': int,
-                    'processing_time_ms': int
-                }
-            }
+            Intelligence analysis dict with hybrid risk score
         """
         # Check cache first
         cache_key = f"llm_intelligence:{hash(title + content + str(context) + model)}"
@@ -100,6 +80,17 @@ class LLMIntelligence:
         if cached_result:
             logger.info("Using cached LLM intelligence result")
             return cached_result
+
+        # Step 1: Compute GDELT quantitative score
+        gdelt_score = None
+        if context and 'metadata' in context:
+            try:
+                scorer = cls.get_gdelt_scorer()
+                gdelt_score = scorer.score_event(context['metadata'])
+                logger.info(f"GDELT quantitative score: {gdelt_score:.2f}")
+            except Exception as e:
+                logger.warning(f"GDELT scoring failed, proceeding with LLM-only: {e}")
+                gdelt_score = None
 
         # Select model based on tier
         model_name = {
@@ -111,9 +102,11 @@ class LLMIntelligence:
         # Define JSON schema for structured response
         schema = cls._get_intelligence_schema()
 
-        # Build comprehensive analysis prompt
+        # Build comprehensive analysis prompt (includes GDELT score)
         system_prompt = cls._build_system_prompt()
-        user_prompt = cls._build_analysis_prompt(title, content, context)
+        user_prompt = cls._build_analysis_prompt(
+            title, content, context, gdelt_score=gdelt_score
+        )
 
         try:
             import time
@@ -130,7 +123,7 @@ class LLMIntelligence:
                 model=model_name,
                 temperature=0.3,
                 max_tokens=2048,
-                strict=True  # Enforce strict schema validation
+                strict=True
             )
 
             processing_time = int((time.time() - start_time) * 1000)
@@ -138,33 +131,62 @@ class LLMIntelligence:
             # Response is already parsed as dict from structured output
             result = response['content']
 
+            # Step 2: Extract LLM qualitative risk score
+            llm_risk_score = result['risk']['score'] * 100  # Convert 0-1 to 0-100
+
+            # Step 3: Compute hybrid score using weighted average
+            if gdelt_score is not None:
+                weights = settings.HYBRID_SCORING['weights']
+                hybrid_score = (
+                    weights['gdelt'] * gdelt_score +
+                    weights['llm'] * llm_risk_score
+                )
+                logger.info(
+                    f"Hybrid score: {hybrid_score:.2f} "
+                    f"(GDELT={gdelt_score:.2f} × {weights['gdelt']}, "
+                    f"LLM={llm_risk_score:.2f} × {weights['llm']})"
+                )
+            else:
+                # Fallback to LLM-only if GDELT scoring failed
+                hybrid_score = llm_risk_score
+                logger.warning("Using LLM-only score (GDELT unavailable)")
+
+            # Step 4: Derive severity from hybrid score
+            severity = cls._derive_severity(hybrid_score)
+
+            # Update result with hybrid scoring
+            result['risk']['score'] = hybrid_score / 100  # Store as 0-1 for consistency
+            result['risk']['hybrid_score'] = hybrid_score  # Also store 0-100 version
+            result['risk']['gdelt_score'] = gdelt_score
+            result['risk']['llm_score'] = llm_risk_score
+            result['risk']['severity'] = severity
+
             # Add metadata
             result['metadata'] = {
                 'model_used': response['model'],
                 'tokens_used': response['usage']['total_tokens'],
                 'processing_time_ms': processing_time,
-                'used_native_schema': model_name in [LLMClient.PRIMARY_MODEL, LLMClient.PREMIUM_MODEL]
+                'used_native_schema': model_name in [LLMClient.PRIMARY_MODEL, LLMClient.PREMIUM_MODEL],
+                'scoring_method': 'hybrid' if gdelt_score is not None else 'llm_only'
             }
 
             # Cache result
             cache.set(cache_key, result, cls.CACHE_TTL)
 
             logger.info(
-                f"LLM intelligence analysis complete: "
+                f"Intelligence analysis complete: "
+                f"hybrid_score={hybrid_score:.2f}, "
+                f"severity={severity}, "
                 f"sentiment={result['sentiment']['score']:.2f}, "
-                f"risk={result['risk']['score']:.2f}, "
                 f"entities={len(result['entities']['people']) + len(result['entities']['organizations'])}, "
-                f"language={result.get('language', 'unknown')}, "
                 f"tokens={response['usage']['total_tokens']}, "
-                f"time={processing_time}ms, "
-                f"native_schema={result['metadata']['used_native_schema']}"
+                f"time={processing_time}ms"
             )
 
             return result
 
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse LLM JSON response: {e}")
-            logger.error(f"Raw response: {response.get('raw_content', '')[:500]}")
             return cls._get_fallback_result(title, content, f"JSON parse error: {str(e)}")
 
         except Exception as e:
@@ -466,13 +488,49 @@ Respond ONLY with valid JSON matching this exact structure:
 - Consider historical context and patterns"""
 
     @classmethod
+    def _derive_severity(cls, hybrid_score: float) -> str:
+        """
+        Derive SEV1-5 severity level from hybrid risk score.
+
+        Args:
+            hybrid_score: Hybrid score (0-100)
+
+        Returns:
+            Severity level: SEV1, SEV2, SEV3, SEV4, or SEV5
+        """
+        thresholds = settings.HYBRID_SCORING['severity_thresholds']
+
+        if hybrid_score >= thresholds['SEV5']:
+            return 'SEV5'  # Critical
+        elif hybrid_score >= thresholds['SEV4']:
+            return 'SEV4'  # High
+        elif hybrid_score >= thresholds['SEV3']:
+            return 'SEV3'  # Medium
+        elif hybrid_score >= thresholds['SEV2']:
+            return 'SEV2'  # Low
+        else:
+            return 'SEV1'  # Minimal
+
+    @classmethod
     def _build_analysis_prompt(
         cls,
         title: str,
         content: str,
-        context: Optional[Dict[str, Any]]
+        context: Optional[Dict[str, Any]],
+        gdelt_score: Optional[float] = None
     ) -> str:
-        """Build user prompt for analysis."""
+        """
+        Build user prompt for analysis (now includes GDELT score).
+
+        Args:
+            title: Event title
+            content: Event content
+            context: Optional context
+            gdelt_score: Optional GDELT quantitative score (0-100)
+
+        Returns:
+            Analysis prompt with GDELT context
+        """
         context_str = ""
         if context:
             context_parts = []
@@ -486,6 +544,23 @@ Respond ONLY with valid JSON matching this exact structure:
             if context_parts:
                 context_str = f"\n\nContext:\n" + "\n".join(f"- {part}" for part in context_parts)
 
+        # Add GDELT quantitative score to prompt
+        gdelt_str = ""
+        if gdelt_score is not None:
+            gdelt_str = f"""
+
+**GDELT Quantitative Signals:**
+The GDELT database has computed a quantitative risk score for this event based on:
+- Goldstein scale (cooperation/conflict indicator)
+- Tone/sentiment analysis
+- Presence of CRISIS/PROTEST/CONFLICT themes
+- Theme intensity
+
+GDELT Risk Score: {gdelt_score:.1f}/100
+
+You should consider this quantitative assessment alongside your qualitative analysis.
+You may agree, disagree, or refine it based on the full context and nuances in the text."""
+
         # Limit content to 5000 chars to avoid excessive token usage
         content_truncated = content[:5000] if len(content) > 5000 else content
 
@@ -493,7 +568,7 @@ Respond ONLY with valid JSON matching this exact structure:
 
 **Title:** {title}
 
-**Content:** {content_truncated}{context_str}
+**Content:** {content_truncated}{context_str}{gdelt_str}
 
 Provide your analysis in the exact JSON format specified in the system prompt."""
 
@@ -568,12 +643,16 @@ Provide your analysis in the exact JSON format specified in the system prompt.""
 
         content = ' '.join(content_parts) if content_parts else title
 
-        # Build context
+        # Build context (include metadata for GDELT scoring)
         context = {
             'source': event.source,
             'event_type': event.event_type,
             'timestamp': str(event.timestamp),
         }
+
+        # Add metadata if available (for GDELT scoring)
+        if hasattr(event, 'metadata') and event.metadata:
+            context['metadata'] = event.metadata
 
         return cls.analyze_event_comprehensive(
             title=title,

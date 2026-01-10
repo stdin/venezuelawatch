@@ -222,6 +222,9 @@ if __name__ == "__main__":
     if "eventmentions_partitioned" in tables:
         get_table_schema("eventmentions_partitioned")
 
+    if "gkg_partitioned" in tables:
+        get_table_schema("gkg_partitioned")
+
     # Test Venezuela query
     if "events_partitioned" in tables:
         query_venezuela_events()

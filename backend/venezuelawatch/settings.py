@@ -230,3 +230,30 @@ VERTEX_AI_LOCATION = os.environ.get('VERTEX_AI_LOCATION', 'us-central1')
 # BigQuery Configuration
 GCP_PROJECT_ID = os.getenv('GCP_PROJECT_ID', 'venezuelawatch-staging')
 BIGQUERY_DATASET = os.getenv('BIGQUERY_DATASET', 'venezuelawatch_analytics')
+
+# Hybrid intelligence scoring configuration
+HYBRID_SCORING = {
+    # Weight ratio for combining GDELT + LLM scores
+    # Must sum to 1.0
+    'weights': {
+        'gdelt': 0.30,   # 30% quantitative signals
+        'llm': 0.70,     # 70% qualitative analysis
+    },
+
+    # GDELT scorer signal weights
+    'gdelt_weights': {
+        'goldstein': 0.35,
+        'tone': 0.25,
+        'themes': 0.25,
+        'intensity': 0.15,
+    },
+
+    # Severity thresholds (hybrid score → SEV1-5)
+    'severity_thresholds': {
+        'SEV5': 80,  # Critical: ≥80
+        'SEV4': 60,  # High: 60-79
+        'SEV3': 40,  # Medium: 40-59
+        'SEV2': 20,  # Low: 20-39
+        'SEV1': 0,   # Minimal: 0-19
+    }
+}

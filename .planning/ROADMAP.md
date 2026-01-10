@@ -213,25 +213,14 @@ Plans:
 Plans:
 - [ ] 23-01: TBD
 
-#### Phase 24: LLM Optimization & UI
-
-**Goal**: Implement selective Claude processing based on GDELT signals (high-priority themes/tone), batching, prompt caching, and dashboard updates
-**Depends on**: Phase 23
-**Research**: Likely (Claude prompt caching, batching strategies)
-**Research topics**: Anthropic prompt caching API, batch processing patterns, token cost optimization
-**Plans**: TBD
-
-Plans:
-- [ ] 24-01: TBD
-
-#### Phase 25: Add More BigQuery Data Sources
+#### Phase 24: Add More BigQuery Data Sources
 
 **Goal**: [To be planned]
-**Depends on**: Phase 24
+**Depends on**: Phase 23
 **Plans**: 0 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 25 to break down)
+- [ ] TBD (run /gsd:plan-phase 24 to break down)
 
 **Details:**
 [To be added during planning]
@@ -264,6 +253,5 @@ Plans:
 | 20. GKG Integration | v1.3 | 2/? | In progress | 2026-01-10 |
 | 21. Mentions Tracking | v1.3 | 3/3 | Complete | 2026-01-10 |
 | 22. Data Source Architecture | v1.3 | 1/? | In progress | 2026-01-10 |
-| 23. Intelligence Pipeline Rebuild | v1.3 | 1/2 | In progress | 2026-01-10 |
-| 24. LLM Optimization & UI | v1.3 | 0/? | Not started | - |
-| 25. Add More BigQuery Data Sources | v1.3 | 0/? | Not started | - |
+| 23. Intelligence Pipeline Rebuild | v1.3 | 2/2 | Complete | 2026-01-10 |
+| 24. Add More BigQuery Data Sources | v1.3 | 0/? | Not started | - |
