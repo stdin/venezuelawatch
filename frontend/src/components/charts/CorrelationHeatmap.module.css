@@ -1,0 +1,79 @@
+.heatmapContainer {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.grid {
+  display: grid;
+  gap: 1px;
+  background-color: var(--mantine-color-gray-3);
+  border: 1px solid var(--mantine-color-gray-3);
+}
+
+.cellEmpty {
+  background-color: var(--mantine-color-gray-1);
+}
+
+.cellHeader {
+  background-color: var(--mantine-color-gray-1);
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  color: var(--mantine-color-text);
+}
+
+.cell {
+  background-color: white;
+  padding: 8px;
+  font-size: 12px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cell:hover {
+  transform: scale(1.05);
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.legend {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legendBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.legendGradient {
+  flex: 1;
+  height: 20px;
+  background: linear-gradient(
+    to right,
+    rgba(220, 38, 38, 0.7),
+    rgba(255, 255, 255, 0.1),
+    rgba(37, 99, 235, 0.7)
+  );
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: 4px;
+}
+
+.legendLabel {
+  font-size: 11px;
+  color: var(--mantine-color-dimmed);
+}
