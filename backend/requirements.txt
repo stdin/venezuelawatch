@@ -31,3 +31,7 @@ google-cloud-bigquery>=3.0.0
 google-cloud-bigquery-connection>=1.0.0
 google-cloud-bigquery-datatransfer>=3.0.0
 google-cloud-aiplatform>=1.114.0
+scipy==1.16.1
+pandas==2.2.3
+statsmodels==0.14.4
+scikit-learn==1.5.2
