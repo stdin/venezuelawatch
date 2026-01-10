@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 
 from data_pipeline.services.graph_builder import GraphBuilder
 from data_pipeline.services.narrative_generator import NarrativeGenerator
+from data_pipeline.services.lineage_builder import LineageBuilder
 from core.models import Entity
 
 
@@ -79,12 +80,32 @@ class EntityInfo(Schema):
     entity_type: str
 
 
+class EventNode(Schema):
+    """Event node in lineage timeline."""
+    id: str
+    title: str
+    published_at: Optional[str]
+    risk_score: float
+    severity: str
+    themes: List[str]
+    days_since_prev: Optional[int] = None
+
+
+class EventLineage(Schema):
+    """Event lineage timeline data."""
+    events: List[EventNode]
+    timeline_spans_days: int
+    escalation_detected: bool
+    dominant_themes: List[str]
+
+
 class NarrativeResponse(Schema):
     """Response containing relationship narrative and supporting events."""
     narrative: str
     events: List[EventSummary]
     entity_a: EntityInfo
     entity_b: EntityInfo
+    lineage: Optional[EventLineage] = None
 
 
 # Router
@@ -199,6 +220,22 @@ def get_relationship_narrative(
             narrative = "Unable to generate narrative at this time. Please try again later."
             events = []
 
+    # Build event lineage
+    lineage_builder = LineageBuilder()
+    lineage_data = lineage_builder.build_event_lineage(
+        entity_a_id=str(entity_a.id),
+        entity_b_id=str(entity_b.id),
+        max_events=20
+    )
+
+    # Convert to schema format
+    lineage = EventLineage(
+        events=[EventNode(**event) for event in lineage_data['events']],
+        timeline_spans_days=lineage_data['timeline_spans_days'],
+        escalation_detected=lineage_data['escalation_detected'],
+        dominant_themes=lineage_data['dominant_themes']
+    ) if lineage_data['events'] else None
+
     return NarrativeResponse(
         narrative=narrative,
         events=events,
@@ -211,5 +248,6 @@ def get_relationship_narrative(
             id=str(entity_b.id),
             name=entity_b.canonical_name,
             entity_type=entity_b.entity_type
-        )
+        ),
+        lineage=lineage
     )

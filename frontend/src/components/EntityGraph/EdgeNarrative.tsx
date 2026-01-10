@@ -1,4 +1,4 @@
-import { Modal, Text, Stack, Badge, Skeleton, Alert, Box, Group } from '@mantine/core'
+import { Modal, Text, Stack, Badge, Skeleton, Alert, Box, Group, Timeline } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { fetchNarrative } from '@/lib/api'
 import type { GraphEdge } from './useGraphData'
@@ -13,6 +13,7 @@ interface EdgeNarrativeProps {
  * 
  * Displays LLM-generated causal narrative explaining how two entities
  * are connected through events. Follows Phase 26 progressive disclosure pattern.
+ * Enhanced with timeline visualization showing temporal event lineage.
  */
 export function EdgeNarrative({ edge, onClose }: EdgeNarrativeProps) {
   const { data, isLoading, error } = useQuery({
@@ -59,7 +60,64 @@ export function EdgeNarrative({ edge, onClose }: EdgeNarrativeProps) {
             <Text>{data.narrative}</Text>
           </Box>
 
-          {data.events.length > 0 && (
+          {/* Event Timeline Visualization */}
+          {data.lineage && data.lineage.events.length > 0 && (
+            <Box mt="lg">
+              <Group justify="space-between" mb="xs">
+                <Text fw={600}>
+                  Event Timeline ({data.lineage.timeline_spans_days} days)
+                </Text>
+                {data.lineage.dominant_themes.length > 0 && (
+                  <Group gap={4}>
+                    {data.lineage.dominant_themes.slice(0, 3).map(theme => (
+                      <Badge key={theme} size="xs" variant="light">
+                        {theme}
+                      </Badge>
+                    ))}
+                  </Group>
+                )}
+              </Group>
+
+              {data.lineage.escalation_detected && (
+                <Alert color="orange" mb="xs" p="xs">
+                  ⚠️ Escalation detected: Risk increased over time
+                </Alert>
+              )}
+
+              <Timeline active={data.lineage.events.length - 1} bulletSize={24}>
+                {data.lineage.events.map((event, idx) => (
+                  <Timeline.Item
+                    key={event.id}
+                    title={event.title}
+                    bullet={<Text size="xs">{idx + 1}</Text>}
+                  >
+                    <Group gap="xs" mt={4}>
+                      <Badge size="sm">{event.severity}</Badge>
+                      <Badge size="sm" color="orange">
+                        Risk: {event.risk_score.toFixed(0)}
+                      </Badge>
+                      <Text size="xs" c="dimmed">
+                        {event.published_at && new Date(event.published_at).toLocaleDateString()}
+                        {event.days_since_prev && ` (+${event.days_since_prev}d)`}
+                      </Text>
+                    </Group>
+                    {event.themes.length > 0 && (
+                      <Group gap={4} mt={4}>
+                        {event.themes.slice(0, 3).map(theme => (
+                          <Badge key={theme} size="xs" variant="light">
+                            {theme}
+                          </Badge>
+                        ))}
+                      </Group>
+                    )}
+                  </Timeline.Item>
+                ))}
+              </Timeline>
+            </Box>
+          )}
+
+          {/* Fallback to supporting events if no lineage */}
+          {(!data.lineage || data.lineage.events.length === 0) && data.events.length > 0 && (
             <Box>
               <Text fw={600} mb="xs">
                 Supporting Events ({data.events.length}):
