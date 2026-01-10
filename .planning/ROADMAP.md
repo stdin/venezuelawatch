@@ -222,6 +222,18 @@ Plans:
 Plans:
 - [ ] 24-01: TBD
 
+#### Phase 25: Add More BigQuery Data Sources
+
+**Goal**: [To be planned]
+**Depends on**: Phase 24
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 25 to break down)
+
+**Details:**
+[To be added during planning]
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -252,3 +264,4 @@ Plans:
 | 22. Data Source Architecture | v1.3 | 0/? | Not started | - |
 | 23. Intelligence Pipeline Rebuild | v1.3 | 0/? | Not started | - |
 | 24. LLM Optimization & UI | v1.3 | 0/? | Not started | - |
+| 25. Add More BigQuery Data Sources | v1.3 | 0/? | Not started | - |

@@ -274,6 +274,7 @@ None yet.
 - Phase 14.3 inserted after Phase 14.2 (2026-01-10): Complete Event Migration to BigQuery - unified time-series analytics platform
 - Phase 18 added to v1.2 (2026-01-10): GCP-Native Pipeline Migration - serverless orchestration replacing Celery
 - **Milestone v1.3 GDELT Intelligence created:** Maximize value from free BigQuery GDELT data (61 fields), rebuild intelligence pipeline around GDELT signals, 6 phases (Phase 19-24)
+- Phase 25 added (2026-01-10): Add more BigQuery data sources
 
 ## Session Continuity
 
