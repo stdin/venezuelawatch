@@ -1,5 +1,4 @@
-# This will make sure the app is always imported when
-# Django starts so that shared_task will use this app.
-from config.celery import app as celery_app
+# Celery has been removed in Phase 18 - GCP native architecture
+# This file is intentionally empty
+__all__ = ()
 
-__all__ = ('celery_app',)
