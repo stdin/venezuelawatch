@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 ## Current Position
 
 Milestone: v1.3 GDELT Intelligence
-Phase: 26 of 27 (GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking)
-Plan: 4 of 4 in current phase
-Status: Phase complete
-Last activity: 2026-01-10 - Completed 26-04-PLAN.md (Phase 26 complete)
+Phase: 27 of 27 (Small-Scale End-to-End Pipeline Test in GCP)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-01-11 - Completed 27-01-PLAN.md
 
-Progress: █████████░ 96%
+Progress: █████████░ 97%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 70
-- Average duration: 10 min
-- Total execution time: 11.5 hours
+- Total plans completed: 71
+- Average duration: 12 min
+- Total execution time: 12.5 hours
 
 **By Phase:**
 
@@ -54,10 +54,11 @@ Progress: █████████░ 96%
 | 24 | 3 | 14 min | 5 min |
 | 25 | 2 | 10 min | 5 min |
 | 26 | 4 | 18 min | 5 min |
+| 27 | 1 | 60 min | 60 min |
 
 **Recent Trend:**
-- Last 5 plans: 7min, 5min, 5min, 5min, 6min
-- Trend: Fast (Phase 26 in progress)
+- Last 5 plans: 5min, 5min, 5min, 6min, 60min
+- Trend: Variable (Phase 27 infrastructure deployment heavier)
 
 ## Accumulated Context
 
@@ -297,6 +298,9 @@ Recent decisions affecting current work:
 - Phase 26: Co-occurrence threshold default 3 (filters noise while preserving meaningful connections)
 - Phase 26: Time range default 30d (balances recency with sufficient relationship data)
 - Phase 26: Undirected graph edges for co-occurrence (symmetric relationship)
+- Phase 27: Standalone gdelt_sync function (direct BigQuery query, no Django/adapter dependencies)
+- Phase 27: Deprecated Celery-based trigger endpoints (Cloud Scheduler calls Cloud Functions directly)
+- Phase 27: Cloud Run deployed but runtime config deferred to Plan 02 (database, env vars)
 
 ### Deferred Issues
 
@@ -331,6 +335,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-10
-Stopped at: Completed Phase 26 (all 4 plans - 26-04-PLAN.md)
+Last session: 2026-01-11
+Stopped at: Completed 27-01-PLAN.md (GCP infrastructure deployment)
 Resume file: None
