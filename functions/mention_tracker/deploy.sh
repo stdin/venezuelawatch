@@ -4,7 +4,7 @@
 
 set -e  # Exit on error
 
-PROJECT_ID="venezuelawatch-447923"
+PROJECT_ID="venezuelawatch-staging"
 REGION="us-central1"
 FUNCTION_NAME="mention-tracker"
 ENTRY_POINT="mention_tracker"

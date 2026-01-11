@@ -14,6 +14,7 @@ Replace Celery tasks with event-driven GCP-native orchestration.
 import json
 import base64
 import logging
+import os
 from typing import Dict, Any
 
 from ninja import Router
@@ -31,10 +32,10 @@ logger = logging.getLogger(__name__)
 
 internal_router = Router()
 
-# GCP Project configuration
-GCP_PROJECT_ID = 'venezuelawatch-447923'
+# GCP Project configuration from environment
+GCP_PROJECT_ID = os.environ.get('GCP_PROJECT_ID', 'venezuelawatch-staging')
 GCP_LOCATION = 'us-central1'
-CLOUD_RUN_URL = 'https://venezuelawatch-api-XXXXX-uc.a.run.app'  # TODO: Update after deployment
+CLOUD_RUN_URL = os.environ.get('CLOUD_RUN_URL', 'https://venezuelawatch-api-gc6im6smjq-uc.a.run.app')
 
 
 @internal_router.post('/process-event')
@@ -86,7 +87,7 @@ def process_event_pubsub(request):
 
         # Enqueue to Cloud Tasks for LLM analysis
         client = tasks_v2.CloudTasksClient()
-        parent = client.queue_path(GCP_PROJECT_ID, GCP_LOCATION, 'intelligence-analysis')
+        parent = client.queue_path(GCP_PROJECT_ID, GCP_LOCATION, 'llm-analysis-queue')
 
         task = {
             'http_request': {

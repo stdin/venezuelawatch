@@ -56,6 +56,7 @@ from datetime import datetime
 from typing import List, Dict, Any, Tuple, Optional
 import logging
 import re
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -321,8 +322,9 @@ class DataSourceAdapter(ABC):
         from google.cloud import pubsub_v1
         import json
 
+        project_id = os.environ.get('GCP_PROJECT_ID', 'venezuelawatch-staging')
         publisher = pubsub_v1.PublisherClient()
-        topic_path = publisher.topic_path('venezuelawatch-447923', 'event-ingestion')
+        topic_path = publisher.topic_path(project_id, 'event-ingestion')
 
         published = 0
         failed = 0

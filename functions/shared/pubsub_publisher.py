@@ -24,7 +24,7 @@ class PubSubPublisher:
     def __init__(self):
         """Initialize publisher with GCP project configuration."""
         self.client = pubsub_v1.PublisherClient()
-        self.project_id = os.environ.get('GCP_PROJECT_ID', 'venezuelawatch-447923')
+        self.project_id = os.environ.get('GCP_PROJECT_ID', 'venezuelawatch-staging')
 
     def publish_event_analysis(self, event_id: str, model: str = 'fast') -> str:
         """
