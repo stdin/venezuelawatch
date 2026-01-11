@@ -13,10 +13,11 @@ None
 - ✅ **v1.0 MVP** - Phases 1-7 (shipped 2026-01-09)
 - ✅ **v1.1 UI/UX Overhaul** - Phases 8-13 (shipped 2026-01-10)
 - ✅ **v1.2 Advanced Analytics** - Phases 14-18 (shipped 2026-01-10, partial)
-- ✅ **v1.3 GDELT Intelligence** - Phases 19-27 (complete)
+- ✅ **v1.3 GDELT Intelligence** - Phases 19-27 (shipped 2026-01-11)
 
 ## Completed Milestones
 
+- ✅ [v1.3 GDELT Intelligence](milestones/v1.3-GDELT-Intelligence-ROADMAP.md) (Phases 19-27) — SHIPPED 2026-01-11
 - ✅ [v1.2 Advanced Analytics](milestones/v1.2-Advanced-Analytics-ROADMAP.md) (Phases 14-18, partial) — SHIPPED 2026-01-10
 - ✅ [v1.1 UI/UX Overhaul](milestones/v1.1-UI-UX-Overhaul-ROADMAP.md) (Phases 8-13) — SHIPPED 2026-01-10
 - ✅ [v1.0 MVP](milestones/) (Phases 1-7) — SHIPPED 2026-01-09
@@ -153,128 +154,20 @@ See [milestones/v1.1-UI-UX-Overhaul-ROADMAP.md](milestones/v1.1-UI-UX-Overhaul-R
 
 </details>
 
-### 🚧 v1.3 GDELT Intelligence (In Progress)
+<details>
+<summary>✅ v1.3 GDELT Intelligence (Phases 19-27) - SHIPPED 2026-01-11</summary>
 
-**Milestone Goal:** Maximize value from free BigQuery GDELT data (61 fields vs current 4) - rebuild intelligence pipeline around rich GDELT signals to reduce LLM costs and improve risk scoring accuracy. Includes scoring system refinements to properly handle both positive and negative event impacts.
+See [milestones/v1.3-GDELT-Intelligence-ROADMAP.md](milestones/v1.3-GDELT-Intelligence-ROADMAP.md) for complete phase details.
 
-#### Phase 19: GDELT Events Enrichment
+**Key deliverables:**
+- GDELT Intelligence Maximization: Native BigQuery dataset with 61 fields (Goldstein scale, AvgTone, themes, quotations)
+- Entity Resolution & Multi-Source Linking: Splink-based canonical entity registry across GDELT, Google Trends, World Bank, SEC EDGAR
+- Pattern Discovery Platform: Interactive Reagraph graphs with Louvain community detection and LLM edge narratives
+- Mentions Spike Detection: 7-day rolling window with z-scores for narrative amplification early warning
+- GCP-Native Serverless Deployment: Complete event-driven pipeline (Cloud Scheduler → Functions → BigQuery → Pub/Sub → Run → Tasks)
+- Composite Risk Scoring: P1-P4 severity classification with multi-dimensional GDELT signals (Goldstein, tone, themes, intensity)
 
-**Goal**: Migrate from 4 basic fields to all 61 GDELT BigQuery fields (quotations, themes, tone, images, Goldstein scale, counts)
-**Depends on**: Phase 18 (GCP-Native Pipeline Migration)
-**Research**: Likely (GDELT field schema, quotations parsing, Goldstein scale interpretation)
-**Research topics**: GDELT 2.0 field definitions, quotation extraction patterns, Goldstein scale scoring, AvgTone normalization
-**Plans**: TBD
-
-Plans:
-- [ ] 19-01: TBD (run /gsd:plan-phase 19 to break down)
-
-#### Phase 20: GKG Integration
-
-**Goal**: Integrate GDELT Global Knowledge Graph for richer entity extraction, location mapping, theme categorization, and people/org tracking
-**Depends on**: Phase 19
-**Research**: Likely (GKG table schema, GCAM scores, entity relationships)
-**Research topics**: GKG V2 format, GCAM emotional dimensions, V2Themes taxonomy, entity relationship extraction
-**Plans**: TBD
-
-Plans:
-- [ ] 20-01: TBD
-
-#### Phase 21: Mentions Tracking
-
-**Goal**: Track narrative spread by monitoring how events are mentioned across articles over time for early warning signals
-**Depends on**: Phase 20
-**Research**: Complete
-**Plans**: 3/3 complete
-**Status**: Complete
-
-Plans:
-- [x] 21-01: Mentions tracking infrastructure (PostgreSQL spike model + BigQuery service)
-- [x] 21-02: TDD spike detection logic
-- [x] 21-03: Mention tracker Cloud Function deployment
-
-#### Phase 22: Data Source Architecture
-
-**Goal**: Rebuild data source architecture with scalable adapter pattern (GDELT-first, plugin system for future integrations)
-**Depends on**: Phase 21
-**Research**: Unlikely (internal refactoring using established patterns from Phase 14.3)
-**Plans**: TBD
-
-Plans:
-- [x] 22-01: Adapter Foundation (DataSourceAdapter ABC, AdapterRegistry)
-
-#### Phase 23: Intelligence Pipeline Rebuild
-
-**Goal**: Redesign intelligence pipeline to use GDELT tone/sentiment scores, themes, and quote analysis as primary risk signals
-**Depends on**: Phase 22
-**Research**: Likely (GDELT-based risk scoring methodologies)
-**Research topics**: Tone-based risk classification, theme-based severity mapping, quotation sentiment analysis
-**Plans**: TBD
-
-Plans:
-- [ ] 23-01: TBD
-
-#### Phase 24: BigQuery Public Datasets
-
-**Goal**: Integrate Google Trends, SEC EDGAR, and World Bank data via BigQuery public datasets for multi-source intelligence correlation
-**Depends on**: Phase 23
-**Plans**: 3 plans complete
-**Status**: Complete
-
-Plans:
-- [x] 24-01: Entity Resolution Foundation (Splink + canonical entity registry)
-- [x] 24-02: BigQuery Adapters (Google Trends, SEC EDGAR, World Bank)
-- [x] 24-03: API Integration & Entity Linking
-
-**Details:**
-Complete multi-source entity-centric intelligence pipeline. Splink-based entity resolution (Plan 01), BigQuery public dataset adapters for Google Trends and World Bank WDI with SEC EDGAR stub (Plan 02), and automatic entity linking with multi-source API endpoint (Plan 03) operational. All adapters automatically link entities during ingestion.
-
-#### Phase 25: Update System to Follow Platform Design
-
-**Goal**: Update the system to roughly follow the design in docs/venezuela_risk_platform_design.md
-**Depends on**: Phase 24
-**Plans**: 2 plans complete
-**Status**: Complete
-
-Plans:
-- [x] 25-01: Refactor severity and risk scoring services
-- [x] 25-02: Update adapters to use new severity and risk scoring
-
-**Details:**
-Align the current implementation with the canonical event model, severity assignment (P1-P4), and composite risk scoring architecture defined in the platform design document. Refactored severity classifier and composite risk scorer to match platform design (Plan 01), updated all adapters to use new scoring services (Plan 02).
-
-#### Phase 26: GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking ✅
-
-**Goal**: GKG theme population, entity relationship graphs, event lineage tracking
-**Depends on**: Phase 25
-**Plans**: 4/4 plans complete
-**Status**: Complete
-**Completed**: 2026-01-10
-
-Plans:
-- [x] 26-01: Backend graph data service with community detection
-- [x] 26-02: Interactive entity relationship graph visualization with Reagraph
-- [x] 26-03: Camera auto-focus and edge narratives for pattern discovery
-- [x] 26-04: GKG theme filtering and event lineage tracking
-
-**Details:**
-Backend graph service with Louvain community detection and co-occurrence edge weighting (Plan 01 complete). Interactive WebGL graph visualization with Reagraph showing risk-based node colors, directional weighted edges, and click navigation (Plan 02 complete). Camera auto-focus to largest high-risk cluster with LLM-generated edge narratives explaining entity connections through causal chains (Plan 03 complete). GKG theme filtering for activity-specific networks (sanctions, trade, political, energy, adversarial) with temporal event lineage visualization showing cascade effects and escalation detection (Plan 04 complete). **Phase complete** - full pattern discovery system operational.
-
-#### Phase 27: Small-Scale End-to-End Pipeline Test in GCP ✅
-
-**Goal**: Small-scale end-to-end pipeline test in GCP
-**Depends on**: Phase 26
-**Plans**: 4/4 plans complete
-**Status**: Complete
-**Completed**: 2026-01-11
-
-Plans:
-- [x] 27-01: GCP Infrastructure Deployment
-- [x] 27-02: Small-Scale Data Ingestion Test
-- [x] 27-03: End-to-End Pipeline Validation
-- [x] 27-04: Processing Pipeline Configuration and Validation
-
-**Details:**
-Complete event-driven processing pipeline configured and validated. Pub/Sub push subscriptions wired to Cloud Run internal endpoints, Cloud Tasks queue created with rate limiting, IAM permissions configured. Pipeline orchestration functional (Pub/Sub → Cloud Run → Cloud Tasks). Infrastructure validated successfully - operational tuning (LLM timeouts) deferred. **Phase complete** - full GCP deployment ready for production.
+</details>
 
 ## Progress
 

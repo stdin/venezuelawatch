@@ -2,20 +2,20 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-10)
+See: .planning/PROJECT.md (updated 2026-01-11)
 
 **Core value:** Accurate risk intelligence that identifies sanctions changes, political disruptions, and trade opportunities before they impact investment decisions.
-**Current focus:** v1.2 shipped — Polyglot persistence and GCP-native serverless pipeline complete
+**Current focus:** v1.3 shipped — GDELT Intelligence and GCP deployment complete
 
 ## Current Position
 
-Milestone: v1.3 GDELT Intelligence
-Phase: 27 of 27 (Small-Scale End-to-End Pipeline Test in GCP)
-Plan: 4 of 4 in current phase
-Status: Phase complete
-Last activity: 2026-01-11 - Completed 27-04-PLAN.md
+Milestone: v1.3 complete (archived)
+Phase: All phases complete (Phases 1-27)
+Plan: All plans shipped
+Status: Ready to plan next milestone
+Last activity: 2026-01-11 - v1.3 milestone complete
 
-Progress: ██████████ 100%
+Progress: ██████████ 100% (v1.3 milestone)
 
 ## Performance Metrics
 
@@ -64,8 +64,8 @@ Progress: ██████████ 100%
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
+All decisions logged in PROJECT.md Key Decisions table.
+v1.3 milestone key decisions:
 
 - Phase 1: django-ninja for REST API (auto OpenAPI docs, type safety)
 - Phase 1: Router pattern for API organization (scalable by domain)
@@ -307,32 +307,23 @@ Recent decisions affecting current work:
 
 ### Deferred Issues
 
-None yet.
+- Phase 15-02: Correlation visualization UI (backend complete in v1.2)
+- LLM timeout tuning for production workloads (operational configuration)
+- SEC EDGAR full implementation (adapter stub created)
 
 ### Blockers/Concerns
 
-None - Phase 27 complete, v1.3 milestone ready for completion.
+None - v1.3 milestone complete and archived.
 
 ### Roadmap Evolution
 
 - v1.0 MVP shipped 2026-01-09: Complete SaaS platform with data pipeline, risk intelligence, dashboard, entity tracking, and AI chat (Phases 1-7)
 - v1.1 UI/UX Overhaul shipped 2026-01-10: Comprehensive UI/UX redesign with design system, component library, and responsive design (Phases 8-13)
-- **v1.2 Advanced Analytics shipped 2026-01-10:** Polyglot persistence architecture (PostgreSQL + BigQuery), GCP-native serverless orchestration, correlation analysis backend (Phases 14-18, partial) — Phase 15-02 and Phase 17 deferred to future milestone
-- Phase 14.1 inserted after Phase 14 (2026-01-09): BigQuery Migration - TimescaleDB not available on Cloud SQL, migrate to polyglot persistence
-- Phase 14.2 inserted after Phase 14.1 (2026-01-10): GDELT Native BigQuery - 4x event capacity, 15x richer data fields
-- Phase 14.3 inserted after Phase 14.2 (2026-01-10): Complete Event Migration to BigQuery - unified time-series analytics platform
-- Phase 18 added to v1.2 (2026-01-10): GCP-Native Pipeline Migration - serverless orchestration replacing Celery
-- **Milestone v1.3 GDELT Intelligence created:** Maximize value from free BigQuery GDELT data (61 fields), rebuild intelligence pipeline around GDELT signals, 7 phases (Phase 19-25)
-- Phase 24 removed (2026-01-10): LLM Optimization & UI deferred, old Phase 25 renumbered to Phase 24
-- Phase 24 added (2026-01-10): Add more BigQuery data sources
-- Phase 25 removed (2026-01-10): Update scoring and ranking system (deferred)
-- Phase 25 added (2026-01-10): Update system to follow platform design in docs/venezuela_risk_platform_design.md
-- Phase 26 added (2026-01-10): GKG theme population, entity relationship graphs, event lineage tracking
-- Phase 27 added (2026-01-10): Rolling window statistics, persistence spike detection, multi-source corroboration
-- Phase 28 added (2026-01-10): Small-scale end-to-end pipeline test in GCP
+- v1.2 Advanced Analytics shipped 2026-01-10: Polyglot persistence architecture (PostgreSQL + BigQuery), GCP-native serverless orchestration, correlation analysis backend (Phases 14-18, partial)
+- **v1.3 GDELT Intelligence shipped 2026-01-11:** GDELT native BigQuery (61 fields), entity resolution, pattern discovery with graph analytics, GCP serverless deployment (Phases 19-27)
 
 ## Session Continuity
 
 Last session: 2026-01-11
-Stopped at: Completed 27-04-PLAN.md - Phase 27 complete, processing pipeline validated
+Stopped at: v1.3 milestone complete - Ready to plan next milestone
 Resume file: None

@@ -14,14 +14,19 @@ Accurate risk intelligence that identifies sanctions changes, political disrupti
 
 - ✓ Dashboard with real-time event aggregation from 7 data sources (GDELT, FRED, UN Comtrade, World Bank, ReliefWeb) — v1.0
 - ✓ News/Events feed with filtering, search, and sentiment analysis — v1.0, enhanced UX in v1.1
-- ✓ Risk scoring system for sanctions, political changes, supply chain disruptions — v1.0
-- ✓ Entity Watch for tracking people, companies, and governments with news mentions, sanctions monitoring, and trending metrics — v1.0, enhanced UI in v1.1
+- ✓ Risk scoring system for sanctions, political changes, supply chain disruptions — v1.0, rebuilt with GDELT signals in v1.3
+- ✓ Entity Watch for tracking people, companies, and governments with news mentions, sanctions monitoring, and trending metrics — v1.0, enhanced UI in v1.1, entity resolution in v1.3
 - ✓ AI chat interface for natural language queries, event explanation, and tool-based data access — v1.0, polished UI in v1.1
 - ✓ Individual user authentication and accounts — v1.0
 - ✓ Architecture supporting future team features (user model designed for teams) — v1.0
 - ✓ Mobile-responsive design (320px-1440px+) — v1.1
 - ✓ WCAG 2.1 AA accessibility (keyboard navigation, ARIA labels, screen reader support) — v1.1
 - ✓ Professional design system with comprehensive component library — v1.1
+- ✓ Multi-source entity resolution and canonical entity tracking — v1.3
+- ✓ Pattern discovery with entity relationship graphs and community detection — v1.3
+- ✓ Event lineage tracking for narrative spread and escalation detection — v1.3
+- ✓ GCP-native serverless infrastructure (Cloud Functions, Pub/Sub, Cloud Run, Cloud Tasks) — v1.3
+- ✓ Spike detection for early warning signals — v1.3
 
 ### Active
 
@@ -31,6 +36,7 @@ Accurate risk intelligence that identifies sanctions changes, political disrupti
 - [ ] Team workspaces with role-based permissions
 - [ ] Proactive alerting and notifications
 - [ ] Deep historical analysis beyond 3-6 months
+- [ ] Correlation visualization UI (backend complete in v1.2)
 
 ### Out of Scope
 
@@ -79,31 +85,45 @@ Accurate risk intelligence that identifies sanctions changes, political disrupti
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| React 18 + Django 5.2 on GCP | Modern stack with strong ecosystem for data ingestion, real-time updates, and AI features. Django for robust backend/API, React for dynamic frontend, GCP for scalable infrastructure | — Pending |
-| Risk intelligence as core value | Given January 2026 Venezuela crisis (Maduro arrest, sanctions uncertainty), users need risk assessment most urgently over other features | — Pending |
-| No mobile apps in v1 | Web-first validates core value with less development overhead, can add mobile later if demand exists | — Pending |
-| Mixed latency by data source | Breaking news/alerts need near-real-time, economic data can be slower - optimizes cost and complexity while meeting user needs | — Pending |
-| Individual users with team architecture | Simpler v1 while avoiding costly refactor later when teams are needed | — Pending |
+| React 18 + Django 5.2 on GCP | Modern stack with strong ecosystem for data ingestion, real-time updates, and AI features. Django for robust backend/API, React for dynamic frontend, GCP for scalable infrastructure | ✓ Good |
+| Risk intelligence as core value | Given January 2026 Venezuela crisis (Maduro arrest, sanctions uncertainty), users need risk assessment most urgently over other features | ✓ Good |
+| No mobile apps in v1 | Web-first validates core value with less development overhead, can add mobile later if demand exists | ✓ Good |
+| Mixed latency by data source | Breaking news/alerts need near-real-time, economic data can be slower - optimizes cost and complexity while meeting user needs | ✓ Good |
+| Individual users with team architecture | Simpler v1 while avoiding costly refactor later when teams are needed | ✓ Good |
+| Polyglot persistence (PostgreSQL + BigQuery) — v1.2 | TimescaleDB not available on Cloud SQL; BigQuery provides native time-series analytics at scale with free tier | ✓ Good |
+| GCP-native serverless orchestration — v1.2/v1.3 | Eliminated Celery/Redis complexity; Cloud Scheduler/Functions/Pub/Sub/Tasks/Run provide event-driven architecture with automatic scaling | ✓ Good |
+| GDELT native BigQuery dataset — v1.2 | 4x event capacity (1000 vs 250), 15x richer fields (61 vs 4), eliminates custom ingestion infrastructure | ✓ Good |
+| Splink entity resolution — v1.3 | Probabilistic matching enables multi-source entity linking; open-source alternative to commercial entity resolution services | ✓ Good |
+| Node.js subprocess for Louvain — v1.3 | No Python equivalent for Graphology; subprocess pattern enables best-of-breed graph algorithms | ✓ Good |
+| Composite risk scoring with GDELT signals — v1.3 | Goldstein scale, AvgTone, themes, and intensity provide quantitative foundation reducing LLM dependency and cost | ✓ Good |
+| P1-P4 severity classification — v1.3 | Follows industry standard (NCISS-style) for event impact classification; aligns with platform design document | ✓ Good |
 
-## Current State (v1.2)
+## Current State (v1.3)
 
-**Shipped:** v1.0 MVP (2026-01-09) + v1.1 UI/UX Overhaul (2026-01-10) + v1.2 Advanced Analytics (2026-01-10)
+**Shipped:** v1.0 MVP (2026-01-09) + v1.1 UI/UX Overhaul (2026-01-10) + v1.2 Advanced Analytics (2026-01-10) + v1.3 GDELT Intelligence (2026-01-11)
 
 **Tech Stack:**
-- Frontend: React 19, TypeScript, Mantine UI, Recharts, @tanstack/react-query, assistant-ui, Vite
-- Backend: Django 5.2, PostgreSQL, BigQuery, django-ninja, django-allauth, scipy, statsmodels
+- Frontend: React 19, TypeScript, Mantine UI, Recharts, Reagraph (WebGL graphs), @tanstack/react-query, assistant-ui, Vite
+- Backend: Django 5.2, PostgreSQL, BigQuery, django-ninja, django-allauth, scipy, statsmodels, Splink (entity resolution)
 - Infrastructure: GCP (Cloud SQL, BigQuery, Cloud Storage, Secret Manager, Cloud Functions, Cloud Scheduler, Pub/Sub, Cloud Tasks, Cloud Run)
-- Data Pipeline: GCP-native serverless (Cloud Scheduler → Cloud Functions → BigQuery → Pub/Sub → Cloud Run)
+- Data Pipeline: GCP-native serverless (Cloud Scheduler → Cloud Functions → BigQuery → Pub/Sub → Cloud Run → Cloud Tasks)
+- Graph Analytics: Node.js subprocess for Graphology Louvain community detection
 - Testing: Storybook 10 with a11y addon, Vitest
-- Total LOC: ~16,341 Python/TypeScript/TSX
+- Total LOC: ~46,452 Python/TypeScript/TSX
 
 **Current Features:**
 - Polyglot persistence architecture (PostgreSQL for transactional, BigQuery for time-series analytics)
-- Multi-source data pipeline (GDELT native BigQuery with 1000-event capacity, ReliefWeb, FRED, UN Comtrade, World Bank)
-- GCP-native serverless orchestration (Cloud Scheduler, Cloud Functions, Pub/Sub, Cloud Tasks, Cloud Run)
+- Multi-source data pipeline (GDELT native BigQuery with 61 fields, Google Trends, World Bank WDI, SEC EDGAR stub, ReliefWeb, FRED, UN Comtrade)
+- GCP-native serverless orchestration deployed to production (Cloud Scheduler, Cloud Functions, Pub/Sub, Cloud Tasks, Cloud Run with OIDC auth)
+- Splink-based entity resolution with canonical entity registry and automatic multi-source linking
+- Interactive entity relationship graphs with Reagraph (WebGL), Louvain community detection, and LLM-generated edge narratives
+- Event lineage tracking with temporal visualization and cascade effect detection
+- GKG theme filtering (sanctions, trade, political, energy, adversarial)
+- Mentions spike detection with 7-day rolling window and z-scores
+- Composite risk scoring (Goldstein scale, tone, themes, intensity) following platform design
+- P1-P4 severity classification system
 - Correlation analysis backend with scipy/statsmodels and Bonferroni correction
 - Vertex AI time-series forecasting infrastructure with TiDE model
-- Risk intelligence with sanctions screening and severity classification
 - Real-time events dashboard with Recharts visualization and Mantine filters
 - Entity tracking with leaderboard, trending metrics, and detailed profiles
 - AI chat with Claude streaming and custom tool UI components
@@ -116,9 +136,10 @@ Accurate risk intelligence that identifies sanctions changes, political disrupti
 (No user testing yet - ready for beta)
 
 **Known Issues/Technical Debt:**
+- LLM timeout tuning needed for production workloads (deferred operational tuning)
 - TypeScript errors in Modal.stories.tsx (pre-existing, non-blocking)
 - Consider Mantine v8.x upgrade when stable
 - Potential virtualized list performance optimization for 1000+ entities
 
 ---
-*Last updated: 2026-01-10 after v1.2 milestone*
+*Last updated: 2026-01-11 after v1.3 milestone*

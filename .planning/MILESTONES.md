@@ -1,5 +1,33 @@
 # Project Milestones: VenezuelaWatch
 
+## v1.3 GDELT Intelligence (Shipped: 2026-01-11)
+
+**Delivered:** Maximized value from free BigQuery GDELT dataset (61 fields), rebuilt intelligence pipeline around GDELT signals, deployed complete GCP serverless infrastructure with entity resolution and pattern discovery
+
+**Phases completed:** 19-27 (9 phases) — 24 plans total
+
+**Key accomplishments:**
+
+- GDELT Intelligence Maximization: Migrated to native BigQuery GDELT with 61 fields (vs 4) unlocking Goldstein scale, AvgTone, themes, quotations, and actor codes for sophisticated risk scoring
+- Entity Resolution & Multi-Source Linking: Implemented Splink-based entity resolution with automatic canonical entity registry linking GDELT, Google Trends, World Bank, and SEC EDGAR datasets
+- Pattern Discovery Platform: Built interactive entity relationship graphs with Reagraph (WebGL), Louvain community detection, LLM-generated edge narratives, and event lineage tracking for risk propagation identification
+- Mentions Spike Detection: Deployed 7-day rolling window spike detection with z-scores for early warning signals of narrative amplification
+- GCP-Native Serverless Deployment: Successfully deployed complete event-driven pipeline (Cloud Scheduler → Cloud Functions → BigQuery → Pub/Sub → Cloud Run → Cloud Tasks) with OIDC authentication
+- Composite Risk Scoring: Redesigned intelligence pipeline following platform design with P1-P4 severity classification and multi-dimensional risk scoring (Goldstein scale, tone, themes, intensity)
+
+**Stats:**
+
+- 24 plans across 9 phases
+- 40 commits in v1.3 milestone
+- ~46,452 total lines Python/TypeScript/TSX
+- 1 day from GDELT enrichment to GCP deployment complete (2026-01-09 → 2026-01-10)
+
+**Git range:** `feat(19-01)` → `feat(27-04)`
+
+**What's next:** Production infrastructure tuning (LLM timeouts), Phase 15-02 correlation UI, or plan v1.4
+
+---
+
 ## v1.2 Advanced Analytics (Shipped: 2026-01-10)
 
 **Delivered:** Polyglot persistence architecture, GCP-native serverless pipeline, and correlation analysis backend
