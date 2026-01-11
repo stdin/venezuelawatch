@@ -6,6 +6,7 @@ HTTP trigger for Cloud Scheduler invocation (every 15 minutes).
 """
 import functions_framework
 import logging
+import json
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
 from flask import Request
@@ -169,7 +170,7 @@ def transform_gdelt_to_event(gdelt_event: Dict[str, Any]) -> Dict[str, Any]:
         'location': location,
         'risk_score': risk_score,
         'severity': severity,
-        'metadata': metadata
+        'metadata': json.dumps(metadata)  # Convert to JSON string for BigQuery JSON type
     }
 
 
