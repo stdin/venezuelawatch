@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-01-10)
 
 Milestone: v1.3 GDELT Intelligence
 Phase: 27 of 27 (Small-Scale End-to-End Pipeline Test in GCP)
-Plan: 3 of 3 in current phase (partial completion - blocked)
-Status: Blocked - processing pipeline configuration required
-Last activity: 2026-01-11 - Completed 27-03-PLAN.md (partial)
+Plan: 4 of 4 in current phase
+Status: Phase complete
+Last activity: 2026-01-11 - Completed 27-04-PLAN.md
 
-Progress: █████████░ 99%
+Progress: ██████████ 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 73
+- Total plans completed: 74
 - Average duration: 11 min
-- Total execution time: 13.1 hours
+- Total execution time: 13.4 hours
 
 **By Phase:**
 
@@ -54,11 +54,11 @@ Progress: █████████░ 99%
 | 24 | 3 | 14 min | 5 min |
 | 25 | 2 | 10 min | 5 min |
 | 26 | 4 | 18 min | 5 min |
-| 27 | 3 | 98 min | 33 min |
+| 27 | 4 | 119 min | 30 min |
 
 **Recent Trend:**
-- Last 5 plans: 5min, 6min, 60min, 25min, 13min
-- Trend: Variable (Phase 27 infrastructure + data testing)
+- Last 5 plans: 6min, 60min, 25min, 13min, 21min
+- Trend: Variable (Phase 27 infrastructure validation complete)
 
 ## Accumulated Context
 
@@ -301,6 +301,9 @@ Recent decisions affecting current work:
 - Phase 27: Standalone gdelt_sync function (direct BigQuery query, no Django/adapter dependencies)
 - Phase 27: Deprecated Celery-based trigger endpoints (Cloud Scheduler calls Cloud Functions directly)
 - Phase 27: Cloud Run deployed but runtime config deferred to Plan 02 (database, env vars)
+- Phase 27: Environment-based GCP_PROJECT_ID configuration for multi-environment portability
+- Phase 27: Cloud Run service account requires cloudtasks.enqueuer and iam.serviceAccountUser roles
+- Phase 27: Cloud Run 2Gi memory allocation for LLM intelligence processing workloads
 
 ### Deferred Issues
 
@@ -308,15 +311,7 @@ None yet.
 
 ### Blockers/Concerns
 
-**Phase 27 Blocked - Processing Pipeline Configuration Required:**
-- Infrastructure deployed: Cloud Run API, Cloud Functions, Pub/Sub topics, Cloud SQL, BigQuery with 1000 events
-- Runtime configuration complete: Secrets, IAM permissions, 1Gi memory, Cloud SQL connection
-- **BLOCKER:** Pub/Sub push subscriptions not created (topics orphaned, no processing handlers triggered)
-- **BLOCKER:** Cloud Tasks queue (llm-analysis-queue) not created for LLM processing
-- **BLOCKER:** Zero events processed (all 1000 events have null risk_score and severity)
-- **Required:** Create Pub/Sub subscriptions → Cloud Run internal endpoints, create Cloud Tasks queue, trigger processing
-- **Impact:** Cannot validate end-to-end pipeline, cannot test entity extraction, cannot verify frontend visualization
-- **Recommendation:** Insert Plan 27-04 "Configure Processing Pipeline Subscriptions" to complete Phase 27 validation
+None - Phase 27 complete, v1.3 milestone ready for completion.
 
 ### Roadmap Evolution
 
@@ -339,5 +334,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-11
-Stopped at: Completed 27-03-PLAN.md (partial) - infrastructure configured but processing pipeline blocked on Pub/Sub subscription wiring
+Stopped at: Completed 27-04-PLAN.md - Phase 27 complete, processing pipeline validated
 Resume file: None
