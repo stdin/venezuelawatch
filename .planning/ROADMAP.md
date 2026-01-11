@@ -268,11 +268,11 @@ Backend graph service with Louvain community detection and co-occurrence edge we
 
 Plans:
 - [x] 27-01: GCP Infrastructure Deployment
-- [ ] 27-02: Small-Scale Data Ingestion Test
-- [ ] 27-03: End-to-End Pipeline Validation
+- [x] 27-02: Small-Scale Data Ingestion Test
+- [x] 27-03: End-to-End Pipeline Validation (partial - blocked on Pub/Sub subscriptions)
 
 **Details:**
-GCP infrastructure deployed: 7 Cloud Functions (gdelt-sync, reliefweb, fred, comtrade, worldbank, sanctions, mention-tracker), Cloud Run API service, 7 Cloud Scheduler jobs with OIDC auth, and 4 Pub/Sub topics operational in venezuelawatch-staging. Cloud Run needs runtime config (database, env vars) for Plan 02.
+GCP infrastructure deployed with runtime configuration complete (Cloud SQL, secrets, 1Gi memory). 1000 GDELT events ingested successfully. **Blocked:** Processing pipeline requires Pub/Sub push subscription wiring (subscriptions → Cloud Run endpoints) and Cloud Tasks queue creation before validation can proceed.
 
 ## Progress
 
@@ -306,4 +306,4 @@ GCP infrastructure deployed: 7 Cloud Functions (gdelt-sync, reliefweb, fred, com
 | 24. BigQuery Public Datasets | v1.3 | 3/3 | Complete | 2026-01-10 |
 | 25. Update System to Follow Platform Design | v1.3 | 2/2 | Complete | 2026-01-10 |
 | 26. GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking | v1.3 | 4/4 | Complete | 2026-01-10 |
-| 27. Small-Scale End-to-End Pipeline Test in GCP | v1.3 | 0/? | Not started | - |
+| 27. Small-Scale End-to-End Pipeline Test in GCP | v1.3 | 3/3 | Blocked | - |
