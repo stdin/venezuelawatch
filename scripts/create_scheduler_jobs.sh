@@ -4,7 +4,7 @@
 
 set -e  # Exit on error
 
-PROJECT_ID="venezuelawatch-447923"
+PROJECT_ID="venezuelawatch-staging"
 REGION="us-central1"
 SCHEDULER_SA="scheduler@${PROJECT_ID}.iam.gserviceaccount.com"
 

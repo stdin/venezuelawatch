@@ -4,7 +4,7 @@
 
 set -e  # Exit on error
 
-PROJECT_ID="venezuelawatch-447923"
+PROJECT_ID="venezuelawatch-staging"
 REGION="us-central1"
 DATASET="venezuelawatch_analytics"
 SERVICE_ACCOUNT="ingestion-runner@${PROJECT_ID}.iam.gserviceaccount.com"
@@ -25,6 +25,11 @@ deploy_function() {
     local memory=$5
 
     echo "Deploying $name..."
+
+    # Copy shared utilities into function directory
+    echo "  Copying shared utilities..."
+    cp -r functions/shared/* "$source_dir/"
+
     gcloud functions deploy "$name" \
         --gen2 \
         --runtime python311 \
@@ -39,6 +44,10 @@ deploy_function() {
         --set-env-vars "GCP_PROJECT_ID=${PROJECT_ID},BIGQUERY_DATASET=${DATASET}" \
         --service-account "$SERVICE_ACCOUNT" \
         --quiet
+
+    # Clean up shared utilities from function directory
+    echo "  Cleaning up shared utilities..."
+    rm -f "$source_dir/__init__.py" "$source_dir/bigquery_client.py" "$source_dir/pubsub_client.py" "$source_dir/pubsub_publisher.py" "$source_dir/secret_manager.py"
 
     echo "✓ $name deployed successfully"
     echo

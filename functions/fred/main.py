@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'shared'))
 
 from bigquery_client import BigQueryClient
 from pubsub_client import PubSubClient
-from secrets import SecretManagerClient
+from secret_manager import SecretManagerClient
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
