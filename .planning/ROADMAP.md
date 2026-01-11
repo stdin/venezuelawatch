@@ -263,13 +263,16 @@ Backend graph service with Louvain community detection and co-occurrence edge we
 
 **Goal**: Small-scale end-to-end pipeline test in GCP
 **Depends on**: Phase 26
-**Plans**: 0 plans
+**Plans**: 1/3 plans complete
+**Status**: In progress
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 27 to break down)
+- [x] 27-01: GCP Infrastructure Deployment
+- [ ] 27-02: Small-Scale Data Ingestion Test
+- [ ] 27-03: End-to-End Pipeline Validation
 
 **Details:**
-[To be added during planning]
+GCP infrastructure deployed: 7 Cloud Functions (gdelt-sync, reliefweb, fred, comtrade, worldbank, sanctions, mention-tracker), Cloud Run API service, 7 Cloud Scheduler jobs with OIDC auth, and 4 Pub/Sub topics operational in venezuelawatch-staging. Cloud Run needs runtime config (database, env vars) for Plan 02.
 
 ## Progress
 
