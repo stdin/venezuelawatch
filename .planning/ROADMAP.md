@@ -263,13 +263,14 @@ Backend graph service with Louvain community detection and co-occurrence edge we
 
 **Goal**: Small-scale end-to-end pipeline test in GCP
 **Depends on**: Phase 26
-**Plans**: 1/3 plans complete
-**Status**: In progress
+**Plans**: 3/4 plans complete
+**Status**: In progress (blocked - needs Plan 04)
 
 Plans:
 - [x] 27-01: GCP Infrastructure Deployment
 - [x] 27-02: Small-Scale Data Ingestion Test
 - [x] 27-03: End-to-End Pipeline Validation (partial - blocked on Pub/Sub subscriptions)
+- [ ] 27-04: Processing Pipeline Configuration and Validation
 
 **Details:**
 GCP infrastructure deployed with runtime configuration complete (Cloud SQL, secrets, 1Gi memory). 1000 GDELT events ingested successfully. **Blocked:** Processing pipeline requires Pub/Sub push subscription wiring (subscriptions → Cloud Run endpoints) and Cloud Tasks queue creation before validation can proceed.
@@ -306,4 +307,4 @@ GCP infrastructure deployed with runtime configuration complete (Cloud SQL, secr
 | 24. BigQuery Public Datasets | v1.3 | 3/3 | Complete | 2026-01-10 |
 | 25. Update System to Follow Platform Design | v1.3 | 2/2 | Complete | 2026-01-10 |
 | 26. GKG Theme Population, Entity Relationship Graphs, Event Lineage Tracking | v1.3 | 4/4 | Complete | 2026-01-10 |
-| 27. Small-Scale End-to-End Pipeline Test in GCP | v1.3 | 3/3 | Blocked | - |
+| 27. Small-Scale End-to-End Pipeline Test in GCP | v1.3 | 3/4 | Blocked | - |
