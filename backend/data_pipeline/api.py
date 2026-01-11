@@ -11,11 +11,8 @@ from django.http import HttpRequest, JsonResponse
 from django.utils import timezone
 from django.db.models import Count
 
-from data_pipeline.tasks.gdelt_sync_task import sync_gdelt_events
-from data_pipeline.tasks.reliefweb_tasks import ingest_reliefweb_updates
-from data_pipeline.tasks.fred_tasks import ingest_fred_series
-from data_pipeline.tasks.comtrade_tasks import ingest_comtrade_trade_data
-from data_pipeline.tasks.worldbank_tasks import ingest_worldbank_indicators
+# NOTE: Celery task imports removed - Cloud Functions replaced Celery in Phase 18
+# Task trigger endpoints below are deprecated but kept for backward compatibility
 from data_pipeline.schemas import (
     RiskIntelligenceEventSchema,
     EventFilterParams,
@@ -61,8 +58,12 @@ class TaskTriggerResponse(Schema):
     message: Optional[str] = None
 
 
-@router.post("/trigger/gdelt", response=TaskTriggerResponse)
-def trigger_gdelt_ingestion(request: HttpRequest, payload: GDELTTriggerRequest):
+# DEPRECATED: Celery-based trigger endpoints removed in Phase 18
+# Cloud Scheduler now calls Cloud Functions directly (not these Django endpoints)
+# Endpoints commented out to prevent Celery import errors
+
+# @router.post("/trigger/gdelt", response=TaskTriggerResponse)
+def trigger_gdelt_ingestion_DEPRECATED(request: HttpRequest, payload: GDELTTriggerRequest):
     """
     Trigger GDELT ingestion task.
 
@@ -95,8 +96,8 @@ def trigger_gdelt_ingestion(request: HttpRequest, payload: GDELTTriggerRequest):
         )
 
 
-@router.post("/trigger/reliefweb", response=TaskTriggerResponse)
-def trigger_reliefweb_ingestion(request: HttpRequest, payload: ReliefWebTriggerRequest):
+# @router.post("/trigger/reliefweb", response=TaskTriggerResponse)
+def trigger_reliefweb_ingestion_DEPRECATED(request: HttpRequest, payload: ReliefWebTriggerRequest):
     """
     Trigger ReliefWeb ingestion task.
 
@@ -129,8 +130,8 @@ def trigger_reliefweb_ingestion(request: HttpRequest, payload: ReliefWebTriggerR
         )
 
 
-@router.post("/trigger/fred", response=TaskTriggerResponse)
-def trigger_fred_ingestion(request: HttpRequest, payload: FREDTriggerRequest):
+# @router.post("/trigger/fred", response=TaskTriggerResponse)
+def trigger_fred_ingestion_DEPRECATED(request: HttpRequest, payload: FREDTriggerRequest):
     """
     Trigger FRED economic series ingestion task.
 
@@ -163,8 +164,8 @@ def trigger_fred_ingestion(request: HttpRequest, payload: FREDTriggerRequest):
         )
 
 
-@router.post("/trigger/comtrade", response=TaskTriggerResponse)
-def trigger_comtrade_ingestion(request: HttpRequest, payload: ComtradeTriggerRequest):
+# @router.post("/trigger/comtrade", response=TaskTriggerResponse)
+def trigger_comtrade_ingestion_DEPRECATED(request: HttpRequest, payload: ComtradeTriggerRequest):
     """
     Trigger UN Comtrade trade data ingestion task.
 
@@ -197,8 +198,8 @@ def trigger_comtrade_ingestion(request: HttpRequest, payload: ComtradeTriggerReq
         )
 
 
-@router.post("/trigger/worldbank", response=TaskTriggerResponse)
-def trigger_worldbank_ingestion(request: HttpRequest, payload: WorldBankTriggerRequest):
+# @router.post("/trigger/worldbank", response=TaskTriggerResponse)
+def trigger_worldbank_ingestion_DEPRECATED(request: HttpRequest, payload: WorldBankTriggerRequest):
     """
     Trigger World Bank development indicators ingestion task.
 
